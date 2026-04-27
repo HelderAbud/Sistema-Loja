@@ -112,6 +112,8 @@ sequenceDiagram
 
 **Requisitos:** Java 21, Maven 3.9+, Node 20+, PostgreSQL 16+ (ou só Docker).
 
+Na raiz existe **Maven Wrapper** (`mvnw` / `mvnw.cmd`): podes usar `.\mvnw.cmd` em Windows ou `./mvnw` no Git Bash/Linux no lugar de `mvn` (mesma versão para toda a gente/CI).
+
 ```bash
 docker compose up -d db
 mvn -q -DskipTests package
@@ -154,6 +156,7 @@ cd frontend && npm run e2e
 | Caminho | Objetivo |
 |--------|----------|
 | `scripts/verify-api-env.ps1` / `scripts/verify-api-env.sh` | Verifica variáveis e pré-requisitos da API antes de subir/deploy |
+| `scripts/setup-pilotos-xml-folders.ps1` | Cria em disco a pasta local de XMLs de piloto (fora do Git); ver `docs/lojapp/02-pilotos-e-xmls.md` |
 | `scripts/import-nfe-folder.sh` | Importa lote de XML de NFe para ambiente de teste |
 | `scripts/run-nfe-integration-tests.sh` | Executa a bateria de testes de integração NFe |
 | `scripts/git-untrack-frontend-artifacts.ps1` | Remove artefatos (`target`, `dist`, `node_modules`) do índice Git |
@@ -227,6 +230,10 @@ Confirme com `git status` que só entram ficheiros de código. O histórico anti
 - `@PreAuthorize` por `app_role`; utilizador admin multi-loja.
 - Soft delete em produtos; cache (Caffeine) em leituras quentes.
 - Export CSV/PDF do dashboard; integração fiscal adicional.
+
+## Licença
+
+Este projeto está disponível sob a licença MIT — ver [`LICENSE`](LICENSE).
 
 ## Origem
 
