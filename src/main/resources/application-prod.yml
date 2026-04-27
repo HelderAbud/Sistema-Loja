@@ -1,0 +1,39 @@
+# Perfil produção: documentação OpenAPI/Swagger desligada (ver SecurityConfig).
+# Segredo JWT: validado em ProductionSecurityConfig (não usar placeholder de dev).
+# Actuator: apenas health/info expostos por defeito (evita /prometheus público na Internet).
+# Para métricas internas, exponha atrás do proxy/VPC ou defina LOJAPP_MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE.
+
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ${LOJAPP_MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:health,info}
+
+spring:
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+
+lojapp:
+  auth:
+    refresh-cookie-secure: true
+    # Registo: em piloto fechado use LOJAPP_REGISTRATION_ENABLED=false e/ou allowed-domains restrito.
+    # registration.enabled / allowed-domains / max-per-ip-per-hour vêm do ambiente (ver application.yml).
+  security:
+    actuator-metrics-anonymous: false
+    # true apenas quando a app só recebe tráfego do proxy (rede privada / LB) que define X-Forwarded-For.
+    trust-forward-headers: ${LOJAPP_TRUST_FORWARD_HEADERS:false}
+    # Em produção com múltiplas réplicas, preferir redis (ou rate limit no API gateway).
+    rate-limit-mode: ${LOJAPP_RATE_LIMIT_MODE:redis}

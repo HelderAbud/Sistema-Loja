@@ -1,0 +1,5 @@
+# IDs de CVE a ignorar temporariamente (um por linha), só com justificativa no PR.
+# Preferir atualizar a imagem base (JRE Alpine) ou dependências em vez de alargar esta lista.
+#
+# Exemplo (não descomentar sem revisão de segurança):
+# CVE-2024-12345

@@ -1,0 +1,53 @@
+# Dependências e artefactos de build (nunca versionar)
+node_modules/
+dist/
+build/
+target/
+out/
+coverage/
+.nyc_output/
+
+# Ambiente e IDE
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+.cursor/
+*.code-workspace
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Java / Eclipse (legado)
+*.iml
+.classpath
+.project
+.settings/
+.mvn/wrapper/maven-wrapper.jar
+
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Playwright (frontend)
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
+
+# Frontend tool caches
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/.eslintcache
+frontend/.cache/

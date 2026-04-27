@@ -1,0 +1,49 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:lojapp;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  health:
+    redis:
+      enabled: false
+  tracing:
+    enabled: false
+  zipkin:
+    tracing:
+      export:
+        enabled: false
+
+lojapp:
+  idempotency:
+    ttl-hours: 24
+    max-key-length: 128
+  auth:
+    registration:
+      enabled: true
+      allowed-domains:
+      max-per-ip-per-hour: 500
+      invite-secret:
+  security:
+    actuator-metrics-anonymous: false
+  jwt:
+    secret: test-secret-at-least-32-characters-long!!
+    # Alinhado ao default de dev (15 min access); testes podem override por @DynamicPropertySource.
+    expiration-ms: 900000
+    refresh-expiration-ms: 86400000
+  cors:
+    allowed-origins: http://localhost:3000

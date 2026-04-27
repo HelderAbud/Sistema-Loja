@@ -1,0 +1,65 @@
+# Exemplo de regras Prometheus para LojApp API.
+# Copiar para o teu servidor de regras e ajustar:
+#   - labels "job" / "instance" conforme o teu scrape_config
+#   - tag "application" deve coincidir com management.metrics.tags.application (default: lojapp-api)
+#
+# Métricas HTTP (Micrometer): http_server_requests_seconds_*
+
+groups:
+  - name: lojapp-api-availability
+    interval: 30s
+    rules:
+      - alert: LojappHighHttp5xxRate
+        expr: |
+          (
+            sum(rate(http_server_requests_seconds_count{application="lojapp-api",status=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(http_server_requests_seconds_count{application="lojapp-api"}[5m])), 1e-9)
+          ) > 0.02
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "LojApp — taxa HTTP 5xx elevada"
+          description: "Mais de 2% das requisições HTTP registadas como 5xx nos últimos 10 minutos."
+
+      - alert: LojappHighHttp5xxBurst
+        expr: |
+          sum(rate(http_server_requests_seconds_count{application="lojapp-api",status=~"5.."}[5m])) > 5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "LojApp — pico de erros HTTP 5xx"
+          description: "Volume alto de respostas 5xx — verificar logs (jsonlogs), traces e dependências."
+
+  - name: lojapp-api-latency
+    interval: 30s
+    rules:
+      - alert: LojappHttpP99LatencyHigh
+        expr: |
+          histogram_quantile(0.99,
+            sum by (le) (
+              rate(http_server_requests_seconds_bucket{application="lojapp-api"}[10m])
+            )
+          ) > 2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "LojApp — p99 de latência HTTP > 2s"
+          description: "Ajustar limiar por ambiente; considerar filtrar por uri quando a cardinalidade for estável."
+
+  - name: lojapp-business-counters
+    interval: 1m
+    rules:
+      # Opcional: alerta quando NFe duplicadas disparam (pode indicar cliente a repetir import)
+      - alert: LojappNfeDuplicateKeySpike
+        expr: |
+          increase(lojapp_nfe_imports_total{outcome="duplicate_key"}[1h]) > 50
+        for: 0m
+        labels:
+          severity: info
+        annotations:
+          summary: "LojApp — muitas importações NFe recusadas (chave duplicada)"
+          description: "Rever clientes ou integrações a reenviar o mesmo XML."
