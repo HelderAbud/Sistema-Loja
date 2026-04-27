@@ -47,6 +47,27 @@ async function mockAuthApi(page: Page) {
     await route.fulfill({ status: 204 });
   });
 
+  await page.route("**/api/v1/users/me", async (route) => {
+    const method = route.request().method();
+    if (method === "OPTIONS") {
+      await route.fulfill({ status: 204 });
+      return;
+    }
+    if (method !== "GET") {
+      await route.continue();
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        id: "e2e-user-id",
+        email: "piloto-e2e@lojapp.test",
+        appRole: "ADMIN",
+      }),
+    });
+  });
+
   // Endpoints do painel usados após login nos cenários de sessão.
   await page.route("**/api/v1/lojapp/brands", async (route) => {
     const method = route.request().method();
@@ -144,8 +165,9 @@ test("logout volta para login e protege rota privada", async ({ page }) => {
   await page.getByRole("button", { name: /entrar na conta/i }).click();
   await expect(page).toHaveURL(/\/piloto\/products$/);
 
-  await page.getByRole("button", { name: /sair/i }).click();
-  await expect(page).toHaveURL(/\/login$/);
+  const signoutButton = page.getByRole("button", { name: /sair/i });
+  await expect(signoutButton).toBeVisible();
+  await Promise.all([page.waitForURL(/\/login$/), signoutButton.click()]);
 
   await page.goto("/piloto/dashboard");
   await expect(page).toHaveURL(/\/login$/);
