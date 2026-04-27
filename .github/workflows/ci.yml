@@ -61,7 +61,7 @@ jobs:
         run: docker build -t lojapp:ci .
       # CRITICAL + HIGH com fix disponível; CVEs sem patch (só “unfixed”) não bloqueiam o merge.
       - name: Trivy — imagem
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: lojapp:ci
           vuln-type: os,library
