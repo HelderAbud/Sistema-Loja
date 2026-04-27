@@ -1,0 +1,2 @@
+ALTER TABLE nfe_entries
+    ADD COLUMN IF NOT EXISTS raw_xml_key VARCHAR(512);

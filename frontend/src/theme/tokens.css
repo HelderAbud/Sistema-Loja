@@ -1,0 +1,50 @@
+/**
+ * Tokens de design LojApp — importar antes de `App.css` (ver `main.tsx`).
+ * Cores, raio, sombras e escala de espaçamento: ponto único para evoluir o tema.
+ */
+:root {
+  font-family: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.5;
+  color: #0c1222;
+  background: #e8edf5;
+
+  /* Escala de espaçamento */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.75rem;
+
+  /* Superfícies */
+  --card: #fff;
+  --border: #e2e8f0;
+  --border-strong: #c8d2e0;
+  --surface-glass: rgb(255 255 255 / 78%);
+  --surface-elevated: rgb(255 255 255 / 92%);
+
+  /* Ações / marca */
+  --primary: #1547d6;
+  --primary-hover: #1239b8;
+  --primary-soft: rgb(21 71 214 / 9%);
+  --accent-teal: #0d9488;
+
+  /* Texto secundário e erro */
+  --muted: #5c6b82;
+  --error: #b91c1c;
+
+  /* Gráficos (dashboard) */
+  --chart-blue: #2563eb;
+  --chart-green: #059669;
+  --chart-grid: #e4eaf2;
+
+  --shadow-premium:
+    0 1px 0 rgb(255 255 255 / 88%) inset, 0 22px 50px rgb(12 18 34 / 7%),
+    0 4px 14px rgb(12 18 34 / 5%);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+
+  /* Shimmer de skeletons (alinhado a --border) */
+  --skeleton-base: #f1f5f9;
+  --skeleton-mid: #e2e8f0;
+}

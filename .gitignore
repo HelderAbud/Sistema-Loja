@@ -1,0 +1,73 @@
+# Dependências e artefactos de build (nunca versionar)
+node_modules/
+dist/
+build/
+target/
+out/
+coverage/
+.nyc_output/
+
+# Ambiente e IDE
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+.cursor/
+*.code-workspace
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+backup.sql
+backups/
+*.bak
+*.tmp
+*.orig
+
+# Java / Eclipse (legado)
+*.iml
+.classpath
+.project
+.settings/
+# Maven Wrapper: este repo usa wrapper "only-script" (sem jar). Se regenerares com jar
+# versionado, certifica-te de que o .jar NÃO está ignorado e é commitado.
+
+# JVM / crashes e coverage local
+hs_err_pid*.log
+replay_pid*.log
+jacoco.exec
+
+# Chaves e certificados (não versionar acidentalmente)
+*.pem
+*.p12
+*.jks
+# exceção: se precisares de um cert público de teste versionado, usa pasta dedicada e ! negado
+
+# direnv
+.envrc
+
+*.swp
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Playwright (frontend)
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
+
+# Frontend tool caches
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/.eslintcache
+frontend/.cache/

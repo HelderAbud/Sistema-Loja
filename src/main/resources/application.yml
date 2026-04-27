@@ -1,0 +1,143 @@
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSS} %5p [%15.15t] [rid=%X{requestId:-} uid=%X{userId:-} trace=%X{traceId:-} span=%X{spanId:-}] %-40.40logger{39} : %m%n%wEx"
+
+info:
+  app:
+    name: LojApp Pro
+    description: NFe, stock, vendas e dashboard por marca
+
+spring:
+  application:
+    name: lojapp-api
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lojapp}
+    username: ${SPRING_DATASOURCE_USERNAME:lojapp}
+    # Apenas desenvolvimento local sem Docker; em produção e em compose use variável explícita (ver `.env.example`).
+    password: ${SPRING_DATASOURCE_PASSWORD:lojapp_local_dev_only}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+  tomcat:
+    max-http-post-size: 15MB
+  error:
+    include-message: always
+    include-binding-errors: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      slo:
+        http.server.requests: 100ms,250ms,500ms,1s,2s
+  # Micrometer + Brave: trace/span no MDC (traceId, spanId) e cabeçalho W3C traceparent nas respostas HTTP.
+  # Export Zipkin opcional (desligado por omissão para não depender de colector em dev).
+  tracing:
+    enabled: ${LOJAPP_TRACING_ENABLED:false}
+    sampling:
+      probability: ${LOJAPP_TRACING_SAMPLE_PROBABILITY:0.1}
+  zipkin:
+    tracing:
+      endpoint: ${LOJAPP_ZIPKIN_ENDPOINT:http://127.0.0.1:9411/api/v2/spans}
+      export:
+        enabled: ${LOJAPP_ZIPKIN_EXPORT_ENABLED:false}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+lojapp:
+  idempotency:
+    ttl-hours: ${LOJAPP_IDEMPOTENCY_TTL_HOURS:24}
+    max-key-length: ${LOJAPP_IDEMPOTENCY_MAX_KEY_LENGTH:128}
+    # Limpeza global de linhas expiradas (além da remoção lazy ao reutilizar chave).
+    cleanup-cron: ${LOJAPP_IDEMPOTENCY_CLEANUP_CRON:0 30 3 * * *}
+  auth:
+    refresh-cookie-name: lojapp_rt
+    refresh-cookie-path: /api/v1/auth
+    # Em produção definir true (HTTPS). Em http://localhost manter false.
+    refresh-cookie-secure: false
+    registration:
+      # Default seguro: registo público fechado. Para desenvolvimento local, definir LOJAPP_REGISTRATION_ENABLED=true.
+      enabled: ${LOJAPP_REGISTRATION_ENABLED:false}
+      # Domínios permitidos após @, CSV (ex: empresa.pt,minha-loja.com). Vazio = qualquer domínio.
+      allowed-domains: ${LOJAPP_REGISTRATION_ALLOWED_DOMAINS:}
+      # Limite por IP/hora só em POST /register (login/refresh têm outro limite por minuto).
+      max-per-ip-per-hour: ${LOJAPP_REGISTRATION_MAX_PER_IP_PER_HOUR:10}
+      # Se não vazio, o body de /register deve incluir inviteToken com o mesmo valor (mitigação a CAPTCHA).
+      invite-secret: ${LOJAPP_REGISTRATION_INVITE_SECRET:}
+  # Default seguro: métricas anónimas desativadas. Para DEV local sem JWT, definir LOJAPP_ACTUATOR_METRICS_ANONYMOUS=true.
+  security:
+    actuator-metrics-anonymous: ${LOJAPP_ACTUATOR_METRICS_ANONYMOUS:false}
+    # Só true atrás de reverse proxy que sanitiza X-Forwarded-For (nginx, Traefik, cloud LB).
+    trust-forward-headers: ${LOJAPP_TRUST_FORWARD_HEADERS:false}
+    # memory = por instância (default). redis = partilhado entre réplicas (exige Redis).
+    rate-limit-mode: ${LOJAPP_RATE_LIMIT_MODE:memory}
+  dashboard:
+    max-range-days: ${LOJAPP_DASHBOARD_MAX_RANGE_DAYS:366}
+  nfe:
+    storage:
+      # backend: database (default) ou s3 (S3/MinIO).
+      backend: ${LOJAPP_NFE_STORAGE_BACKEND:database}
+      s3:
+        # Deixe vazio para AWS S3 real (SDK escolhe endpoint e credenciais por IAM role/env/profile).
+        endpoint: ${LOJAPP_NFE_STORAGE_S3_ENDPOINT:}
+        region: ${LOJAPP_NFE_STORAGE_S3_REGION:us-east-1}
+        # Para MinIO/local, preencher access-key e secret-key; vazios => DefaultCredentialsProvider.
+        access-key: ${LOJAPP_NFE_STORAGE_S3_ACCESS_KEY:}
+        secret-key: ${LOJAPP_NFE_STORAGE_S3_SECRET_KEY:}
+        bucket: ${LOJAPP_NFE_STORAGE_S3_BUCKET:lojapp-nfe-xml}
+        key-prefix: ${LOJAPP_NFE_STORAGE_S3_KEY_PREFIX:nfe}
+    import:
+      max-xml-chars: ${LOJAPP_NFE_IMPORT_MAX_XML_CHARS:12000000}
+      max-items: ${LOJAPP_NFE_IMPORT_MAX_ITEMS:1000}
+      # Dias para manter o XML bruto da NFe; depois disso fica null e mantém apenas metadados.
+      raw-xml-retention-days: ${LOJAPP_NFE_IMPORT_RAW_XML_RETENTION_DAYS:30}
+      # Execução diária da limpeza de retenção (02:15 UTC por omissão).
+      raw-xml-retention-cron: ${LOJAPP_NFE_IMPORT_RAW_XML_RETENTION_CRON:0 15 2 * * *}
+  jwt:
+    secret: ${LOJAPP_JWT_SECRET}
+    # Access JWT curto (15 min). A SPA renova com POST /api/v1/auth/refresh (cookie HttpOnly).
+    # Override: LOJAPP_JWT_EXPIRATION_MS (ms). Valores muito altos aumentam janela se o token vazar.
+    expiration-ms: ${LOJAPP_JWT_EXPIRATION_MS:900000}
+    # Refresh em DB + cookie; override: LOJAPP_JWT_REFRESH_EXPIRATION_MS (ms). Default ~14 dias.
+    refresh-expiration-ms: ${LOJAPP_JWT_REFRESH_EXPIRATION_MS:1209600000}
+  cors:
+    allowed-origins: ${LOJAPP_CORS_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/lojapp}
+    username: ${SPRING_DATASOURCE_USERNAME:lojapp}
+    password: ${SPRING_DATASOURCE_PASSWORD:lojapp_local_dev_only}
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
