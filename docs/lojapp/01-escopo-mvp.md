@@ -1,5 +1,7 @@
 # Escopo Fechado do MVP LojApp Pro
 
+> Estado: **legado/histórico**. Para a fonte técnica oficial atual, usar `28-indice-tecnico-unificado.md`.
+
 ## Objetivo
 Publicar um MVP vendavel com os modulos:
 - Importacao de NFe (XML) com entrada automatica de estoque
@@ -37,7 +39,7 @@ Publicar um MVP vendavel com os modulos:
 
 ## Criterios de aceite (validacao com lojas piloto)
 
-Marcar **[x]** apenas com evidencia (teste manual, registo no plano `.cursor/plans/piloto-mvp-rastreio.md`, ou decisao de produto). O backend cobre os fluxos; falta confirmar uso real.
+Marcar **[x]** apenas com evidencia (teste manual, registo em `03-implantacao-pilotos.md` / `02-pilotos-e-xmls.md`, ou decisao de produto documentada no PR). O backend cobre os fluxos; falta confirmar uso real.
 
 - [x] Importacao de XML gera produtos/estoque sem digitacao manual extensa
 - [x] Usuario consegue cadastrar marca e associar produto
@@ -49,7 +51,7 @@ Marcar **[x]** apenas com evidencia (teste manual, registo no plano `.cursor/pla
 
 Usar esta checklist antes de declarar o MVP pronto:
 
-- [x] Smoke test A-F concluido em 3 lojas (contas diferentes), com evidencias no `.cursor/plans/piloto-mvp-rastreio.md`
+- [x] Smoke test A-F concluido em 3 lojas (contas diferentes), com evidencias em `03-implantacao-pilotos.md` ou no PR com lista por loja
 - [ ] Deploy em perfil `prod` validado (`SPRING_PROFILES_ACTIVE=prod`, segredos obrigatorios presentes, Swagger desligado)
 - [x] `mvn test` verde no projeto
 - [x] Sem bug bloqueante aberto para fluxo principal (NFe -> stock -> venda -> dashboard)
@@ -57,7 +59,7 @@ Usar esta checklist antes de declarar o MVP pronto:
 
 ### Evidencia (2026-04-24)
 
-- Smoke automatizado 3/3 concluido (lojas `piloto1`, `piloto2`, `piloto3`) com registo em `.cursor/plans/piloto-mvp-rastreio.md`.
+- Smoke automatizado 3/3 concluido (lojas `piloto1`, `piloto2`, `piloto3`) com registo em PR/issue ou `03-implantacao-pilotos.md`.
 - Fluxos validados por loja: auth, marcas (`Ogochi`, `Hering`, `Malwee`), produto, importacao NFe, duplicidade 409, low-stock, ajuste, venda e dashboard.
 - Suite de testes `mvn test` executada com sucesso no repositorio.
 

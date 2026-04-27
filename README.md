@@ -222,7 +222,7 @@ Confirme com `git status` que só entram ficheiros de código. O histórico anti
 
 - [Escopo MVP](docs/lojapp/01-escopo-mvp.md)
 - [Guia júnior — deploy e próximos passos](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
-- [Plano piloto MVP](.cursor/plans/piloto-mvp-rastreio.md)
+- [Plano piloto / implantação nas lojas](docs/lojapp/03-implantacao-pilotos.md)
 
 ## Próximos passos (ideias)
 

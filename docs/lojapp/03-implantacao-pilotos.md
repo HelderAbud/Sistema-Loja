@@ -1,9 +1,11 @@
 # Implantacao dos Pilotos (Semanas 9-12)
 
+> Estado: **legado/histórico**. Para a fonte técnica oficial atual, usar `28-indice-tecnico-unificado.md`.
+
 ## Plano de rastreio (Cursor)
 
-Checklist vivo, smoke test da API e tabela das 3 lojas: **`.cursor/plans/piloto-mvp-rastreio.md`**.  
-Criterios de aceite do produto: **`01-escopo-mvp.md`** (secao piloto + cobertura tecnica).
+Checklist operacional (pastas de XML, piloto a piloto): **`02-pilotos-e-xmls.md`**.  
+Critérios de aceite do produto: **`01-escopo-mvp.md`** (secção piloto + cobertura técnica).
 
 ## Ordem de implantacao
 1. Piloto 1

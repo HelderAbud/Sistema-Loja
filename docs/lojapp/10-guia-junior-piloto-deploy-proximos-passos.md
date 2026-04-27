@@ -11,8 +11,8 @@ Para quem já domina o ambiente: Partes 1 → 2 (contratos) → 5 (piloto) conti
 | Ficheiro | Função |
 |----------|--------|
 | `01-escopo-mvp.md` | Critérios oficiais de aceite do MVP |
-| `03-implantacao-pilotos.md` | Roteiro por semanas e feedback |
-| `.cursor/plans/piloto-mvp-rastreio.md` | Exemplos JSON e tabela das 3 lojas piloto |
+| `03-implantacao-pilotos.md` | Roteiro piloto por semanas, evidências das lojas e feedback |
+| `02-pilotos-e-xmls.md` | XML real/piloto e registos por loja |
 
 ---
 
@@ -486,7 +486,7 @@ Depois: **Pull Request** → revisão → merge na branch alvo (`develop` / `mai
 - [ ] Projeto **Loja Sistema** na máquina; **Java 21** e **Maven** (ver `README.md`).
 - [ ] Sabes abrir linha de comandos na **raiz** do projeto e em `frontend/`.
 - [ ] **Docker** com Postgres: `docker compose up -d db` na raiz (recomendado).
-- [ ] (2 minutos) Lê `.cursor/plans/piloto-mvp-rastreio.md` — secção “Como fazer — passo a passo” para ver exemplos JSON.
+- [ ] (2 minutos) Lê `03-implantacao-pilotos.md` — secção “Como fazer — passo a passo” para ver exemplos JSON.
 
 **Porquê:** sem estas bases, perdes tempo com versão Java errada, base de dados desligada ou JWT em falta.
 
@@ -750,7 +750,7 @@ Faz **na ordem**. Email **novo** por loja (`piloto1@...`, `piloto2@...`, `piloto
 
 ### Parte F — Fechar esta loja
 
-- [ ] Uma linha em `.cursor/plans/piloto-mvp-rastreio.md` (email, data, smoke OK).
+- [ ] Uma linha em `03-implantacao-pilotos.md` (email, data, smoke OK).
 - [ ] Se falhou: nota curta (passo + mensagem de erro).
 
 ### Checklist 3 — Três lojas
@@ -821,10 +821,10 @@ Esta secção transforma o estado atual num **plano executável**: primeiro gara
 
 - [x] Criar 3 contas (`piloto1`, `piloto2`, `piloto3`).
 - [x] Rodar o fluxo da **Parte 5 (A até F)** para cada loja.
-- [x] Preencher `.cursor/plans/piloto-mvp-rastreio.md` com data, conta e resultado.
+- [x] Preencher `03-implantacao-pilotos.md` com data, conta e resultado.
 - [x] Confirmar isolamento de dados entre lojas.
 
-**Evidência (2026-04-24):** contas e fluxo registados em `.cursor/plans/piloto-mvp-rastreio.md` («Contas piloto com smoke OK»); critérios alinhados em `docs/lojapp/01-escopo-mvp.md`.
+**Evidência (2026-04-24):** contas e fluxo registados em `03-implantacao-pilotos.md` («Contas piloto com smoke OK»); critérios alinhados em `docs/lojapp/01-escopo-mvp.md`.
 
 **Explicação:** sem esse ciclo 3x com evidência, o MVP ainda não está validado no mundo real.
 
@@ -942,9 +942,9 @@ Marca como concluído apenas com evidência:
 
 - [x] `mvn test` verde (incluindo testes novos de integração NFe namespaced; integração Testcontainers só corre com Docker).
 - [ ] Ambiente `prod` sobe com variáveis obrigatórias e sem Swagger público — fechar após **Passo 3** acima e marcar em `01-escopo-mvp.md` → *Deploy em perfil prod validado*.
-- [x] Smoke test A–F aprovado nas 3 lojas (evidência em `piloto-mvp-rastreio.md`, 2026-04-24).
+- [x] Smoke test A–F aprovado nas 3 lojas (evidência em `03-implantacao-pilotos.md`, 2026-04-24).
 - [x] `01-escopo-mvp.md` atualizado com critérios de aceite marcados por evidência.
-- [x] Backlog pós-piloto separado em «corrigir agora» vs «evolução» em `.cursor/plans/piloto-mvp-rastreio.md` (secção **Backlog pós-piloto**, 2026-04-24).
+- [x] Backlog pós-piloto separado em «corrigir agora» vs «evolução» em `29-resumo-executivo-status-riscos-proximos-passos.md` (evidência histórica 2026-04-24).
 
 ---
 
@@ -953,10 +953,10 @@ Marca como concluído apenas com evidência:
 | Ficheiro | Para quê |
 |----------|----------|
 | `10-guia-junior-piloto-deploy-proximos-passos.md` (este) | Roteiro júnior (Parte 3: ferramentas → Docker → API → front → integração), fluxos API, piloto, deploy, Flyway V1+, roadmap |
-| `.cursor/plans/piloto-mvp-rastreio.md` | JSON, tabela 3 lojas, backlog «corrigir agora» / «evolução» |
 | `01-escopo-mvp.md` | Critérios oficiais |
 | `02-pilotos-e-xmls.md` | XMLs de teste / piloto |
-| `03-implantacao-pilotos.md` | Implantação e feedback |
+| `03-implantacao-pilotos.md` | Implantação por loja, evidências smoke e feedback |
+| `29-resumo-executivo-status-riscos-proximos-passos.md` | Backlog «corrigir agora» vs «evolução», riscos e próximos passos |
 | Swagger UI | Contrato vivo da API |
 
 ---
