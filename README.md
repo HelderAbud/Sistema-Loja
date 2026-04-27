@@ -159,7 +159,7 @@ cd frontend && npm run e2e
 | `scripts/setup-pilotos-xml-folders.ps1` | Cria em disco a pasta local de XMLs de piloto (fora do Git); ver `docs/lojapp/02-pilotos-e-xmls.md` |
 | `scripts/import-nfe-folder.sh` | Importa lote de XML de NFe para ambiente de teste |
 | `scripts/run-nfe-integration-tests.sh` | Executa a bateria de testes de integração NFe |
-| `scripts/git-untrack-frontend-artifacts.ps1` | Remove artefatos (`target`, `dist`, `node_modules`) do índice Git |
+| `scripts/git-untrack-frontend-artifacts.ps1` | Remove artefatos (`target`, `dist`, `node_modules`, `build`) do índice Git; commit só se necessário; `-NoPush` opcional |
 
 ## Deploy (sugestão)
 
@@ -191,15 +191,19 @@ O [`.gitignore`](.gitignore) já exclui dependências e artefactos. Se **já for
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.ps1
+# opcional: sem push
+powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.ps1 -NoPush
 ```
 
-O script faz `git rm -r --cached` em `frontend/node_modules`, `frontend/dist`, `target` e `build`, commit com a mensagem `remove arquivos desnecessários` e `git push`.
+O script faz `git rm -r --cached` em `frontend/node_modules`, `frontend/dist`, `target` e `build`. **Só cria commit** se algum desses paths estiver no índice; a mensagem é `chore: remove tracked build artifacts from git index`. Por omissão faz `git push`; para só preparar o commit localmente: `-NoPush` no fim do comando.
 
 **Manual — Bash (macOS/Linux/Git Bash):**
 
 ```bash
 git rm -r --cached frontend/node_modules frontend/dist target build 2>/dev/null || true
-git commit -m "remove arquivos desnecessários"
+if ! git diff --cached --quiet; then
+  git commit -m "chore: remove tracked build artifacts from git index"
+fi
 git push
 ```
 
@@ -210,7 +214,7 @@ git rm -r --cached frontend/node_modules 2>$null
 git rm -r --cached frontend/dist 2>$null
 git rm -r --cached target 2>$null
 git rm -r --cached build 2>$null
-git commit -m "remove arquivos desnecessários"
+git diff --cached --quiet; if ($LASTEXITCODE -ne 0) { git commit -m "chore: remove tracked build artifacts from git index" }
 git push
 ```
 

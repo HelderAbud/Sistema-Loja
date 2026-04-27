@@ -1,8 +1,16 @@
 # Remove frontend/node_modules, frontend/dist (e artefactos Java comuns) do índice Git
 # sem apagar ficheiros no disco.
 #
-# Uso:  powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.ps1
-# Pode executar a partir de qualquer pasta; o script muda para a raiz do repositório (pai de /scripts).
+# Uso (na raiz do repo ou em qualquer pasta — o script resolve a raiz):
+#   powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.ps1
+# Só commit + push se houver algo a retirar do índice:
+#   (por omissão faz push após commit)
+# Sem enviar para o remoto (rever antes):
+#   powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.ps1 -NoPush
+
+param(
+    [switch]$NoPush
+)
 
 $ErrorActionPreference = "Continue"
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
@@ -14,17 +22,27 @@ if (-not (Test-Path -LiteralPath ".git")) {
     exit 1
 }
 
-Write-Host "A remover do índice (cached)..." -ForegroundColor Cyan
+Write-Host "A remover do índice (cached), se existirem paths tracked..." -ForegroundColor Cyan
 git rm -r --cached frontend/node_modules 2>$null
 git rm -r --cached frontend/dist 2>$null
 git rm -r --cached target 2>$null
 git rm -r --cached build 2>$null
 
-git add .gitignore 2>$null
-git commit -m "remove arquivos desnecessários"
+git diff --cached --quiet 2>$null
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "OK: nada estava versionado nessas pastas (ou já tinha sido retirado). Nenhum commit necessário." -ForegroundColor Green
+    exit 0
+}
+
+git commit -m "chore: remove tracked build artifacts from git index"
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Commit falhou (nada a commitar ou erro). Verifique: git status" -ForegroundColor Yellow
+    Write-Host "Commit falhou. Verifique: git status" -ForegroundColor Yellow
     exit $LASTEXITCODE
+}
+
+if ($NoPush) {
+    Write-Host "Commit criado localmente. Executa quando quiseres: git push" -ForegroundColor Yellow
+    exit 0
 }
 
 Write-Host "A enviar para o remoto..." -ForegroundColor Cyan
