@@ -33,7 +33,7 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Run backend unit tests
-        run: ./mvnw -B -Pci-unit-tests test
+        run: chmod +x mvnw && ./mvnw -B -Pci-unit-tests test
 
   backend-integration:
     needs: [repo-hygiene]
@@ -46,7 +46,7 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Run backend integration tests (Docker/Testcontainers)
-        run: ./mvnw -B -Pci-integration-tests test
+        run: chmod +x mvnw && ./mvnw -B -Pci-integration-tests test
 
   frontend:
     needs: [repo-hygiene]
