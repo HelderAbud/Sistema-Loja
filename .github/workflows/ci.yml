@@ -9,7 +9,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  repo-hygiene:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block committed local artifacts
+        run: |
+          forbidden_regex='(^|/)node_modules/|(^|/)backup\.sql$|(^|/)frontend/playwright-report/|(^|/)frontend/test-results/'
+          if git ls-files | grep -E "$forbidden_regex" >/dev/null; then
+            echo "Erro: arquivos/pastas locais não devem ser versionados (node_modules, backup.sql, reports de teste)."
+            echo "Remova do git e mantenha no .gitignore."
+            exit 1
+          fi
+
   backend-unit:
+    needs: [repo-hygiene]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,9 +33,10 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Run backend unit tests
-        run: mvn -B -Pci-unit-tests test
+        run: ./mvnw -B -Pci-unit-tests test
 
   backend-integration:
+    needs: [repo-hygiene]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -31,9 +46,10 @@ jobs:
           java-version: "21"
           cache: maven
       - name: Run backend integration tests (Docker/Testcontainers)
-        run: mvn -B -Pci-integration-tests test
+        run: ./mvnw -B -Pci-integration-tests test
 
   frontend:
+    needs: [repo-hygiene]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,6 +81,21 @@ jobs:
         with:
           image-ref: lojapp:ci
           vuln-type: os,library
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
+
+  security-fs:
+    needs: [repo-hygiene]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy — filesystem (SAST/dependencies/secrets baseline)
+        uses: aquasecurity/trivy-action@v0.33.1
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: vuln,secret,misconfig
           severity: CRITICAL,HIGH
           ignore-unfixed: true
           exit-code: "1"
