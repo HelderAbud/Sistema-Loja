@@ -241,6 +241,6 @@ Este projeto está disponível sob a licença MIT — ver [`LICENSE`](LICENSE).
 
 ## Origem
 
-Código extraído e isolado do monorepo HH Financeiro v6 para este repositório dedicado ao produto LojApp.
+
 
 Repositório GitHub: [HelderAbud/Sistema-Loja](https://github.com/HelderAbud/Sistema-Loja).
