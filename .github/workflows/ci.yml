@@ -77,13 +77,16 @@ jobs:
         run: docker build -t lojapp:ci .
       # CRITICAL + HIGH com fix disponível; CVEs sem patch (só “unfixed”) não bloqueiam o merge.
       - name: Trivy — imagem
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          image-ref: lojapp:ci
-          vuln-type: os,library
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: "1"
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.70.0 image \
+            --vuln-type os,library \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --exit-code 1 \
+            --no-progress \
+            lojapp:ci
 
   security-fs:
     needs: [repo-hygiene]
@@ -91,11 +94,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Trivy — filesystem (SAST/dependencies/secrets baseline)
-        uses: aquasecurity/trivy-action@v0.33.1
-        with:
-          scan-type: fs
-          scan-ref: .
-          scanners: vuln,secret,misconfig
-          severity: CRITICAL,HIGH
-          ignore-unfixed: true
-          exit-code: "1"
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/src" \
+            aquasec/trivy:0.70.0 fs \
+            --scanners vuln,secret,misconfig \
+            --severity CRITICAL,HIGH \
+            --ignore-unfixed \
+            --exit-code 1 \
+            --no-progress \
+            /src
