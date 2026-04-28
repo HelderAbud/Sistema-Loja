@@ -44,8 +44,13 @@ $nBrands = @($brands).Count
 Write-Host "GET brands OK — $nBrands marca(s)."
 
 try {
-  $products = Invoke-RestMethod -Method Get `
-    -Uri "$base/api/v1/lojapp/products?page=0&size=20&sort=name,asc" -Headers $headers
+  $productsUriBuilder = [System.UriBuilder]::new("$base/api/v1/lojapp/products")
+  $productsQuery = [System.Web.HttpUtility]::ParseQueryString([string]::Empty)
+  $productsQuery["page"] = "0"
+  $productsQuery["size"] = "20"
+  $productsQuery["sort"] = "name,asc"
+  $productsUriBuilder.Query = $productsQuery.ToString()
+  $products = Invoke-RestMethod -Method Get -Uri $productsUriBuilder.Uri.AbsoluteUri -Headers $headers
 } catch {
   Write-Error "GET products falhou: $_"
 }
