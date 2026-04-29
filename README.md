@@ -39,6 +39,15 @@ Quando os ficheiros existirem, descomente o bloco abaixo no README (ou substitua
 
 Guia rápido: [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
+### GIF curto do fluxo principal
+
+Além dos screenshots, inclua um GIF curto (`10-20s`) em `docs/screenshots/07-fluxo-principal.gif` com o fluxo:
+`login -> dashboard -> venda/estoque -> importação XML`.
+
+```md
+![Fluxo principal](docs/screenshots/07-fluxo-principal.gif)
+```
+
 ---
 
 ## Stack
@@ -227,6 +236,13 @@ Confirme com `git status` que só entram ficheiros de código. O histórico anti
 - [Escopo MVP](docs/lojapp/01-escopo-mvp.md)
 - [Guia júnior — deploy e próximos passos](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
 - [Plano piloto / implantação nas lojas](docs/lojapp/03-implantacao-pilotos.md)
+
+## Resultados alcançados (MVP)
+
+- Fluxo de ponta a ponta validado: registo/login, catálogo, stock, venda e dashboard.
+- Segurança e consistência operacional: JWT com refresh, auditoria por evento e isolamento por `user_id`.
+- Qualidade técnica com gates automatizados: testes unitários, arquitetura (ArchUnit) e integrações com Testcontainers.
+- Evolução de base de dados versionada com Flyway, reduzindo regressão de schema entre ambientes.
 
 ## Próximos passos (ideias)
 

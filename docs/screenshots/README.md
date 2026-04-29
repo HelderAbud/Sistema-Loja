@@ -12,13 +12,23 @@ Coloque aqui **capturas reais** da aplicação (PNG ou WebP). Sem imagens, o Git
 | `04-estoque.png` | Separador **Stock** / inventário |
 | `05-importacao-xml.png` | Importação de NFe (XML) |
 | `06-relatorios.png` | Relatórios: por exemplo tabela de marcas/ABC no dashboard, ou export futuro |
+| `07-fluxo-principal.gif` | GIF curto (`10-20s`) com navegação principal |
 
 ## Como gerar
 
 1. Suba a API (`mvn spring-boot:run` ou Docker) e o frontend (`cd frontend && npm run dev`).
 2. Abra `http://localhost:3000`, faça login e navegue por cada separador.
 3. Capture a janela (Windows: **Win+Shift+S** ou ferramenta do browser).
-4. Guarde com os nomes acima e descomente o bloco de imagens no `README.md` na raiz do repositório.
+4. Grave o GIF com **ScreenToGif**, **ShareX** ou OBS (tempo curto, sem cortes bruscos).
+5. Guarde com os nomes acima e descomente o bloco de imagens no `README.md` na raiz do repositório.
+
+## Roteiro recomendado para o GIF
+
+1. Login com usuário de demonstração.
+2. Dashboard com KPIs carregados.
+3. Abertura de Vendas ou Estoque.
+4. Tela de importação XML (NFe).
+5. Retorno rápido ao dashboard.
 
 ## Limpar índice Git se já commitou `node_modules` ou `dist`
 
