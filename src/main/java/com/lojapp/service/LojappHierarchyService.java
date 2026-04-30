@@ -21,6 +21,7 @@ import com.lojapp.repository.ProductCollectionRepository;
 import com.lojapp.repository.ProductModelRepository;
 import com.lojapp.repository.SupplierRepository;
 import com.lojapp.repository.UserRepository;
+import com.lojapp.service.contract.LojappHierarchyServiceContract;
 import com.lojapp.util.TaxIdNormalizer;
 import java.time.Instant;
 import java.util.List;
@@ -30,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** Fornecedores, coleções e modelos (hierarquia multimarcas). */
 @Service
-public class LojappHierarchyService {
+public class LojappHierarchyService implements LojappHierarchyServiceContract {
 
     private final UserRepository users;
     private final BrandRepository brands;

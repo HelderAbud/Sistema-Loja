@@ -5,7 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,11 +36,21 @@ public class JwtAuthFilter extends OncePerRequestFilter implements Ordered {
             HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith("Bearer ")) {
+        if (header == null || header.isBlank()) {
             chain.doFilter(request, response);
             return;
         }
-        String token = header.substring(7);
+        header = header.trim();
+        // OAuth permite "Bearer" case-insensitive; exige um único espaço após o esquema.
+        if (header.length() < 7 || !header.regionMatches(true, 0, "Bearer ", 0, 7)) {
+            chain.doFilter(request, response);
+            return;
+        }
+        String token = header.substring(7).trim();
+        if (token.isEmpty()) {
+            chain.doFilter(request, response);
+            return;
+        }
         jwtService
                 .parseAccessToken(token)
                 .ifPresentOrElse(
@@ -49,9 +59,9 @@ public class JwtAuthFilter extends OncePerRequestFilter implements Ordered {
                                     new UsernamePasswordAuthenticationToken(
                                             jwtUser,
                                             null,
-                                            List.of(
-                                                    new SimpleGrantedAuthority(
-                                                            jwtUser.authority())));
+                                            jwtUser.authorities().stream()
+                                                    .map(SimpleGrantedAuthority::new)
+                                                    .collect(Collectors.toSet()));
                             auth.setDetails(
                                     new WebAuthenticationDetailsSource().buildDetails(request));
                             SecurityContextHolder.getContext().setAuthentication(auth);

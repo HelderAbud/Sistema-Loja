@@ -191,6 +191,10 @@
                             <includes>
                                 <include>**/*IntegrationTest.java</include>
                             </includes>
+                            <systemPropertyVariables>
+                                <spring.flyway.enabled>true</spring.flyway.enabled>
+                                <spring.jpa.hibernate.ddl-auto>validate</spring.jpa.hibernate.ddl-auto>
+                            </systemPropertyVariables>
                         </configuration>
                     </plugin>
                 </plugins>

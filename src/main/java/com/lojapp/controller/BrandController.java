@@ -3,7 +3,7 @@ package com.lojapp.controller;
 import com.lojapp.dto.brand.BrandRequest;
 import com.lojapp.dto.brand.BrandResponse;
 import com.lojapp.security.JwtUser;
-import com.lojapp.service.LojappCatalogService;
+import com.lojapp.service.contract.LojappCatalogServiceContract;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,9 +32,9 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
 public class BrandController {
 
-    private final LojappCatalogService catalog;
+    private final LojappCatalogServiceContract catalog;
 
-    public BrandController(LojappCatalogService catalog) {
+    public BrandController(LojappCatalogServiceContract catalog) {
         this.catalog = catalog;
     }
 

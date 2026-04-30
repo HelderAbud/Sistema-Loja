@@ -64,6 +64,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
+                // Sem isto, o Boot pode expor Basic Auth + utilizador gerado; o login JWT fica à sombra.
+                .httpBasic(b -> b.disable())
+                .formLogin(f -> f.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(

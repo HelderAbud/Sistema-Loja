@@ -9,21 +9,22 @@ import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.dashboard.ProductAbcRowResponse;
 import com.lojapp.exception.domain.LojappDomainException;
 import com.lojapp.repository.SaleRepository;
+import com.lojapp.service.contract.DashboardServiceContract;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class DashboardService {
+public class DashboardService implements DashboardServiceContract {
 
     private static final String FALLBACK_BRAND_NAME = "Nao informada";
 
@@ -53,9 +54,16 @@ public class DashboardService {
         if (brandOffset < 0) {
             throw new LojappDomainException(ApiErrorCode.BAD_REQUEST, "brandOffset nao pode ser negativo");
         }
-        List<SaleRepository.BrandKpiAggregateRow> rows = sales.aggregateBrandKpis(userId, from, to);
-        List<BrandKpiResponse> sorted =
+        int pageIndex = brandOffset / brandLimit;
+        int offsetInsidePage = brandOffset % brandLimit;
+        int fetchSize = brandLimit + offsetInsidePage;
+        List<SaleRepository.BrandKpiAggregateRow> rows =
+                sales.aggregateBrandKpisPage(
+                        userId, from, to, PageRequest.of(pageIndex, fetchSize));
+        long total = sales.countBrandKpiGroups(userId, from, to);
+        List<BrandKpiResponse> slice =
                 rows.stream()
+                        .skip(offsetInsidePage)
                         .map(
                                 row ->
                                         toBrandKpi(
@@ -63,18 +71,8 @@ public class DashboardService {
                                                 row.getRevenue(),
                                                 row.getProfit(),
                                                 row.getQuantity()))
-                        .sorted(
-                                Comparator.comparing(BrandKpiResponse::lucro)
-                                        .reversed()
-                                        .thenComparing(
-                                                BrandKpiResponse::faturamento,
-                                                Comparator.reverseOrder()))
                         .collect(Collectors.toList());
-        int total = sorted.size();
-        int fromIdx = Math.min(brandOffset, total);
-        int toIdx = Math.min(fromIdx + brandLimit, total);
-        List<BrandKpiResponse> slice = sorted.subList(fromIdx, toIdx);
-        return new BrandDashboardResponse(from, to, slice, total, brandLimit, brandOffset);
+        return new BrandDashboardResponse(from, to, slice, Math.toIntExact(total), brandLimit, brandOffset);
     }
 
     @Transactional(readOnly = true)

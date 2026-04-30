@@ -3,7 +3,7 @@ package com.lojapp.controller;
 import com.lojapp.dto.supplier.SupplierRequest;
 import com.lojapp.dto.supplier.SupplierResponse;
 import com.lojapp.security.JwtUser;
-import com.lojapp.service.LojappHierarchyService;
+import com.lojapp.service.contract.LojappHierarchyServiceContract;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -26,9 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
 public class SupplierController {
 
-    private final LojappHierarchyService hierarchy;
+    private final LojappHierarchyServiceContract hierarchy;
 
-    public SupplierController(LojappHierarchyService hierarchy) {
+    public SupplierController(LojappHierarchyServiceContract hierarchy) {
         this.hierarchy = hierarchy;
     }
 

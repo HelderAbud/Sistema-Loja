@@ -10,6 +10,10 @@ info:
 spring:
   application:
     name: lojapp-api
+  autoconfigure:
+    exclude:
+      # Evita user/senha gerados em memória (Basic Auth) — autenticação é JWT + /api/v1/auth.
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lojapp}
     username: ${SPRING_DATASOURCE_USERNAME:lojapp}
@@ -27,11 +31,11 @@ spring:
     enabled: true
 
 server:
-  port: 8080
+  port: 8000
   tomcat:
     max-http-post-size: 15MB
   error:
-    include-message: always
+    include-message: never
     include-binding-errors: always
 
 management:
@@ -75,6 +79,11 @@ lojapp:
     max-key-length: ${LOJAPP_IDEMPOTENCY_MAX_KEY_LENGTH:128}
     # Limpeza global de linhas expiradas (além da remoção lazy ao reutilizar chave).
     cleanup-cron: ${LOJAPP_IDEMPOTENCY_CLEANUP_CRON:0 30 3 * * *}
+  audit:
+    # Dias para manter linhas em audit_logs antes da limpeza programada.
+    retention-days: ${LOJAPP_AUDIT_RETENTION_DAYS:180}
+    # Execução diária da limpeza de auditoria.
+    retention-cron: ${LOJAPP_AUDIT_RETENTION_CRON:0 45 3 * * *}
   auth:
     refresh-cookie-name: lojapp_rt
     refresh-cookie-path: /api/v1/auth

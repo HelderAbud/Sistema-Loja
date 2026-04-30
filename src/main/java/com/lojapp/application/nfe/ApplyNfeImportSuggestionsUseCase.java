@@ -1,5 +1,6 @@
 package com.lojapp.application.nfe;
 
+import com.lojapp.application.contract.ApplyNfeImportSuggestionsUseCaseContract;
 import com.lojapp.dto.nfe.NfeApplySuggestionsRequest;
 import com.lojapp.dto.nfe.NfeApplySuggestionsResponse;
 import com.lojapp.entity.Brand;
@@ -26,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  * ligados, sem sobrescrever valores já preenchidos.
  */
 @Service
-public class ApplyNfeImportSuggestionsUseCase {
+public class ApplyNfeImportSuggestionsUseCase implements ApplyNfeImportSuggestionsUseCaseContract {
 
     private final NfeEntryRepository nfeEntries;
     private final NfeItemRepository nfeItems;

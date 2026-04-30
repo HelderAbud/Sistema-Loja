@@ -4,7 +4,7 @@ import com.lojapp.dto.product.ProductPageResponse;
 import com.lojapp.dto.product.ProductRequest;
 import com.lojapp.dto.product.ProductResponse;
 import com.lojapp.security.JwtUser;
-import com.lojapp.service.LojappCatalogService;
+import com.lojapp.service.contract.LojappCatalogServiceContract;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -36,9 +36,9 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
 public class ProductController {
 
-    private final LojappCatalogService catalog;
+    private final LojappCatalogServiceContract catalog;
 
-    public ProductController(LojappCatalogService catalog) {
+    public ProductController(LojappCatalogServiceContract catalog) {
         this.catalog = catalog;
     }
 

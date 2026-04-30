@@ -4,7 +4,7 @@ import com.lojapp.dto.dashboard.BrandDashboardResponse;
 import com.lojapp.dto.dashboard.InventoryKpiResponse;
 import com.lojapp.dto.dashboard.ProductAbcResponse;
 import com.lojapp.security.JwtUser;
-import com.lojapp.service.DashboardService;
+import com.lojapp.service.contract.DashboardServiceContract;
 import com.lojapp.service.contract.InventoryServiceContract;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,10 +29,11 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
 public class DashboardController {
 
-    private final DashboardService dashboard;
+    private final DashboardServiceContract dashboard;
     private final InventoryServiceContract inventory;
 
-    public DashboardController(DashboardService dashboard, InventoryServiceContract inventory) {
+    public DashboardController(
+            DashboardServiceContract dashboard, InventoryServiceContract inventory) {
         this.dashboard = dashboard;
         this.inventory = inventory;
     }

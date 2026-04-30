@@ -1,7 +1,7 @@
 package com.lojapp.controller;
 
-import com.lojapp.application.nfe.ApplyNfeImportSuggestionsUseCase;
-import com.lojapp.application.nfe.ImportNfeUseCase;
+import com.lojapp.application.contract.ApplyNfeImportSuggestionsUseCaseContract;
+import com.lojapp.application.contract.ImportNfeUseCaseContract;
 import com.lojapp.dto.nfe.NfeApplySuggestionsRequest;
 import com.lojapp.dto.nfe.NfeApplySuggestionsResponse;
 import com.lojapp.dto.nfe.NfeImportRequest;
@@ -27,12 +27,12 @@ import org.springframework.web.bind.annotation.RestController;
 @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
 public class NfeController {
 
-    private final ImportNfeUseCase importNfeUseCase;
-    private final ApplyNfeImportSuggestionsUseCase applyNfeImportSuggestionsUseCase;
+    private final ImportNfeUseCaseContract importNfeUseCase;
+    private final ApplyNfeImportSuggestionsUseCaseContract applyNfeImportSuggestionsUseCase;
 
     public NfeController(
-            ImportNfeUseCase importNfeUseCase,
-            ApplyNfeImportSuggestionsUseCase applyNfeImportSuggestionsUseCase) {
+            ImportNfeUseCaseContract importNfeUseCase,
+            ApplyNfeImportSuggestionsUseCaseContract applyNfeImportSuggestionsUseCase) {
         this.importNfeUseCase = importNfeUseCase;
         this.applyNfeImportSuggestionsUseCase = applyNfeImportSuggestionsUseCase;
     }

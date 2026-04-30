@@ -19,6 +19,7 @@ import com.lojapp.repository.ProductModelRepository;
 import com.lojapp.repository.ProductSpecifications;
 import com.lojapp.repository.SupplierRepository;
 import com.lojapp.repository.UserRepository;
+import com.lojapp.service.contract.LojappCatalogServiceContract;
 import com.lojapp.util.EanNormalizer;
 import com.lojapp.util.Pageables;
 import java.time.Instant;
@@ -31,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** Catálogo: marcas e produtos por utilizador (isolamento multi-loja). */
 @Service
-public class LojappCatalogService {
+public class LojappCatalogService implements LojappCatalogServiceContract {
 
     private final BrandRepository brands;
     private final ProductRepository products;

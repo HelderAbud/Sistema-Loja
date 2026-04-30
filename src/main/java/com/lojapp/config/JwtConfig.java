@@ -10,7 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableConfigurationProperties({
     JwtProperties.class,
     AuthRegistrationProperties.class,
-    IdempotencyProperties.class
+    IdempotencyProperties.class,
+    PosProperties.class
 })
 public class JwtConfig {
 

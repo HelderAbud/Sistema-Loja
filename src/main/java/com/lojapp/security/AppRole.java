@@ -6,7 +6,10 @@ public enum AppRole {
     USER,
     ADMIN,
     /** B2B: representante comercial (mesmo acesso operacional base que USER nesta versão). */
-    REPRESENTATIVE;
+    REPRESENTATIVE,
+    CASHIER,
+    SELLER,
+    MANAGER;
 
     public static AppRole fromStoredValue(String rawRole) {
         if (rawRole == null || rawRole.isBlank()) {
@@ -20,6 +23,9 @@ public enum AppRole {
                     "ROLE_REPRESENTATIVE",
                     "LOJA_REPRESENTATIVE",
                     "REP" -> REPRESENTATIVE;
+            case "CASHIER", "ROLE_CASHIER" -> CASHIER;
+            case "SELLER", "ROLE_SELLER" -> SELLER;
+            case "MANAGER", "ROLE_MANAGER" -> MANAGER;
             default -> USER;
         };
     }

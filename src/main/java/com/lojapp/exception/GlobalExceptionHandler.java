@@ -4,6 +4,7 @@ import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.ApiErrorResponse;
 import com.lojapp.exception.domain.LojappDomainException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -107,6 +108,18 @@ public class GlobalExceptionHandler {
      * indica claramente tipo de violação (ex.: FK vs unique relacionado a email).
      */
     static String conflictUserMessage(DataIntegrityViolationException ex) {
+        String sqlState = findSqlState(ex);
+        if ("23503".equals(sqlState)) {
+            return "Referência inválida: o registo depende de outro que não existe ou não pode ser alterado.";
+        }
+        if ("23505".equals(sqlState)) {
+            String constraintHint = causeChainMessage(ex).toLowerCase(Locale.ROOT);
+            if (constraintHint.contains("email")) {
+                return "Já existe um registo com este email (ou outro campo único em conflito).";
+            }
+            return "Não foi possível guardar os dados devido a um conflito na base de dados (unicidade ou referência).";
+        }
+
         String chain = causeChainMessage(ex).toLowerCase(Locale.ROOT);
         if (chain.contains("foreign key") || chain.contains("foreign_key")) {
             return "Referência inválida: o registo depende de outro que não existe ou não pode ser alterado.";
@@ -121,6 +134,18 @@ public class GlobalExceptionHandler {
             return "Já existe um registo com este email (ou outro campo único em conflito).";
         }
         return "Não foi possível guardar os dados devido a um conflito na base de dados (unicidade ou referência).";
+    }
+
+    private static String findSqlState(Throwable t) {
+        Throwable cur = t;
+        int depth = 0;
+        while (cur != null && depth++ < 8) {
+            if (cur instanceof SQLException sqlEx && sqlEx.getSQLState() != null) {
+                return sqlEx.getSQLState();
+            }
+            cur = cur.getCause();
+        }
+        return null;
     }
 
     private static String causeChainMessage(Throwable t) {

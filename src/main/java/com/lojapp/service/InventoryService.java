@@ -19,7 +19,8 @@ import com.lojapp.repository.InventoryBalanceRepository;
 import com.lojapp.repository.InventoryMovementRepository;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.UserRepository;
-import com.lojapp.application.inventory.AdjustInventoryUseCase;
+import com.lojapp.application.idempotency.ApiIdempotencyService;
+import com.lojapp.application.idempotency.RequestFingerprint;
 import com.lojapp.service.contract.InventoryServiceContract;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -30,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,7 +49,7 @@ public class InventoryService implements InventoryServiceContract {
     private final InventoryMovementRepository inventoryMovements;
     private final InventoryBalanceRepository inventoryBalances;
     private final AuditService auditService;
-    private final AdjustInventoryUseCase adjustInventoryUseCase;
+    private final ApiIdempotencyService idempotencyService;
 
     public InventoryService(
             ProductRepository products,
@@ -57,13 +57,13 @@ public class InventoryService implements InventoryServiceContract {
             InventoryMovementRepository inventoryMovements,
             InventoryBalanceRepository inventoryBalances,
             AuditService auditService,
-            @Lazy AdjustInventoryUseCase adjustInventoryUseCase) {
+            ApiIdempotencyService idempotencyService) {
         this.products = products;
         this.users = users;
         this.inventoryMovements = inventoryMovements;
         this.inventoryBalances = inventoryBalances;
         this.auditService = auditService;
-        this.adjustInventoryUseCase = adjustInventoryUseCase;
+        this.idempotencyService = idempotencyService;
     }
 
     /**
@@ -212,7 +212,12 @@ public class InventoryService implements InventoryServiceContract {
 
     public void adjustStock(
             long userId, StockAdjustmentRequest request, Optional<String> idempotencyKeyHeader) {
-        adjustInventoryUseCase.execute(userId, request, idempotencyKeyHeader);
+        String fingerprint = RequestFingerprint.stockAdjustRequestHash(request);
+        idempotencyService.runStockAdjust(
+                userId,
+                idempotencyKeyHeader,
+                fingerprint,
+                () -> applyManualStockAdjustment(userId, request));
     }
 
     @Transactional

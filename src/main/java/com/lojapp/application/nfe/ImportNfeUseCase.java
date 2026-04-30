@@ -1,5 +1,6 @@
 package com.lojapp.application.nfe;
 
+import com.lojapp.application.contract.ImportNfeUseCaseContract;
 import com.lojapp.domain.nfe.NfeStockReceiptLine;
 import com.lojapp.dto.nfe.NfeImportResponse;
 import com.lojapp.entity.NfeEntry;
@@ -13,7 +14,6 @@ import com.lojapp.repository.NfeEntryRepository;
 import com.lojapp.repository.NfeItemRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.service.AuditService;
-import com.lojapp.service.LojappHierarchyService;
 import com.lojapp.service.NfeImportValidator;
 import com.lojapp.service.NfeProductResolver;
 import com.lojapp.service.NfeRawXmlStorage;
@@ -21,6 +21,7 @@ import com.lojapp.service.NfeXmlParser;
 import com.lojapp.service.NfeXmlParser.ParsedNfe;
 import com.lojapp.service.NfeXmlParser.ParsedNfeItem;
 import com.lojapp.service.contract.InventoryServiceContract;
+import com.lojapp.service.contract.LojappHierarchyServiceContract;
 import com.lojapp.observability.LojappBusinessMetrics;
 import com.lojapp.util.NfeBrandSuggester.BrandCandidate;
 import com.lojapp.util.TokenHashUtil;
@@ -37,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  * na mesma transacção.
  */
 @Service
-public class ImportNfeUseCase {
+public class ImportNfeUseCase implements ImportNfeUseCaseContract {
 
     private static final Logger log = LoggerFactory.getLogger(ImportNfeUseCase.class);
 
@@ -46,7 +47,7 @@ public class ImportNfeUseCase {
     private final NfeItemRepository nfeItems;
     private final InventoryServiceContract inventoryService;
     private final AuditService auditService;
-    private final LojappHierarchyService hierarchyService;
+    private final LojappHierarchyServiceContract hierarchyService;
     private final NfeImportValidator importValidator;
     private final NfeProductResolver productResolver;
     private final NfeRawXmlStorage rawXmlStorage;
@@ -58,7 +59,7 @@ public class ImportNfeUseCase {
             NfeItemRepository nfeItems,
             InventoryServiceContract inventoryService,
             AuditService auditService,
-            LojappHierarchyService hierarchyService,
+            LojappHierarchyServiceContract hierarchyService,
             NfeImportValidator importValidator,
             NfeProductResolver productResolver,
             NfeRawXmlStorage rawXmlStorage,
