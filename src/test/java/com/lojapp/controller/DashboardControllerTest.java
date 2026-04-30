@@ -12,8 +12,8 @@ import com.lojapp.dto.dashboard.BrandDashboardResponse;
 import com.lojapp.support.TestJwtAuth;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
-import com.lojapp.service.DashboardService;
-import com.lojapp.service.InventoryService;
+import com.lojapp.service.contract.DashboardServiceContract;
+import com.lojapp.service.contract.InventoryServiceContract;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -40,9 +40,9 @@ class DashboardControllerTest {
 
     @MockBean private AuthRateLimitFilter authRateLimitFilter;
 
-    @MockBean private DashboardService dashboard;
+    @MockBean private DashboardServiceContract dashboard;
 
-    @MockBean private InventoryService inventory;
+    @MockBean private InventoryServiceContract inventory;
 
     @AfterEach
     void clearSecurity() {

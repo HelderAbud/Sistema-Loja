@@ -7,11 +7,13 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.lojapp.application.idempotency.ApiIdempotencyService;
+import com.lojapp.application.idempotency.RequestFingerprint;
 import com.lojapp.entity.InventoryBalance;
 import com.lojapp.entity.InventoryMovement;
 import com.lojapp.entity.Product;
@@ -23,13 +25,11 @@ import com.lojapp.dto.inventory.StockAdjustmentRequest;
 import com.lojapp.exception.domain.InsufficientStockException;
 import com.lojapp.exception.domain.LojappDomainException;
 import com.lojapp.exception.domain.ProductNotFoundException;
-import com.lojapp.application.inventory.AdjustInventoryUseCase;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -46,24 +46,9 @@ class InventoryServiceTest {
     @Mock private InventoryBalanceRepository inventoryBalances;
 
     @Mock private AuditService auditService;
-
-    @Mock private AdjustInventoryUseCase adjustInventoryUseCase;
+    @Mock private ApiIdempotencyService idempotencyService;
 
     @InjectMocks private InventoryService inventoryService;
-
-    @BeforeEach
-    void stubAdjustUseCaseDelegatesToManual() {
-        lenient()
-                .doAnswer(
-                        inv -> {
-                            inventoryService.applyManualStockAdjustment(
-                                    inv.getArgument(0, Long.class),
-                                    inv.getArgument(1, StockAdjustmentRequest.class));
-                            return null;
-                        })
-                .when(adjustInventoryUseCase)
-                .execute(anyLong(), any(), any());
-    }
 
     @Test
     void decreaseForSale_rejectsNonPositiveQuantity() {
@@ -132,6 +117,14 @@ class InventoryServiceTest {
 
     @Test
     void adjustStock_blankReason_rejectsWithBadRequest() {
+        doAnswer(
+                        inv -> {
+                            inv.getArgument(3, Runnable.class).run();
+                            return null;
+                        })
+                .when(idempotencyService)
+                .runStockAdjust(anyLong(), any(), anyString(), any(Runnable.class));
+
         StockAdjustmentRequest request =
                 new StockAdjustmentRequest(10L, new BigDecimal("2"), "   ");
 
@@ -147,6 +140,14 @@ class InventoryServiceTest {
 
     @Test
     void adjustStock_productNotOwned_throwsNotFound() {
+        doAnswer(
+                        inv -> {
+                            inv.getArgument(3, Runnable.class).run();
+                            return null;
+                        })
+                .when(idempotencyService)
+                .runStockAdjust(anyLong(), any(), anyString(), any(Runnable.class));
+
         when(products.findByIdAndUser_Id(55L, 1L)).thenReturn(Optional.empty());
         StockAdjustmentRequest request =
                 new StockAdjustmentRequest(55L, new BigDecimal("2"), "Ajuste manual");
@@ -155,6 +156,67 @@ class InventoryServiceTest {
                 .isInstanceOf(ProductNotFoundException.class);
 
         verifyNoInteractions(users, inventoryMovements, inventoryBalances, auditService);
+    }
+
+    @Test
+    void adjustStock_withIdempotencyHeader_forwardsKeyAndFingerprint() {
+        doAnswer(
+                        inv -> {
+                            inv.getArgument(3, Runnable.class).run();
+                            return null;
+                        })
+                .when(idempotencyService)
+                .runStockAdjust(anyLong(), any(), anyString(), any(Runnable.class));
+
+        Product owned = new Product();
+        owned.setId(55L);
+        when(products.findByIdAndUser_Id(55L, 1L)).thenReturn(Optional.of(owned));
+        User owner = new User();
+        owner.setId(1L);
+        when(users.getReferenceById(1L)).thenReturn(owner);
+        when(inventoryBalances.lockByUserAndProduct(1L, 55L)).thenReturn(Optional.of(new InventoryBalance()));
+
+        StockAdjustmentRequest request =
+                new StockAdjustmentRequest(55L, new BigDecimal("2"), "Ajuste idempotente");
+        Optional<String> key = Optional.of("adj-key-1");
+        String expectedFingerprint = RequestFingerprint.stockAdjustRequestHash(request);
+
+        inventoryService.adjustStock(1L, request, key);
+
+        verify(idempotencyService)
+                .runStockAdjust(eq(1L), eq(key), eq(expectedFingerprint), any(Runnable.class));
+    }
+
+    @Test
+    void adjustStock_withoutHeader_passesEmptyOptionalToIdempotencyShell() {
+        doAnswer(
+                        inv -> {
+                            inv.getArgument(3, Runnable.class).run();
+                            return null;
+                        })
+                .when(idempotencyService)
+                .runStockAdjust(anyLong(), any(), anyString(), any(Runnable.class));
+
+        Product owned = new Product();
+        owned.setId(88L);
+        when(products.findByIdAndUser_Id(88L, 1L)).thenReturn(Optional.of(owned));
+        User owner = new User();
+        owner.setId(1L);
+        when(users.getReferenceById(1L)).thenReturn(owner);
+        when(inventoryBalances.lockByUserAndProduct(1L, 88L)).thenReturn(Optional.of(new InventoryBalance()));
+
+        StockAdjustmentRequest request =
+                new StockAdjustmentRequest(88L, new BigDecimal("1"), "Ajuste sem chave");
+        inventoryService.adjustStock(1L, request, Optional.empty());
+
+        verify(idempotencyService)
+                .runStockAdjust(
+                        eq(1L),
+                        eq(Optional.empty()),
+                        eq(RequestFingerprint.stockAdjustRequestHash(request)),
+                        any(Runnable.class));
+        verify(idempotencyService, never())
+                .runStockAdjust(eq(1L), eq(Optional.of("qualquer")), anyString(), any(Runnable.class));
     }
 
     @Test

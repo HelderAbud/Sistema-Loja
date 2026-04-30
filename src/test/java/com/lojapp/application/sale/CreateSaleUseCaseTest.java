@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.annotation.Transactional;
 
 @ExtendWith(MockitoExtension.class)
 class CreateSaleUseCaseTest {
@@ -62,7 +64,7 @@ class CreateSaleUseCaseTest {
                         auditService,
                         idempotencyService,
                         businessMetrics);
-        when(idempotencyService.runSaleCreate(anyLong(), any(), anyString(), any()))
+        lenient().when(idempotencyService.runSaleCreate(anyLong(), any(), anyString(), any()))
                 .thenAnswer(
                         inv -> {
                             @SuppressWarnings("unchecked")
@@ -70,6 +72,14 @@ class CreateSaleUseCaseTest {
                                     (Supplier<SaleCreatedResponse>) inv.getArgument(3);
                             return supplier.get();
                         });
+    }
+
+    @Test
+    void execute_isTransactional() throws NoSuchMethodException {
+        var method =
+                CreateSaleUseCase.class.getMethod(
+                        "execute", long.class, SaleRequest.class, Optional.class);
+        assertThat(method.isAnnotationPresent(Transactional.class)).isTrue();
     }
 
     @Test

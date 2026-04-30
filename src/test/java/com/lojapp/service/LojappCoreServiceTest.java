@@ -264,6 +264,201 @@ catalog.createProduct(
     }
 
     @Test
+    void brandDashboard_paginatesWithOffsetInsidePage_windowIsStable() {
+        var brandA = catalog.createBrand(userId, new BrandRequest("Marca A"));
+        var brandB = catalog.createBrand(userId, new BrandRequest("Marca B"));
+        var brandC = catalog.createBrand(userId, new BrandRequest("Marca C"));
+
+        ProductResponse prodA =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod A",
+                                brandA.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("5.00"),
+                                new BigDecimal("20.00"),
+                                BigDecimal.ZERO));
+        ProductResponse prodB =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod B",
+                                brandB.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("10.00"),
+                                new BigDecimal("30.00"),
+                                BigDecimal.ZERO));
+        ProductResponse prodC =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod C",
+                                brandC.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("12.00"),
+                                new BigDecimal("22.00"),
+                                BigDecimal.ZERO));
+
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodA.id(), new BigDecimal("100"), "ENTRADA"));
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodB.id(), new BigDecimal("100"), "ENTRADA"));
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodC.id(), new BigDecimal("100"), "ENTRADA"));
+
+        // Lucros: A=1500, B=1000, C=500 (ordem esperada A, B, C).
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodA.id(), new BigDecimal("100"), new BigDecimal("20.00"), new BigDecimal("5.00")));
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodB.id(), new BigDecimal("50"), new BigDecimal("30.00"), new BigDecimal("10.00")));
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodC.id(), new BigDecimal("50"), new BigDecimal("22.00"), new BigDecimal("12.00")));
+
+        Instant from = Instant.now().minus(1, ChronoUnit.DAYS);
+        Instant to = Instant.now().plus(1, ChronoUnit.MINUTES);
+
+        BrandDashboardResponse dash = dashboard.brandDashboard(userId, from, to, 2, 1);
+
+        assertThat(dash.totalBrands()).isEqualTo(3);
+        assertThat(dash.brandLimit()).isEqualTo(2);
+        assertThat(dash.brandOffset()).isEqualTo(1);
+        assertThat(dash.metrics()).extracting(BrandKpiResponse::brand).containsExactly("Marca B", "Marca C");
+    }
+
+    @Test
+    void brandDashboard_offsetBeyondTotal_returnsEmptyMetricsAndKeepsTotal() {
+        var brandA = catalog.createBrand(userId, new BrandRequest("Marca O1"));
+        var brandB = catalog.createBrand(userId, new BrandRequest("Marca O2"));
+
+        ProductResponse prodA =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod O1",
+                                brandA.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("5.00"),
+                                new BigDecimal("10.00"),
+                                BigDecimal.ZERO));
+        ProductResponse prodB =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod O2",
+                                brandB.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("4.00"),
+                                new BigDecimal("12.00"),
+                                BigDecimal.ZERO));
+
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodA.id(), new BigDecimal("20"), "ENTRADA"));
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodB.id(), new BigDecimal("20"), "ENTRADA"));
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodA.id(), new BigDecimal("2"), new BigDecimal("10.00"), new BigDecimal("5.00")));
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodB.id(), new BigDecimal("2"), new BigDecimal("12.00"), new BigDecimal("4.00")));
+
+        Instant from = Instant.now().minus(1, ChronoUnit.DAYS);
+        Instant to = Instant.now().plus(1, ChronoUnit.MINUTES);
+
+        BrandDashboardResponse dash = dashboard.brandDashboard(userId, from, to, 2, 10);
+
+        assertThat(dash.totalBrands()).isEqualTo(2);
+        assertThat(dash.brandLimit()).isEqualTo(2);
+        assertThat(dash.brandOffset()).isEqualTo(10);
+        assertThat(dash.metrics()).isEmpty();
+    }
+
+    @Test
+    void brandDashboard_secondPageReturnsRemainder_whenTotalNotMultipleOfLimit() {
+        var brandA = catalog.createBrand(userId, new BrandRequest("Marca P1"));
+        var brandB = catalog.createBrand(userId, new BrandRequest("Marca P2"));
+        var brandC = catalog.createBrand(userId, new BrandRequest("Marca P3"));
+
+        ProductResponse prodA =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod P1",
+                                brandA.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("5.00"),
+                                new BigDecimal("25.00"),
+                                BigDecimal.ZERO));
+        ProductResponse prodB =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod P2",
+                                brandB.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("10.00"),
+                                new BigDecimal("30.00"),
+                                BigDecimal.ZERO));
+        ProductResponse prodC =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod P3",
+                                brandC.id(),
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("12.00"),
+                                new BigDecimal("22.00"),
+                                BigDecimal.ZERO));
+
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodA.id(), new BigDecimal("50"), "ENTRADA"));
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodB.id(), new BigDecimal("50"), "ENTRADA"));
+        inventory.adjustStock(userId, new StockAdjustmentRequest(prodC.id(), new BigDecimal("50"), "ENTRADA"));
+
+        // Lucro esperado: P1=1000, P2=500, P3=300 -> ordem P1, P2, P3.
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodA.id(), new BigDecimal("50"), new BigDecimal("25.00"), new BigDecimal("5.00")));
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodB.id(), new BigDecimal("25"), new BigDecimal("30.00"), new BigDecimal("10.00")));
+        sales.registerSale(
+                userId,
+                new SaleRequest(
+                        prodC.id(), new BigDecimal("30"), new BigDecimal("22.00"), new BigDecimal("12.00")));
+
+        Instant from = Instant.now().minus(1, ChronoUnit.DAYS);
+        Instant to = Instant.now().plus(1, ChronoUnit.MINUTES);
+
+        BrandDashboardResponse dash = dashboard.brandDashboard(userId, from, to, 2, 2);
+
+        assertThat(dash.totalBrands()).isEqualTo(3);
+        assertThat(dash.metrics()).hasSize(1);
+        assertThat(dash.metrics().getFirst().brand()).isEqualTo("Marca P3");
+    }
+
+    @Test
     void productAbc_singleProduct_classA() {
         var marca = catalog.createBrand(userId, new BrandRequest("Marca ABC"));
         ProductResponse product =

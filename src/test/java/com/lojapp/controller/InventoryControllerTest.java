@@ -1,8 +1,10 @@
 package com.lojapp.controller;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -18,6 +20,7 @@ import com.lojapp.support.TestJwtAuth;
 import com.lojapp.service.contract.InventoryServiceContract;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,5 +104,44 @@ class InventoryControllerTest {
                 .andExpect(jsonPath("$.code").value(ApiErrorCode.VALIDATION_ERROR.code()));
 
         verifyNoInteractions(inventory);
+    }
+
+    @Test
+    void adjustStock_withIdempotencyHeader_forwardsHeaderToService() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/inventory/adjust")
+                                .header("Idempotency-Key", "stock-k-1")
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {"productId":1,"quantity":1,"reason":"ajuste"}
+                                        """)
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isOk());
+
+        verify(inventory)
+                .adjustStock(
+                        eq(USER_ID),
+                        eq(new com.lojapp.dto.inventory.StockAdjustmentRequest(1L, new BigDecimal("1"), "ajuste")),
+                        eq(Optional.of("stock-k-1")));
+    }
+
+    @Test
+    void adjustStock_withoutIdempotencyHeader_forwardsEmptyOptional() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/inventory/adjust")
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {"productId":2,"quantity":3,"reason":"entrada"}
+                                        """)
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isOk());
+
+        verify(inventory)
+                .adjustStock(
+                        eq(USER_ID),
+                        eq(new com.lojapp.dto.inventory.StockAdjustmentRequest(2L, new BigDecimal("3"), "entrada")),
+                        eq(Optional.empty()));
     }
 }

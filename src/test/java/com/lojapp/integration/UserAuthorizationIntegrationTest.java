@@ -15,13 +15,37 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@Testcontainers(disabledWithoutDocker = true)
 class UserAuthorizationIntegrationTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine")
+                    .withDatabaseName("lojapp")
+                    .withUsername("lojapp")
+                    .withPassword("lojapp_test");
+
+    @DynamicPropertySource
+    static void datasource(DynamicPropertyRegistry r) {
+        r.add("spring.datasource.url", postgres::getJdbcUrl);
+        r.add("spring.datasource.username", postgres::getUsername);
+        r.add("spring.datasource.password", postgres::getPassword);
+        r.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+        r.add("spring.flyway.enabled", () -> "true");
+        r.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
+        r.add("lojapp.jwt.secret", () -> "integration-test-secret-32-chars-min!!");
+    }
 
     @Autowired private MockMvc mockMvc;
     @Autowired private JwtService jwtService;

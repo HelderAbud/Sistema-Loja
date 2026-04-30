@@ -25,7 +25,7 @@ import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.AuthCsrfGuardFilter;
 import com.lojapp.security.JwtAuthFilter;
 import com.lojapp.support.TestJwtAuth;
-import com.lojapp.service.LojappCatalogService;
+import com.lojapp.service.contract.LojappCatalogServiceContract;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -58,7 +58,7 @@ class ProductControllerTest {
     @MockBean private AuthRateLimitFilter authRateLimitFilter;
     @MockBean private AuthCsrfGuardFilter authCsrfGuardFilter;
 
-    @MockBean private LojappCatalogService catalog;
+    @MockBean private LojappCatalogServiceContract catalog;
 
     @BeforeEach
     void jwtFilterPassesThrough() throws Exception {

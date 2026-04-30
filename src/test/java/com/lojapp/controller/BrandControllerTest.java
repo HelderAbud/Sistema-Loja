@@ -21,7 +21,7 @@ import com.lojapp.exception.domain.BrandNotFoundException;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
 import com.lojapp.support.TestJwtAuth;
-import com.lojapp.service.LojappCatalogService;
+import com.lojapp.service.contract.LojappCatalogServiceContract;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ class BrandControllerTest {
 
     @MockBean private AuthRateLimitFilter authRateLimitFilter;
 
-    @MockBean private LojappCatalogService catalog;
+    @MockBean private LojappCatalogServiceContract catalog;
 
     @AfterEach
     void clearSecurity() {

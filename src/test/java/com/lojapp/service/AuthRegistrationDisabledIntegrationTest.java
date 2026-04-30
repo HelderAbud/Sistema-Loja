@@ -9,13 +9,37 @@ import com.lojapp.exception.domain.LojappDomainException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Transactional
+@Testcontainers(disabledWithoutDocker = true)
 @TestPropertySource(properties = "lojapp.auth.registration.enabled=false")
 class AuthRegistrationDisabledIntegrationTest {
+
+    @Container
+    static PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:16-alpine")
+                    .withDatabaseName("lojapp")
+                    .withUsername("lojapp")
+                    .withPassword("lojapp_test");
+
+    @DynamicPropertySource
+    static void datasource(DynamicPropertyRegistry r) {
+        r.add("spring.datasource.url", postgres::getJdbcUrl);
+        r.add("spring.datasource.username", postgres::getUsername);
+        r.add("spring.datasource.password", postgres::getPassword);
+        r.add("spring.datasource.driver-class-name", () -> "org.postgresql.Driver");
+        r.add("spring.flyway.enabled", () -> "true");
+        r.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
+        r.add("lojapp.jwt.secret", () -> "integration-test-secret-32-chars-min!!");
+    }
 
     @Autowired private AuthService authService;
 

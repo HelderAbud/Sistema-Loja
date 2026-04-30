@@ -6,16 +6,26 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
 import com.lojapp.dto.product.ProductRequest;
+import com.lojapp.dto.sale.PosSaleFinalizeRequest;
+import com.lojapp.dto.sale.PosSalePaymentRequest;
 import com.lojapp.dto.sale.SaleRequest;
+import com.lojapp.entity.CashSession;
+import com.lojapp.entity.CashSessionStatus;
 import com.lojapp.entity.InventoryMovement;
+import com.lojapp.entity.PaymentMethod;
 import com.lojapp.entity.User;
+import com.lojapp.exception.domain.CashSessionNotOpenException;
 import com.lojapp.exception.domain.InsufficientStockException;
 import com.lojapp.exception.domain.LojappDomainException;
+import com.lojapp.exception.domain.PosSalePaymentTotalMismatchException;
+import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.ApiIdempotencyRepository;
 import com.lojapp.repository.InventoryBalanceRepository;
 import com.lojapp.repository.InventoryMovementRepository;
+import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
+import com.lojapp.application.sale.CreatePosSaleUseCase;
 import com.lojapp.service.InventoryService;
 import com.lojapp.service.LojappCatalogService;
 import com.lojapp.service.SalesService;
@@ -64,6 +74,9 @@ class SalesStockIntegrationTest {
     @Autowired private InventoryBalanceRepository balances;
     @Autowired private InventoryMovementRepository movements;
     @Autowired private ApiIdempotencyRepository apiIdempotency;
+    @Autowired private CashSessionRepository cashSessions;
+    @Autowired private SalePaymentRepository salePayments;
+    @Autowired private CreatePosSaleUseCase createPosSaleUseCase;
 
     @Test
     void registerSale_decreasesStockAndPersistsSaleMovement() {
@@ -325,10 +338,150 @@ class SalesStockIntegrationTest {
         assertThat(hasCancelMovement).isTrue();
     }
 
+    @Test
+    void finalizePosSale_whenNoOpenCashSession_throwsConflict() {
+        User user = createUser("pos-no-open-session");
+        long userId = user.getId();
+
+        var product =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "SKU POS NO SESSION",
+                                null,
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("10.00"),
+                                new BigDecimal("20.00"),
+                                BigDecimal.ZERO));
+        inventory.adjustStock(
+                userId, new StockAdjustmentRequest(product.id(), new BigDecimal("10"), "SEED"));
+
+        CashSession closedSession = createCashSession(user, CashSessionStatus.CLOSED, new BigDecimal("100.00"));
+
+        assertThatThrownBy(
+                        () ->
+                                createPosSaleUseCase.execute(
+                                        userId,
+                                        new PosSaleFinalizeRequest(
+                                                closedSession.getId(),
+                                                product.id(),
+                                                new BigDecimal("1"),
+                                                new BigDecimal("20.00"),
+                                                new BigDecimal("10.00"),
+                                                java.util.List.of(
+                                                        new PosSalePaymentRequest(
+                                                                PaymentMethod.CASH,
+                                                                new BigDecimal("20.00")))),
+                                        Optional.of("pos-no-open-" + UUID.randomUUID())))
+                .isInstanceOf(CashSessionNotOpenException.class);
+    }
+
+    @Test
+    void finalizePosSale_whenPaymentTotalMismatch_throwsBadRequest() {
+        User user = createUser("pos-payment-mismatch");
+        long userId = user.getId();
+
+        var product =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "SKU POS MISMATCH",
+                                null,
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("10.00"),
+                                new BigDecimal("25.00"),
+                                BigDecimal.ZERO));
+        inventory.adjustStock(
+                userId, new StockAdjustmentRequest(product.id(), new BigDecimal("10"), "SEED"));
+
+        CashSession openSession = createCashSession(user, CashSessionStatus.OPEN, new BigDecimal("200.00"));
+
+        assertThatThrownBy(
+                        () ->
+                                createPosSaleUseCase.execute(
+                                        userId,
+                                        new PosSaleFinalizeRequest(
+                                                openSession.getId(),
+                                                product.id(),
+                                                new BigDecimal("2"),
+                                                new BigDecimal("25.00"),
+                                                new BigDecimal("10.00"),
+                                                java.util.List.of(
+                                                        new PosSalePaymentRequest(
+                                                                PaymentMethod.CARD,
+                                                                new BigDecimal("30.00")))),
+                                        Optional.of("pos-mismatch-" + UUID.randomUUID())))
+                .isInstanceOf(PosSalePaymentTotalMismatchException.class)
+                .satisfies(
+                        ex ->
+                                assertThat(((LojappDomainException) ex).getErrorCode())
+                                        .isEqualTo(ApiErrorCode.BAD_REQUEST));
+    }
+
+    @Test
+    void finalizePosSale_sameIdempotencyKey_singleSaleAndPayments() {
+        User user = createUser("pos-idem");
+        long userId = user.getId();
+
+        var product =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "SKU POS IDEM",
+                                null,
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("10.00"),
+                                new BigDecimal("20.00"),
+                                BigDecimal.ZERO));
+        inventory.adjustStock(
+                userId, new StockAdjustmentRequest(product.id(), new BigDecimal("10"), "SEED"));
+        CashSession openSession = createCashSession(user, CashSessionStatus.OPEN, new BigDecimal("100.00"));
+
+        long salesBefore = sales.count();
+        long paymentsBefore = salePayments.count();
+        String key = "pos-idem-" + UUID.randomUUID();
+        PosSaleFinalizeRequest req =
+                new PosSaleFinalizeRequest(
+                        openSession.getId(),
+                        product.id(),
+                        new BigDecimal("2"),
+                        new BigDecimal("20.00"),
+                        new BigDecimal("10.00"),
+                        java.util.List.of(
+                                new PosSalePaymentRequest(PaymentMethod.CASH, new BigDecimal("10.00")),
+                                new PosSalePaymentRequest(PaymentMethod.PIX, new BigDecimal("30.00"))));
+
+        var first = createPosSaleUseCase.execute(userId, req, Optional.of(key));
+        var second = createPosSaleUseCase.execute(userId, req, Optional.of(key));
+
+        assertThat(second.saleId()).isEqualTo(first.saleId());
+        assertThat(sales.count()).isEqualTo(salesBefore + 1);
+        assertThat(salePayments.count()).isEqualTo(paymentsBefore + 2);
+    }
+
     private User createUser(String label) {
         User user = new User();
         user.setEmail(label + "-" + UUID.randomUUID() + "@test.com");
         user.setPasswordHash(passwordEncoder.encode("secret123"));
         return users.save(user);
+    }
+
+    private CashSession createCashSession(User user, CashSessionStatus status, BigDecimal openingAmount) {
+        CashSession session = new CashSession();
+        session.setUser(user);
+        session.setOpenedByUser(user);
+        session.setStatus(status);
+        session.setOpeningAmount(openingAmount);
+        if (status == CashSessionStatus.CLOSED) {
+            session.setClosedByUser(user);
+            session.setClosedAt(Instant.now());
+        }
+        return cashSessions.save(session);
     }
 }

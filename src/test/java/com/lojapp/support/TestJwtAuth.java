@@ -13,12 +13,26 @@ public final class TestJwtAuth {
     public static UsernamePasswordAuthenticationToken userToken(long userId) {
         JwtUser principal = new JwtUser(userId, userId + "@unit.test", "USER");
         return new UsernamePasswordAuthenticationToken(
-                principal, null, List.of(new SimpleGrantedAuthority("ROLE_USER")));
+                principal,
+                null,
+                List.of(
+                        new SimpleGrantedAuthority("ROLE_USER"),
+                        new SimpleGrantedAuthority("ROLE_CASHIER")));
     }
 
     public static UsernamePasswordAuthenticationToken adminToken(long userId) {
         JwtUser principal = new JwtUser(userId, userId + "@admin.unit.test", "ADMIN");
         return new UsernamePasswordAuthenticationToken(
-                principal, null, List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
+                principal,
+                null,
+                List.of(
+                        new SimpleGrantedAuthority("ROLE_ADMIN"),
+                        new SimpleGrantedAuthority("ROLE_MANAGER")));
+    }
+
+    public static UsernamePasswordAuthenticationToken sellerToken(long userId) {
+        JwtUser principal = new JwtUser(userId, userId + "@seller.unit.test", "SELLER");
+        return new UsernamePasswordAuthenticationToken(
+                principal, null, List.of(new SimpleGrantedAuthority("ROLE_SELLER")));
     }
 }
