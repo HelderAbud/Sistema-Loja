@@ -1,7 +1,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProductStock, listProducts, registerSale, type Product } from "../../../api";
-import { invalidateLojappDataQueries, queryKeys } from "../../../queryKeys";
+import { getProductStock, listProducts, registerSale, type Product } from "@/api";
+import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 import {
   isInsufficientStock,
   isValidPositiveQuantity,

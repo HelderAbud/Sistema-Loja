@@ -1,4 +1,4 @@
-import { DashboardSkeleton } from "../../../components/ui/DashboardSkeleton";
+import { DashboardSkeleton } from "@/components/ui/DashboardSkeleton";
 import { useDashboardData } from "../application/useDashboardData";
 import { useDashboardFilters } from "../application/useDashboardFilters";
 import { DashboardContent } from "./DashboardContent";

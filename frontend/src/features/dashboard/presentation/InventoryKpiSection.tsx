@@ -1,4 +1,4 @@
-import type { InventoryKpis } from "../../../api";
+import type { InventoryKpis } from "@/api";
 
 type Props = {
   inv?: InventoryKpis;

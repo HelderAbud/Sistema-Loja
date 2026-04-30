@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { useAuthSession, useLoginForm } from "./hooks";
+import { useAuthSession, useLoginForm } from "@/features/auth";
 import { PilotoWorkspacePage } from "./pages";
 import {
   CartPage,

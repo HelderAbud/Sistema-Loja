@@ -1,51 +1,49 @@
-# Desenvolvimento local. Não use estes valores em produção.
-# A porta 5432 exposta serve apenas para ferramentas no host; em produção o Postgres não deve ser público.
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:16
+    container_name: loja-postgres
     environment:
-      POSTGRES_DB: lojapp
-      POSTGRES_USER: lojapp
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lojapp_local_dev_only}
+      POSTGRES_DB: loja_db
+      POSTGRES_USER: loja_user
+      POSTGRES_PASSWORD: 123456
     ports:
       - "5432:5432"
     volumes:
-      - lojapp_pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lojapp -d lojapp"]
+      test: ["CMD-SHELL", "pg_isready -U loja_user -d loja_db"]
       interval: 5s
       timeout: 5s
-      retries: 5
-    restart: unless-stopped
+      retries: 10
 
   redis:
     image: redis:7-alpine
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    restart: unless-stopped
+    container_name: loja-redis
+    ports:
+      - "6379:6379"
 
   api:
     build: .
+    container_name: loja-api
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: docker,jsonlogs
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/lojapp
-      SPRING_DATASOURCE_USERNAME: lojapp
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-lojapp_local_dev_only}
+      # application.yml usa 8000 por omissão; no container alinhamos à 8080 para bater com ports abaixo.
+      SERVER_PORT: 8080
+      # Hostname tem de ser o *nome do serviço* na rede Compose: "db", não o container_name.
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/loja_db
+      SPRING_DATASOURCE_USERNAME: loja_user
+      SPRING_DATASOURCE_PASSWORD: "123456"
+      # Starter Redis: dentro do contentor não há Redis em localhost; aponta para o serviço redis.
       SPRING_DATA_REDIS_HOST: redis
-      LOJAPP_RATE_LIMIT_MODE: redis
-      LOJAPP_JWT_SECRET: ${LOJAPP_JWT_SECRET}
-      LOJAPP_REGISTRATION_ENABLED: ${LOJAPP_REGISTRATION_ENABLED:-false}
+      LOJAPP_JWT_SECRET: SegredoSuperForteComMaisDe32Bytes123456789
+      # Dev local: permite POST /api/v1/auth/register. Em produção manter false ou controlar domínios/convite.
+      LOJAPP_REGISTRATION_ENABLED: "true"
     depends_on:
       db:
         condition: service_healthy
       redis:
-        condition: service_healthy
-    restart: unless-stopped
+        condition: service_started
 
 volumes:
-  lojapp_pgdata:
+  postgres_data:

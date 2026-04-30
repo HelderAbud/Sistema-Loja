@@ -115,7 +115,7 @@ export function LoginPage({
               </button>
             </form>
             <p className="hint muted">
-              API em <code>http://localhost:8080</code> (proxy Vite). Em produção defina{" "}
+              API em <code>http://localhost:8000</code> (proxy Vite). Em produção defina{" "}
               <code>VITE_API_BASE</code>.
             </p>
           </main>

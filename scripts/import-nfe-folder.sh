@@ -3,7 +3,7 @@
 #
 # Uso:
 #   export LOJAPP_VERIFY_EMAIL=... LOJAPP_VERIFY_PASSWORD=...
-#   export API_BASE=http://localhost:8080   # opcional
+#   export API_BASE=http://localhost:8000   # opcional
 #   ./scripts/import-nfe-folder.sh /caminho/para/xmls
 #
 # Ou, sem login (token já obtido):
@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-API_BASE="${API_BASE:-http://localhost:8080}"
+API_BASE="${API_BASE:-http://localhost:8000}"
 API_BASE="${API_BASE%/}"
 
 DIR="${1:-}"

@@ -1,4 +1,4 @@
-import type { BrandDashboard } from "../../../api";
+import type { BrandDashboard } from "@/api";
 import { money } from "../domain/chartFormat";
 
 type Props = {

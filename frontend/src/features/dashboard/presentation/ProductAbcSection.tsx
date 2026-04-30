@@ -14,7 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { ProductAbcDashboard } from "../../../api";
+import type { ProductAbcDashboard } from "@/api";
 import { ABC_COLORS, CHART_TOOLTIP, money } from "../domain/chartFormat";
 
 type Props = {

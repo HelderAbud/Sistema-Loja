@@ -1,4 +1,4 @@
-import type { BrandDashboard, ProductAbcDashboard } from "../../../api";
+import type { BrandDashboard, ProductAbcDashboard } from "@/api";
 
 export type BrandKpiSummary = {
   faturamento: number;

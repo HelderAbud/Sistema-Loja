@@ -8,7 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { BrandDashboard } from "../../../api";
+import type { BrandDashboard } from "@/api";
 import { CHART_TOOLTIP, money } from "../domain/chartFormat";
 
 type Props = {

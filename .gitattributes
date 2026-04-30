@@ -1,0 +1,8 @@
+.env export-ignore
+backup.sql export-ignore
+target/ export-ignore
+
+# Line endings: scripts Linux/WSL precisam de LF; batch Windows mantém CRLF
+mvnw text eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf

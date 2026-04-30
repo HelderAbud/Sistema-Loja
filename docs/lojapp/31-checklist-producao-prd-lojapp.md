@@ -14,7 +14,7 @@ Referência canónica: `10-guia-junior-piloto-deploy-proximos-passos.md` e `29-r
 
 | Situação | Dias / tema | Detalhe |
 |----------|-------------|---------|
-| **Fechado no plano (com evidência)** | 1–5 | Escopo, baseline local, contratos API, E2E (`real-flow` + suite; preferir `CI=true` com API em `127.0.0.1:8080`). |
+| **Fechado no plano (com evidência)** | 1-5 | Escopo, baseline local, contratos API, E2E (`real-flow` + suite; preferir `CI=true` com API em `127.0.0.1:8000`). |
 | **Fechado com ressalva “sintético”** | 7 | Import em lote **validado com fixtures** (`scripts/fixtures/nfe-lote-sintetico-dia7`, `scripts/import-nfe-folder.ps1`). **Não substitui** XML real de piloto. |
 | **Preparação sem prova de negócio** | 6 | Docs/tabela em `02-pilotos-e-xmls.md`; **coleta de XMLs reais** e linhas com prova continuam abertas no plano. |
 | **Fechado no plano (docs + scripts)** | 8–9 | `31-checklist-seguranca-operacional-dia8.md`, `32-checklist-hardening-deploy-dia9.md`, `verify-auth-errors.ps1`, `verify-deploy-health.ps1`, `verify-compose-prod-config.ps1`. |
@@ -48,8 +48,8 @@ Referência canónica: `10-guia-junior-piloto-deploy-proximos-passos.md` e `29-r
 | E2E reprodutível (API local) | `cd frontend && CI=true npm run e2e` |
 | Destravar estado local | `.\scripts\destravar-estado.ps1` (ver flags no script) |
 
-**Swagger:** `http://localhost:8080/swagger-ui.html` (porta padrão em `application.yml`).  
-**Saúde:** `GET http://localhost:8080/actuator/health` (readiness/liveness quando ativos em `application.yml`).
+**Swagger:** `http://localhost:8000/swagger-ui.html` (porta padrão em `application.yml`).  
+**Saúde:** `GET http://localhost:8000/actuator/health` (readiness/liveness quando ativos em `application.yml`).
 
 ---
 
@@ -111,7 +111,7 @@ Referência canónica: `10-guia-junior-piloto-deploy-proximos-passos.md` e `29-r
 ## 8. E2E (Playwright + API real quando aplicável)
 
 - [ ] `npx playwright install chromium` (se primeira vez).
-- [ ] `npm run e2e` ou, para reprodutibilidade com API local, `CI=true npm run e2e` (API tipicamente `127.0.0.1:8080`; credenciais `E2E_REAL_*` quando o cenário for “real flow”).
+- [ ] `npm run e2e` ou, para reprodutibilidade com API local, `CI=true npm run e2e` (API tipicamente `127.0.0.1:8000`; credenciais `E2E_REAL_*` quando o cenário for "real flow").
 - [ ] Fora de CI, `reuseExistingServer` no Playwright pode reutilizar preview com config errada — em dúvida usar `CI=true`.
 - [ ] Matriz / cenários: `docs/lojapp/24-matriz-cenarios-e2e.md` (atualizar se novos fluxos críticos).
 

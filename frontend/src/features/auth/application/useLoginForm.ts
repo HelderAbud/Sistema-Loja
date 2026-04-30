@@ -2,7 +2,7 @@ import { type FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import type { AuthMode } from "../domain/types";
-import { mapFetchFailureToUserMessage } from "../../../shared/errors/mapUserFacingApiError";
+import { mapFetchFailureToUserMessage } from "@/shared/errors/mapUserFacingApiError";
 import { useAuthSession } from "./useAuthSession";
 
 export function useLoginForm() {

@@ -4,8 +4,8 @@ import {
   bootstrapSessionFromCookie,
   login as loginRequest,
   register as registerRequest,
-} from "../../../api";
-import { useAuthStore } from "../../../authStore";
+} from "@/api";
+import { useAuthStore } from "@/authStore";
 
 export function useAuthSession() {
   const accessToken = useAuthStore((s) => s.accessToken);

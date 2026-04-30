@@ -1,13 +1,13 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { TestQueryProvider } from "../../../test/queryWrapper";
+import { TestQueryProvider } from "@/test/queryWrapper";
 import { PilotoSaleTab } from "./PilotoSaleTab";
 
 const listProducts = vi.fn();
 const getProductStock = vi.fn();
 const registerSale = vi.fn();
 
-vi.mock("../../../api", () => ({
+vi.mock("@/api", () => ({
   listProducts: (...args: unknown[]) => listProducts(...args),
   getProductStock: (...args: unknown[]) => getProductStock(...args),
   registerSale: (...args: unknown[]) => registerSale(...args),

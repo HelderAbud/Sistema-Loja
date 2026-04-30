@@ -1,4 +1,4 @@
-import type { BrandDashboard, InventoryKpis, ProductAbcDashboard } from "../../../api";
+import type { BrandDashboard, InventoryKpis, ProductAbcDashboard } from "@/api";
 import { computeBrandKpiSummary } from "../domain/brandKpis";
 import { money } from "../domain/chartFormat";
 import {

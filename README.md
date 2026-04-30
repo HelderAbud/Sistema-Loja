@@ -1,5 +1,7 @@
 # LojApp — Loja Sistema
 
+[![Docker / WSL2 / Ubuntu](https://img.shields.io/badge/Docker-WSL2%20%26%20Ubuntu-2496ED?logo=docker&logoColor=white)](docs/docker-wsl-ubuntu.md)
+
 **Plataforma de Gestão Comercial com Automação Fiscal** (**LojApp**: API Spring Boot + SPA React neste repositório).
 
 ## Em 15 segundos
@@ -8,7 +10,7 @@
 |----------|----------|
 | **O que é?** | SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, vendas, importação de **NFe (XML)** e **dashboard** com KPIs, gráficos e **curva ABC**. |
 | **Que problema resolve?** | Sai da planilha frágil e do ERP pesado: um fluxo **MVP real** — nota entra, stock atualiza, venda baixa saldo, indicadores apoiam **compra e precificação**. Dados **isolados por conta** (multi-loja: uma conta = uma loja). |
-| **Como rodar?** | Postgres + `mvn spring-boot:run` na raiz; `cd frontend && npm install && npm run dev` — ver secção [Como rodar (local)](#como-rodar-local). |
+| **Como rodar?** | `docker compose up -d` para stack completa + `cd frontend && npm install && npm run dev` para desenvolvimento visual — ver secção [Como rodar (local)](#como-rodar-local). |
 | **Por que é especial?** | **JWT + refresh** com rotação, **rate limit**, **Actuator/Prometheus**, **auditoria**, API documentada (OpenAPI), frontend com **TanStack Query**, gráficos e **skeleton** no dashboard — stack alinhada a **produção**, não a demo descartável. |
 
 ---
@@ -119,15 +121,28 @@ sequenceDiagram
 
 ## Como rodar (local)
 
+### Docker no WSL2 / Ubuntu
+
+Se aparecer `permission denied` ao ligar ao Docker daemon, ou fores correr `docker compose` a partir de WSL com o repo em `/mnt/c/...`, segue o guia **[docs/docker-wsl-ubuntu.md](docs/docker-wsl-ubuntu.md)** (permissões, paths e checklist). Opcional: `bash scripts/docker-wsl-check.sh` na raiz (Linux/WSL).
+
+**Resumo mínimo** (detalhes no guia):
+
+```bash
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker "$USER"
+# Novo login na sessão WSL/Ubuntu (ou: no Windows, wsl --shutdown)
+docker run --rm hello-world
+```
+
+Com o utilizador no grupo `docker` e sessão recarregada, evita usar `sudo docker` no dia a dia.
+
 **Requisitos:** Java 21, Maven 3.9+, Node 20+, PostgreSQL 16+ (ou só Docker).
 
 Na raiz existe **Maven Wrapper** (`mvnw` / `mvnw.cmd`): podes usar `.\mvnw.cmd` em Windows ou `./mvnw` no Git Bash/Linux no lugar de `mvn` (mesma versão para toda a gente/CI).
 
 ```bash
-docker compose up -d db
-mvn -q -DskipTests package
-mvn spring-boot:run
-# API em http://localhost:8080 (definido em application.yml). Alinhe o proxy Vite ou VITE_API_BASE se mudar a porta.
+docker compose up -d
+# API em http://localhost:8080 (serviço `api` no compose)
 ```
 
 Frontend:
@@ -151,6 +166,45 @@ Variáveis úteis:
 | `VITE_API_BASE` | URL pública da API no build do frontend (sem barra final) |
 | `VITE_CSP_CONNECT_SRC` | Origens extra em `connect-src` da CSP (ex.: API noutro domínio), separadas por espaço |
 
+### Troubleshooting — `POST /api/v1/auth/login` retorna 401
+
+O login **não** usa `UserDetailsService`: o fluxo é `AuthLoginUseCase` → `UserRepository.findByEmailIgnoreCase` + `PasswordEncoder.matches` na coluna **`password_hash`**. Um 401 genérico (“Credenciais inválidas”) quase sempre é **email sem correspondência** ou **hash/senha em desacordo**.
+
+1. **Confere o utilizador no Postgres** (valores do `docker compose` de desenvolvimento: utilizador `loja_user`, base `loja_db`, contentor `loja-postgres`):
+
+   ```bash
+   docker exec -it loja-postgres psql -U loja_user -d loja_db -c "
+   SELECT id, email, left(password_hash, 7) AS prefix, length(password_hash) AS tamanho
+   FROM users
+   WHERE lower(email) = lower('exemplo@email.com');
+   "
+   ```
+
+2. **Interpretação rápida**
+
+   | Resultado | Significado |
+   |-----------|-------------|
+   | 0 linhas | Utilizador inexistente — usar `POST /api/v1/auth/register` ou inserir linha válida. O `docker-compose.yml` de desenvolvimento define `LOJAPP_REGISTRATION_ENABLED=true` no serviço `api` para o registo público funcionar sem variáveis extra. |
+   | `prefix` começa por `$2a$`, `$2b$` ou `$2y$` e `tamanho = 60` | Hash BCrypt plausível; se ainda der 401, confere **a mesma** palavra-passe usada no `curl`, espaços no email no JSON, ou email no banco com typo/espaço. |
+   | Texto plano (ex. dígitos sem `$2`) ou `tamanho ≠ 60` | Atualizar `password_hash` com BCrypt (força **12** rounds, alinhado a `BCryptPasswordEncoder(12)` no código). |
+
+3. **Gerar hash BCrypt (12 rounds)** sem depender de `main` no JAR:
+
+   ```bash
+   docker run --rm python:3.12-alpine sh -c "pip install -q bcrypt && python -c \"import bcrypt; print(bcrypt.hashpw(b'SUA_SENHA', bcrypt.gensalt(rounds=12)).decode())\""
+   ```
+
+   Depois, no `psql`:
+
+   ```sql
+   UPDATE users SET password_hash = 'COLA_O_HASH_AQUI'
+   WHERE lower(email) = lower('exemplo@email.com');
+   ```
+
+4. **Porta ao testar com `curl`:** no fluxo oficial por `docker-compose.yml`, a API responde em **8080** no host (`http://localhost:8080/api/v1/auth/login`).
+
+5. **`curl: (56) Recv failure: Connection reset by peer`:** o Tomcat caiu ou nunca arrancou. Vê `docker logs loja-api --tail 80`. Causas frequentes: JDBC com host errado (na rede Compose usa-se o nome do serviço **`db`**, não `loja-postgres`); Postgres ainda a aceitar ligações (o `docker-compose` espera pelo healthcheck do `db`); falta de **`LOJAPP_JWT_SECRET`**; erro do Flyway/PSQL. O compose de desenvolvimento inclui **Redis** e `SPRING_DATA_REDIS_HOST=redis` porque o projeto tem `spring-boot-starter-data-redis`.
+
 **Testes:**
 
 ```bash
@@ -165,10 +219,26 @@ cd frontend && npm run e2e
 | Caminho | Objetivo |
 |--------|----------|
 | `scripts/verify-api-env.ps1` / `scripts/verify-api-env.sh` | Verifica variáveis e pré-requisitos da API antes de subir/deploy |
-| `scripts/setup-pilotos-xml-folders.ps1` | Cria em disco a pasta local de XMLs de piloto (fora do Git); ver `docs/lojapp/02-pilotos-e-xmls.md` |
 | `scripts/import-nfe-folder.sh` | Importa lote de XML de NFe para ambiente de teste |
 | `scripts/run-nfe-integration-tests.sh` | Executa a bateria de testes de integração NFe |
 | `scripts/git-untrack-frontend-artifacts.ps1` | Remove artefatos (`target`, `dist`, `node_modules`, `build`) do índice Git; commit só se necessário; `-NoPush` opcional |
+| `scripts/package-source-safe.ps1` | Gera ZIP seguro do código-fonte, excluindo segredos e artefatos locais (`.env`, `backup.sql`, `target`, etc.) |
+
+### Empacotamento seguro (ZIP de código-fonte)
+
+Antes de partilhar o projeto fora do GitHub (ex.: envio direto por ZIP), use:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/package-source-safe.ps1
+```
+
+Com nome/caminho customizado:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/package-source-safe.ps1 -OutputZip "C:\temp\lojapp-safe.zip"
+```
+
+O script exclui automaticamente `.env`, `backup.sql`, `target/`, `.git/` e artefatos comuns do frontend.
 
 ## Deploy (sugestão)
 

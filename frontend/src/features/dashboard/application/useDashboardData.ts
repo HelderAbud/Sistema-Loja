@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useIsFetching, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { dashboardBrands, dashboardInventoryKpis, dashboardProductAbc } from "../../../api";
-import { queryKeys } from "../../../queryKeys";
+import { dashboardBrands, dashboardInventoryKpis, dashboardProductAbc } from "@/api";
+import { queryKeys } from "@/queryKeys";
 
 export function useDashboardData(applied: { from?: string; to?: string }) {
   const rangeKey = `${applied.from ?? ""}|${applied.to ?? ""}`;

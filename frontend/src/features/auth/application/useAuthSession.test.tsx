@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { useAuthStore } from "../../../authStore";
+import { useAuthStore } from "@/authStore";
 import { useAuthSession } from "./useAuthSession";
 
 const { apiMock } = vi.hoisted(() => ({
@@ -12,7 +12,7 @@ const { apiMock } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("../../../api", () => ({
+vi.mock("@/api", () => ({
   login: apiMock.login,
   register: apiMock.register,
   authLogout: apiMock.authLogout,

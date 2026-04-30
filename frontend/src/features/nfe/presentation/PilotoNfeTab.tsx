@@ -6,8 +6,8 @@ import {
   importNfe,
   type NfeApplySuggestionsResponse,
   type NfeImportResponse,
-} from "../../../api";
-import { invalidateLojappDataQueries } from "../../../queryKeys";
+} from "@/api";
+import { invalidateLojappDataQueries } from "@/queryKeys";
 import { isNfeApplySuggestionsReady } from "../domain/nfeApplyEligibility";
 
 export function PilotoNfeTab() {

@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { TestQueryProvider } from "../../../test/queryWrapper";
+import { TestQueryProvider } from "@/test/queryWrapper";
 import { PilotoNfeTab } from "./PilotoNfeTab";
 
 const { importNfeMock, applyNfeImportSuggestionsMock } = vi.hoisted(() => ({
@@ -8,8 +8,8 @@ const { importNfeMock, applyNfeImportSuggestionsMock } = vi.hoisted(() => ({
   applyNfeImportSuggestionsMock: vi.fn(),
 }));
 
-vi.mock("../../../api", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("../../../api")>();
+vi.mock("@/api", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/api")>();
   return {
     ...actual,
     importNfe: importNfeMock,

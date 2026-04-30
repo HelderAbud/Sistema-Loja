@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useCurrentUser } from "@/hooks";
 import { BRAND_NAME, BRAND_TAGLINE } from "../brand";
-import { useCurrentUser } from "../hooks";
 import { BrandsTab } from "../features/brands/presentation/BrandsTab";
 import { PilotoDashboardTab } from "../features/dashboard";
 import { PilotoInventoryTab } from "../features/inventory";

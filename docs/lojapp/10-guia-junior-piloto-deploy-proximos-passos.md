@@ -223,7 +223,7 @@ Esta parte junta **visão geral**, **ordem correta de ferramentas**, **comandos 
 |------:|--------|----------------|
 | 1 | **Preparar ambiente** | Instalar JDK, Maven, Node (front), Git, Docker, editor. |
 | 2 | **Subir infra (Docker)** | PostgreSQL 16 a escutar (normalmente porta **5432**). |
-| 3 | **Backend (API)** | `mvn spring-boot:run` na **raiz** — sobe Spring Boot, aplica **Flyway**, expõe REST em **http://localhost:8080**. |
+| 3 | **Backend (API)** | `mvn spring-boot:run` na **raiz** - sobe Spring Boot, aplica **Flyway**, expõe REST em **http://localhost:8000**. |
 | 4 | **Frontend (SPA)** | `cd frontend` → `npm install` → `npm run dev` — Vite em **http://localhost:3000** com **proxy** `/api` → API. |
 | 5 | **Base de dados** | Schema criado/atualizado **automaticamente** ao arrancar a API (scripts em `src/main/resources/db/migration/`). **Não** há Prisma/TypeORM no sentido dos tutoriais Node; o equivalente é **Flyway + JPA**. |
 | 6 | **Integração total** | Login no browser, criar dados, confirmar que a UI fala com a API e a API com o Postgres. |
@@ -232,7 +232,7 @@ Esta parte junta **visão geral**, **ordem correta de ferramentas**, **comandos 
 **Checklist — visão geral**
 
 - [ ] Percebeste que a **API não é** `cd backend && npm run dev` neste repo.
-- [ ] Sabes que **porta 8080** = API e **porta 3000** = Vite (ver `frontend/vite.config.ts`).
+- [ ] Sabes que **porta 8000** = API e **porta 3000** = Vite (ver `frontend/vite.config.ts`).
 - [ ] Tens Docker pronto **antes** de esperar que a API ligue à base de dados.
 
 ---
@@ -245,7 +245,7 @@ Esta parte junta **visão geral**, **ordem correta de ferramentas**, **comandos 
 | **Base de dados** | **PostgreSQL** 16 (recomendado via Docker) |
 | **Frontend** | React 19, **Vite** 6, TypeScript (`frontend/`) |
 | **Infra local** | **Docker Compose** na raiz (`docker-compose.yml`: serviço `db` e opcionalmente `api`) |
-| **Documentação viva da API** | Swagger UI — **http://localhost:8080/swagger-ui.html** (com API em perfil default) |
+| **Documentação viva da API** | Swagger UI - **http://localhost:8000/swagger-ui.html** (com API em perfil default) |
 | **Versionamento** | Git (GitHub ou outro remoto) |
 
 Se num tutorial aparecer **Express, NestJS ou Prisma** como backend deste repo, **ignora** — aplica a outro projeto. Aqui o fluxo é: **Postgres → Spring Boot (Flyway incluído) → React**.
@@ -345,7 +345,7 @@ docker compose up -d db
 - A JVM sobe o Spring Boot.  
 - O **Flyway** corre migrations em `src/main/resources/db/migration/` — crias/atualizas tabelas.  
 - Endpoints REST ficam disponíveis (prefixo típico `/api/v1/...`).  
-- **Swagger:** http://localhost:8080/swagger-ui.html (porta por defeito; se mudaste `server.port`, ajusta o URL).
+- **Swagger:** http://localhost:8000/swagger-ui.html (porta por defeito; se mudaste `server.port`, ajusta o URL).
 
 **Testar a API sem frontend**
 
@@ -375,7 +375,7 @@ npm run dev
 **O que acontece**
 
 - O servidor de desenvolvimento Vite sobe em **http://localhost:3000** (definido em `vite.config.ts`).  
-- Os pedidos a **`/api/...`** são **encaminhados por proxy** para **http://localhost:8080** — desde que a API esteja a correr.
+- Os pedidos a **`/api/...`** são **encaminhados por proxy** para **http://localhost:8000** - desde que a API esteja a correr.
 
 **Variáveis de ambiente (sobretudo em build / produção)**
 
@@ -386,7 +386,7 @@ npm run dev
 
 | Sintoma | Causa provável |
 |---------|----------------|
-| Erro 502 / “Falha no proxy” no browser | API **não** está na porta 8080 ou não arrancou. |
+| Erro 502 / "Falha no proxy" no browser | API **não** está na porta 8000 ou não arrancou. |
 | Login “não liga” | CORS ou URL errada em cenário **sem** proxy (ex.: build estático sem `VITE_API_BASE`). |
 
 **Checklist — Etapa 4**
@@ -474,7 +474,7 @@ Depois: **Pull Request** → revisão → merge na branch alvo (`develop` / `mai
 |---|---------|----------------------------|
 | 1 | “Nada corre” / API não liga à BD | Docker **e** contentor Postgres; credenciais alinhadas com `application.yml` / compose. |
 | 2 | API não arranca por JWT | `LOJAPP_JWT_SECRET` definido e **longo** o suficiente. |
-| 3 | Frontend em branco / 502 em `/api` | API na **8080**? `mvn spring-boot:run` ativo? |
+| 3 | Frontend em branco / 502 em `/api` | API na **8000**? `mvn spring-boot:run` ativo? |
 | 4 | Erro ao migrar (Flyway) | Logs na consola; se for **V3** e dados legados, **Parte 4.4**. |
 | 5 | CORS em **produção** | `LOJAPP_CORS_ORIGINS` com o domínio exato do frontend (ver **Parte 4.1**). |
 | 6 | “Segui um tutorial Node” | Volta à **3.1** — stack deste repo é **Java + Spring** na raiz. |
@@ -496,7 +496,7 @@ Depois: **Pull Request** → revisão → merge na branch alvo (`develop` / `mai
 - [ ] Segredo JWT seguro (32+ caracteres), ex. PowerShell:  
   `$env:LOJAPP_JWT_SECRET = "aqui-uma-frase-longa-e-secreta-32chars"`
 - [ ] `mvn spring-boot:run` na raiz — consola **sem** erro vermelho no arranque.
-- [ ] Browser: **http://localhost:8080/swagger-ui.html** abre (porta por defeito; ajuste se mudou `server.port`).
+- [ ] Browser: **http://localhost:8000/swagger-ui.html** abre (porta por defeito; ajuste se mudou `server.port`).
 
 **Se falhar:** sem API não há piloto — resolve DB e arranque primeiro.
 
@@ -845,9 +845,9 @@ docker compose -f docker-compose.prod.yml up -d --build
 
 **Verificações rápidas:**
 
-- Saúde: `curl -s http://localhost:8080/actuator/health` (ajusta porta se alterares o mapeamento no compose).
-- OpenAPI desligado: `curl -s -o NUL -w "%{http_code}" http://localhost:8080/v3/api-docs` — esperado **404** (ou não **200**), pois `springdoc.api-docs.enabled: false` em `application-prod.yml`.
-- Login: `POST http://localhost:8080/api/v1/auth/login` com JSON email/password; deve devolver JWT.
+- Saúde: `curl -s http://localhost:8000/actuator/health` (ajusta porta se alterares o mapeamento no compose).
+- OpenAPI desligado: `curl -s -o NUL -w "%{http_code}" http://localhost:8000/v3/api-docs` - esperado **404** (ou não **200**), pois `springdoc.api-docs.enabled: false` em `application-prod.yml`.
+- Login: `POST http://localhost:8000/api/v1/auth/login` com JSON email/password; deve devolver JWT.
 
 **Explicação:** este passo garante segurança mínima e evita “falso positivo” de ambiente local.
 

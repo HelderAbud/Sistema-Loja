@@ -1,8 +1,8 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adjustStock, listLowStock } from "../../../api";
-import { TableSkeleton } from "../../../components/ui/TableSkeleton";
-import { invalidateLojappDataQueries, queryKeys } from "../../../queryKeys";
+import { adjustStock, listLowStock } from "@/api";
+import { TableSkeleton } from "@/components/ui/TableSkeleton";
+import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 import { validateManualStockAdjust } from "../domain/manualAdjust";
 
 export function PilotoInventoryTab() {

@@ -1,9 +1,9 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { createBrand, listBrands } from "../../../api";
-import { TableSkeleton } from "../../../components/ui/TableSkeleton";
-import { invalidateLojappDataQueries, queryKeys } from "../../../queryKeys";
+import { createBrand, listBrands } from "@/api";
+import { TableSkeleton } from "@/components/ui/TableSkeleton";
+import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 
 export function BrandsTab() {
   const queryClient = useQueryClient();

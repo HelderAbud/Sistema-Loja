@@ -4,14 +4,14 @@
 # Uso:
 #   export LOJAPP_VERIFY_EMAIL='piloto1+...@loja-exemplo.com'
 #   export LOJAPP_VERIFY_PASSWORD='...'
-#   export API_BASE='http://localhost:8080'   # opcional
+#   export API_BASE='http://localhost:8000'   # opcional
 #   ./scripts/verify-api-env.sh
 #
 # Requisitos: curl; jq OU python3 (para JSON do login e contagens opcionais).
 
 set -euo pipefail
 
-API_BASE="${API_BASE:-http://localhost:8080}"
+API_BASE="${API_BASE:-http://localhost:8000}"
 API_BASE="${API_BASE%/}"
 
 if [[ -z "${LOJAPP_VERIFY_EMAIL:-}" || -z "${LOJAPP_VERIFY_PASSWORD:-}" ]]; then

@@ -1,7 +1,7 @@
 import { type FormEvent, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { queryKeys } from "../../../queryKeys";
+import { queryKeys } from "@/queryKeys";
 import { toIsoEndOfDay, toIsoStartOfDay } from "../domain/dateIsoRange";
 
 export function useDashboardFilters() {

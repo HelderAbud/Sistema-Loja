@@ -1,4 +1,4 @@
-import type { NfeImportResponse } from "../../../api";
+import type { NfeImportResponse } from "@/api";
 
 /** Pode aplicar sugestões (botão ativo): há resultado com marca ou fornecedor e não há mutação em curso. */
 export function isNfeApplySuggestionsReady(
