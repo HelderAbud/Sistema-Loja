@@ -19,6 +19,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Caso de uso: registar venda e baixar stock na mesma transacção. Suporta {@code Idempotency-Key}.
@@ -53,6 +54,7 @@ public class CreateSaleUseCase {
         this.businessMetrics = businessMetrics;
     }
 
+    @Transactional
     public SaleCreatedResponse execute(
             long userId, SaleRequest request, Optional<String> idempotencyKeyHeader) {
         String fingerprint = RequestFingerprint.saleRequestHash(request);

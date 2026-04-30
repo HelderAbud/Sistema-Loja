@@ -18,9 +18,6 @@ function url(path: string): string {
 /** Resposta de login/registo/refresh: só o JWT de acesso; refresh em cookie HttpOnly. */
 export type AccessTokenResponse = { accessToken: string };
 
-/** @deprecated usar `AccessTokenResponse` */
-export type TokenResponse = AccessTokenResponse;
-
 /** POST /auth/refresh com cookie; não usa access atual nem apiJson (evita recursão em 401). */
 async function renewAccessTokenViaRefreshCookie(): Promise<string | null> {
   try {
@@ -119,14 +116,4 @@ export async function apiJson<T>(
   const bodyText = await res.text();
   if (!bodyText) return undefined as T;
   return JSON.parse(bodyText) as T;
-}
-
-/** @deprecated use useAuthStore.getState().accessToken */
-export function getToken(): string | null {
-  return getAccessToken();
-}
-
-/** @deprecated use useAuthStore.getState().setAccessToken */
-export function setToken(token: string | null): void {
-  useAuthStore.getState().setAccessToken(token);
 }

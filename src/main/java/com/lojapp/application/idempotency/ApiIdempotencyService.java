@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lojapp.config.IdempotencyProperties;
 import com.lojapp.dto.ApiErrorCode;
+import com.lojapp.dto.sale.PosSaleFinalizeResponse;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.entity.ApiIdempotency;
 import com.lojapp.exception.domain.LojappDomainException;
@@ -124,6 +125,47 @@ public class ApiIdempotencyService {
         persistRow(userId, ApiIdempotencyScope.STOCK_ADJUST, keyHash, requestHash, VOID_BODY_JSON, now);
     }
 
+    @Transactional
+    public PosSaleFinalizeResponse runPosSaleFinalize(
+            long userId,
+            Optional<String> idempotencyHeader,
+            String requestHash,
+            Supplier<PosSaleFinalizeResponse> create) {
+        Optional<String> keyOpt = normalizeKey(idempotencyHeader);
+        if (keyOpt.isEmpty()) {
+            return create.get();
+        }
+        String keyHash = TokenHashUtil.sha256Hex(keyOpt.get());
+        int k1 = lockKey1(userId);
+        int k2 = lockKey2(ApiIdempotencyScope.POS_SALE_FINALIZE, keyHash);
+        repository.advisoryXactLock(k1, k2);
+
+        Instant now = Instant.now();
+        Optional<ApiIdempotency> existing =
+                repository.findByUser_IdAndScopeAndKeyHash(
+                        userId, ApiIdempotencyScope.POS_SALE_FINALIZE.name(), keyHash);
+
+        if (existing.isPresent()) {
+            ApiIdempotency row = existing.get();
+            if (isExpired(row.getCreatedAt(), now)) {
+                repository.delete(row);
+            } else {
+                if (!row.getRequestHash().equals(requestHash)) {
+                    throw new LojappDomainException(
+                            ApiErrorCode.CONFLICT,
+                            "Idempotency-Key reutilizada com corpo de pedido diferente.");
+                }
+                businessMetrics.recordIdempotencyReplay(ApiIdempotencyScope.POS_SALE_FINALIZE);
+                return readPosSaleResponse(row.getResponseJson());
+            }
+        }
+
+        PosSaleFinalizeResponse created = create.get();
+        String json = writePosSaleResponse(created);
+        persistRow(userId, ApiIdempotencyScope.POS_SALE_FINALIZE, keyHash, requestHash, json, now);
+        return created;
+    }
+
     private void persistRow(
             long userId,
             ApiIdempotencyScope scope,
@@ -154,6 +196,22 @@ public class ApiIdempotencyService {
             return objectMapper.writeValueAsString(created);
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Serialização idempotência venda", e);
+        }
+    }
+
+    private PosSaleFinalizeResponse readPosSaleResponse(String json) {
+        try {
+            return objectMapper.readValue(json, PosSaleFinalizeResponse.class);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Resposta idempotência PDV corrupta", e);
+        }
+    }
+
+    private String writePosSaleResponse(PosSaleFinalizeResponse created) {
+        try {
+            return objectMapper.writeValueAsString(created);
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Serialização idempotência PDV", e);
         }
     }
 

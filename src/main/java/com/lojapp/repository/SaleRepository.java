@@ -82,6 +82,52 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             @Param("userId") Long userId, @Param("from") Instant from, @Param("to") Instant to);
 
     @Query(
+            value =
+                    """
+            select
+                b.id as brandId,
+                b.name as brandName,
+                coalesce(sum(s.quantity), 0) as quantity,
+                coalesce(sum(s.unit_price * s.quantity), 0) as revenue,
+                coalesce(sum((s.unit_price - s.unit_cost) * s.quantity), 0) as profit
+            from sales s
+            left join products p on p.id = s.product_id
+            left join brands b on b.id = p.brand_id
+            where s.user_id = :userId
+              and s.sold_at >= :from
+              and s.sold_at <= :to
+              and s.cancelled_at is null
+            group by b.id, b.name
+            order by profit desc, revenue desc, b.id asc
+            """,
+            nativeQuery = true)
+    List<BrandKpiAggregateRow> aggregateBrandKpisPage(
+            @Param("userId") Long userId,
+            @Param("from") Instant from,
+            @Param("to") Instant to,
+            Pageable pageable);
+
+    @Query(
+            value =
+                    """
+            select count(*)
+            from (
+                select 1
+                from sales s
+                left join products p on p.id = s.product_id
+                left join brands b on b.id = p.brand_id
+                where s.user_id = :userId
+                  and s.sold_at >= :from
+                  and s.sold_at <= :to
+                  and s.cancelled_at is null
+                group by b.id, b.name
+            ) grouped
+            """,
+            nativeQuery = true)
+    long countBrandKpiGroups(
+            @Param("userId") Long userId, @Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(
             """
             select
                 p.id as productId,

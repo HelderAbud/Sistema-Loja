@@ -14,10 +14,15 @@ import {
   YAxis,
 } from "recharts";
 import {
+  closeCashSession,
+  finalizePosSale,
+  getCloseCashSessionPreview,
+  getCurrentCashSession,
   listBrands,
   listProducts,
   listSales,
-  registerSale,
+  openCashSession,
+  type PosPaymentMethod,
   summarizeSales,
   summarizeSalesDaily,
 } from "../api";
@@ -362,10 +367,28 @@ export function CartPage() {
   const clear = useCartStore((state) => state.clear);
   const removeItem = useCartStore((state) => state.removeItem);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
-  const saleMut = useMutation({ mutationFn: registerSale });
+  const [paymentMethod, setPaymentMethod] = useState<PosPaymentMethod>("CARD");
+  const [checkoutNonce, setCheckoutNonce] = useState(0);
+  const currentCashQ = useQuery({
+    queryKey: ["storefront", "pos", "cash-session", "current"],
+    queryFn: getCurrentCashSession,
+  });
+  const saleMut = useMutation({
+    mutationFn: ({
+      body,
+      idempotencyKey,
+    }: {
+      body: Parameters<typeof finalizePosSale>[0];
+      idempotencyKey: string;
+    }) => finalizePosSale(body, idempotencyKey),
+  });
 
   async function checkoutOrder() {
     setCheckoutMessage(null);
+    if (items.length !== 1) {
+      setCheckoutMessage("No MVP atual, cada venda PDV suporta 1 item por vez no carrinho.");
+      return;
+    }
     const invalidProduct = items.find((item) => !Number.isFinite(Number(item.id)));
     if (invalidProduct) {
       setCheckoutMessage(
@@ -373,19 +396,32 @@ export function CartPage() {
       );
       return;
     }
+    if (!currentCashQ.data?.open || !currentCashQ.data?.cashSessionId) {
+      setCheckoutMessage("Abra um turno de caixa para concluir venda no PDV.");
+      return;
+    }
 
     try {
-      for (const item of items) {
-        await saleMut.mutateAsync({
+      const item = items[0];
+      const totalAmount = Number(item.price) * Number(item.quantity);
+      const idempotencyKey = `pdv-checkout-${item.id}-${item.quantity}-${item.price}-${checkoutNonce}`;
+      await saleMut.mutateAsync({
+        body: {
+          cashSessionId: currentCashQ.data.cashSessionId,
           productId: Number(item.id),
           quantity: item.quantity,
           unitPrice: item.price,
-        });
-      }
+          unitCost: null,
+          payments: [{ paymentMethod, amount: totalAmount }],
+        },
+        idempotencyKey,
+      });
+      await currentCashQ.refetch();
       clear();
-      setCheckoutMessage("Pedido registado com sucesso na API de vendas.");
+      setCheckoutNonce((value) => value + 1);
+      setCheckoutMessage("Venda PDV registada com sucesso.");
     } catch (error: unknown) {
-      setCheckoutMessage(`Falha ao concluir pedido: ${String(error)}`);
+      setCheckoutMessage(`Falha ao concluir venda PDV: ${String(error)}`);
     }
   }
 
@@ -414,15 +450,34 @@ export function CartPage() {
           <p>Subtotal: {formatCurrency(totals.subtotal)}</p>
           <p>Envio: {formatCurrency(totals.shipping)}</p>
           <p className="store-price-xl">Total: {formatCurrency(totals.total)}</p>
+          <div className="field-row">
+            <label>
+              Método de pagamento
+              <select
+                value={paymentMethod}
+                onChange={(event) => setPaymentMethod(event.target.value as PosPaymentMethod)}
+              >
+                <option value="CASH">Dinheiro</option>
+                <option value="CARD">Cartão</option>
+                <option value="PIX">PIX</option>
+              </select>
+            </label>
+          </div>
+          {!currentCashQ.data?.open ? (
+            <p className="store-muted">Sem turno aberto: checkout PDV bloqueado.</p>
+          ) : null}
+          {items.length > 1 ? (
+            <p className="store-muted">Checkout PDV MVP: mantenha 1 item por venda.</p>
+          ) : null}
           {checkoutMessage ? <p className="muted">{checkoutMessage}</p> : null}
           <div className="store-cta-row">
             <button
               type="button"
               className="primary"
-              disabled={saleMut.isPending || items.length === 0}
+              disabled={saleMut.isPending || items.length !== 1 || !currentCashQ.data?.open}
               onClick={checkoutOrder}
             >
-              Finalizar pedido
+              Finalizar venda PDV
             </button>
             <button type="button" className="ghost" onClick={clear}>
               Limpar carrinho
@@ -435,6 +490,96 @@ export function CartPage() {
 }
 
 export function SellerAreaPage() {
+  const [openingAmountInput, setOpeningAmountInput] = useState("100.00");
+  const [countedAmountInput, setCountedAmountInput] = useState("");
+  const [differenceReason, setDifferenceReason] = useState("");
+  const [managerApproval, setManagerApproval] = useState(false);
+
+  const currentCashQ = useQuery({
+    queryKey: ["storefront", "pos", "cash-session", "current"],
+    queryFn: getCurrentCashSession,
+  });
+
+  const openCashSessionMut = useMutation({
+    mutationFn: openCashSession,
+    onSuccess: () => {
+      toast.success("Turno aberto com sucesso.");
+      void currentCashQ.refetch();
+      setCountedAmountInput("");
+      setDifferenceReason("");
+      setManagerApproval(false);
+    },
+    onError: (error: unknown) => toast.error(String(error)),
+  });
+
+  const closePreviewMut = useMutation({
+    mutationFn: ({
+      cashSessionId,
+      countedAmount,
+    }: {
+      cashSessionId: number;
+      countedAmount?: number;
+    }) => getCloseCashSessionPreview(cashSessionId, countedAmount),
+    onError: (error: unknown) => toast.error(String(error)),
+  });
+
+  const closeCashSessionMut = useMutation({
+    mutationFn: closeCashSession,
+    onSuccess: () => {
+      toast.success("Turno fechado com sucesso.");
+      void currentCashQ.refetch();
+      closePreviewMut.reset();
+      setCountedAmountInput("");
+      setDifferenceReason("");
+      setManagerApproval(false);
+    },
+    onError: (error: unknown) => toast.error(String(error)),
+  });
+
+  const currentCash = currentCashQ.data;
+  const hasOpenCashSession = Boolean(currentCash?.open && currentCash?.cashSessionId);
+
+  function parseAmount(value: string): number | null {
+    const normalized = value.trim().replace(",", ".");
+    if (!normalized) return null;
+    const parsed = Number(normalized);
+    if (!Number.isFinite(parsed)) return null;
+    return parsed;
+  }
+
+  async function handleOpenCashSession() {
+    const openingAmount = parseAmount(openingAmountInput);
+    if (openingAmount == null || openingAmount < 0) {
+      toast.error("Informe um saldo inicial válido.");
+      return;
+    }
+    await openCashSessionMut.mutateAsync({ openingAmount });
+  }
+
+  async function handlePreviewCloseCashSession() {
+    if (!currentCash?.cashSessionId) return;
+    const countedAmount = parseAmount(countedAmountInput);
+    await closePreviewMut.mutateAsync({
+      cashSessionId: currentCash.cashSessionId,
+      countedAmount: countedAmount ?? undefined,
+    });
+  }
+
+  async function handleCloseCashSession() {
+    if (!currentCash?.cashSessionId) return;
+    const countedAmount = parseAmount(countedAmountInput);
+    if (countedAmount == null || countedAmount < 0) {
+      toast.error("Informe um valor de conferência válido.");
+      return;
+    }
+    await closeCashSessionMut.mutateAsync({
+      cashSessionId: currentCash.cashSessionId,
+      countedAmount,
+      differenceReason: differenceReason.trim() || null,
+      managerApproval,
+    });
+  }
+
   return (
     <div className="store-bg">
       <StoreHeader />
@@ -457,6 +602,147 @@ export function SellerAreaPage() {
             </article>
           </div>
           <p className="store-muted">Marca com melhor performance: {sellerSnapshot.topBrand}</p>
+        </section>
+        <section className="store-card">
+          <h2>Caixa PDV</h2>
+          <p className="store-muted">Abertura, acompanhamento e fechamento do turno atual.</p>
+
+          {currentCashQ.isPending ? (
+            <p className="store-muted">A carregar sessão de caixa…</p>
+          ) : null}
+          {currentCashQ.error ? <p className="error banner">{String(currentCashQ.error)}</p> : null}
+
+          {hasOpenCashSession ? (
+            <div className="store-kpis">
+              <article>
+                <strong>#{currentCash?.cashSessionId}</strong>
+                <span>turno aberto</span>
+              </article>
+              <article>
+                <strong>{formatCurrency(Number(currentCash?.expectedAmount ?? 0))}</strong>
+                <span>total esperado</span>
+              </article>
+              <article>
+                <strong>{formatCurrency(Number(currentCash?.expectedCashAmount ?? 0))}</strong>
+                <span>dinheiro</span>
+              </article>
+              <article>
+                <strong>{formatCurrency(Number(currentCash?.expectedCardAmount ?? 0))}</strong>
+                <span>cartão</span>
+              </article>
+              <article>
+                <strong>{formatCurrency(Number(currentCash?.expectedPixAmount ?? 0))}</strong>
+                <span>pix</span>
+              </article>
+            </div>
+          ) : (
+            <p className="store-muted">Sem turno aberto no momento.</p>
+          )}
+
+          <div className="field-row">
+            <label>
+              Saldo inicial (abertura)
+              <input
+                value={openingAmountInput}
+                onChange={(event) => setOpeningAmountInput(event.target.value)}
+                placeholder="100.00"
+              />
+            </label>
+            <div className="store-cta-row">
+              <button
+                type="button"
+                className="primary"
+                disabled={openCashSessionMut.isPending || hasOpenCashSession}
+                onClick={() => {
+                  void handleOpenCashSession();
+                }}
+              >
+                {openCashSessionMut.isPending ? "A abrir..." : "Abrir turno"}
+              </button>
+            </div>
+          </div>
+
+          <hr />
+
+          <div className="field-row">
+            <label>
+              Valor contado no caixa
+              <input
+                value={countedAmountInput}
+                onChange={(event) => setCountedAmountInput(event.target.value)}
+                placeholder="100.00"
+                disabled={!hasOpenCashSession}
+              />
+            </label>
+            <label>
+              Motivo da diferença (se houver)
+              <input
+                value={differenceReason}
+                onChange={(event) => setDifferenceReason(event.target.value)}
+                placeholder="ex.: diferença no troco"
+                disabled={!hasOpenCashSession}
+              />
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={managerApproval}
+                onChange={(event) => setManagerApproval(event.target.checked)}
+                disabled={!hasOpenCashSession}
+              />{" "}
+              Aprovação de manager
+            </label>
+          </div>
+
+          <div className="store-cta-row">
+            <button
+              type="button"
+              className="ghost"
+              disabled={closePreviewMut.isPending || !hasOpenCashSession}
+              onClick={() => {
+                void handlePreviewCloseCashSession();
+              }}
+            >
+              {closePreviewMut.isPending ? "A calcular..." : "Ver prévia de fechamento"}
+            </button>
+            <button
+              type="button"
+              className="primary"
+              disabled={closeCashSessionMut.isPending || !hasOpenCashSession}
+              onClick={() => {
+                void handleCloseCashSession();
+              }}
+            >
+              {closeCashSessionMut.isPending ? "A fechar..." : "Fechar turno"}
+            </button>
+          </div>
+
+          {closePreviewMut.data ? (
+            <div className="store-kpis">
+              <article>
+                <strong>{formatCurrency(Number(closePreviewMut.data.expectedAmount))}</strong>
+                <span>esperado</span>
+              </article>
+              <article>
+                <strong>{formatCurrency(Number(closePreviewMut.data.countedAmount ?? 0))}</strong>
+                <span>contado</span>
+              </article>
+              <article>
+                <strong>
+                  {formatCurrency(Number(closePreviewMut.data.differenceAmount ?? 0))}
+                </strong>
+                <span>diferença</span>
+              </article>
+              <article>
+                <strong>{formatCurrency(Number(closePreviewMut.data.toleranceAmount))}</strong>
+                <span>tolerância</span>
+              </article>
+              <article>
+                <strong>{closePreviewMut.data.managerApprovalRequired ? "Sim" : "Não"}</strong>
+                <span>aprovação manager</span>
+              </article>
+            </div>
+          ) : null}
         </section>
       </main>
     </div>
