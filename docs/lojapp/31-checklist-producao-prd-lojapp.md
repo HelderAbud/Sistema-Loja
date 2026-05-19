@@ -2,23 +2,23 @@
 
 Documento operacional para repetir em cada entrega. Funde o fluxo **PM/PO + PRD → implementação → verificação → merge → QA** com rotina **LojApp** (comandos, docs e demo).
 
-**Origens:** `10-guia-junior-piloto-deploy-proximos-passos.md`, `29-resumo-executivo-status-riscos-proximos-passos.md`, `plano-execucao-sprint-1-a-6.md`, `AGENTS.md`. *(Planos opcionais apenas no workspace local: `.cursor/plans/` — ignorados pelo Git.)*
+**Origens:** `10-guia-junior-piloto-deploy-proximos-passos.md`, `plano-execucao-sprint-1-a-6.md`, `CHECKLIST_FINAL.md` (raiz), `AGENTS.md`. *(Documento `29-resumo-executivo-*` não está versionado neste repo — usar sprint + `CHECKLIST_FINAL` para estado macro.)*
 
-**Nota de nomenclatura:** este ficheiro é o **checklist de fluxo PRD → entrega**. O **Dia 8 do plano 14d** está detalhado em `31-checklist-seguranca-operacional-dia8.md` (outro doc, mesmo prefixo numérico).
+**Nota de nomenclatura:** este ficheiro é o **checklist de fluxo PRD → entrega**. Itens «Dia 8 / Dia 9» do plano 14d: usar **`CHECKLIST_FINAL.md`** (secções 4 e 8), `13-threat-model-auth-spa.md`, `12-contratos-autenticacao-e-sessao.md` e scripts em `scripts/verify-*.ps1` quando existirem.
 
 ---
 
 ## Alinhamento com o plano demo / portfólio (estado no repositório)
 
-Referência canónica: `10-guia-junior-piloto-deploy-proximos-passos.md` e `29-resumo-executivo-status-riscos-proximos-passos.md`. Atualizar esta secção quando o roadmap mudar.
+Referência canónica: `10-guia-junior-piloto-deploy-proximos-passos.md`, `plano-execucao-sprint-1-a-6.md` e `CHECKLIST_FINAL.md`. Atualizar esta secção quando o roadmap mudar.
 
 | Situação | Dias / tema | Detalhe |
 |----------|-------------|---------|
 | **Fechado no plano (com evidência)** | 1-5 | Escopo, baseline local, contratos API, E2E (`real-flow` + suite; preferir `CI=true` com API em `127.0.0.1:8000`). |
 | **Fechado com ressalva “sintético”** | 7 | Import em lote **validado com fixtures** (`scripts/fixtures/nfe-lote-sintetico-dia7`, `scripts/import-nfe-folder.ps1`). **Não substitui** XML real de piloto. |
 | **Preparação sem prova de negócio** | 6 | Docs/tabela em `02-pilotos-e-xmls.md`; **coleta de XMLs reais** e linhas com prova continuam abertas no plano. |
-| **Fechado no plano (docs + scripts)** | 8–9 | `31-checklist-seguranca-operacional-dia8.md`, `32-checklist-hardening-deploy-dia9.md`, `verify-auth-errors.ps1`, `verify-deploy-health.ps1`, `verify-compose-prod-config.ps1`. |
-| **Pendência operacional explícita** | 9 | Subir stack real `docker compose -f docker-compose.prod.yml up -d` no ambiente candidato e preencher registo no doc 32 (secção indicada lá). |
+| **Fechado no plano (docs + scripts)** | 8–9 | `CHECKLIST_FINAL.md` (segurança/deploy), `13-threat-model-auth-spa.md`, `docker-compose.prod.yml`; scripts `verify-auth-errors.ps1`, `verify-deploy-health.ps1`, `verify-compose-prod-config.ps1` quando existirem. |
+| **Pendência operacional explícita** | 9 | Subir stack real `docker compose -f docker-compose.prod.yml up -d` no ambiente candidato e registar evidência em `18-decisoes-e-checklist-entrega.md` ou PR. |
 | **Em aberto no plano** | 10–14, gate diário, critério final 2 semanas | Publicação URL, smoke remoto, screenshots, README, GitHub, pitch; critérios globais do fim das 2 semanas. |
 
 **Armadilhas já registadas no plano:** `npm install` na **raiz** (usar `frontend/`); validação de JSON no PowerShell (`Invoke-WebRequest`) pode dar **falso negativo** — preferir `curl -i` para contratos HTTP.
@@ -113,7 +113,7 @@ Referência canónica: `10-guia-junior-piloto-deploy-proximos-passos.md` e `29-r
 - [ ] `npx playwright install chromium` (se primeira vez).
 - [ ] `npm run e2e` ou, para reprodutibilidade com API local, `CI=true npm run e2e` (API tipicamente `127.0.0.1:8000`; credenciais `E2E_REAL_*` quando o cenário for "real flow").
 - [ ] Fora de CI, `reuseExistingServer` no Playwright pode reutilizar preview com config errada — em dúvida usar `CI=true`.
-- [ ] Matriz / cenários: `docs/lojapp/24-matriz-cenarios-e2e.md` (atualizar se novos fluxos críticos).
+- [ ] Cenários E2E críticos documentados no PR ou em `18-decisoes-e-checklist-entrega.md` (ficheiro `24-matriz-cenarios-e2e.md` não está neste repo).
 
 ---
 
@@ -134,9 +134,9 @@ Mínimo para demo/piloto (ajustar rotas à UI atual):
 ## 10. Segurança e configuração (antes de “go”)
 
 - [ ] Sem secrets no repositório; JWT/DB só em ambiente (`LOJAPP_JWT_SECRET`, etc.).
-- [ ] Revisar CORS, cookies/sessão, erros de auth (401/403) — `12-contratos-autenticacao-e-sessao.md`; melhorias contínuas em `20-backlog-seguranca-residual.md`.
-- [ ] **Mínimo operacional (plano Dia 8):** `31-checklist-seguranca-operacional-dia8.md`; script auxiliar `scripts/verify-auth-errors.ps1`.
-- [ ] **Deploy / hardening (plano Dia 9):** `32-checklist-hardening-deploy-dia9.md`, `21-go-no-go-deploy-producao.md`, `docker-compose.prod.yml`, `scripts/verify-deploy-health.ps1` e `scripts/verify-compose-prod-config.ps1`.
+- [ ] Revisar CORS, cookies/sessão, erros de auth (401/403) — `12-contratos-autenticacao-e-sessao.md`, `13-threat-model-auth-spa.md`.
+- [ ] **Mínimo operacional (plano Dia 8):** `CHECKLIST_FINAL.md` secção 4; script auxiliar `scripts/verify-auth-errors.ps1` se existir.
+- [ ] **Deploy / hardening (plano Dia 9):** `CHECKLIST_FINAL.md` secção 8, `docker-compose.prod.yml`, `application-prod.yml`, `scripts/verify-deploy-health.ps1` e `scripts/verify-compose-prod-config.ps1` quando existirem.
 
 ---
 
@@ -145,7 +145,7 @@ Mínimo para demo/piloto (ajustar rotas à UI atual):
 - [ ] Commits **pequenos e legíveis**; mensagens claras.
 - [ ] Abrir PR; revisar **diff completo** (intenção + edge cases + migrations).
 - [ ] CI verde no branch (GitHub Actions).
-- [ ] **Definition of Done:** `docs/lojapp/27-definition-of-done-unico.md` + `11-checklist-pr-e-convencoes-repositorio.md`.
+- [ ] **Definition of Done:** `18-decisoes-e-checklist-entrega.md` + `11-checklist-pr-e-convencoes-repositorio.md`.
 
 ---
 
@@ -159,7 +159,7 @@ Mínimo para demo/piloto (ajustar rotas à UI atual):
 
 ## 13. Ciclo demo / portfolio / piloto (condensado 14 dias)
 
-Use como **segunda passagem** quando o objetivo for demo estável ou case público. A coluna **Plano 14d** corresponde aos mesmos marcos descritos em `10-guia-junior-piloto-deploy-proximos-passos.md` e `29-resumo-executivo-status-riscos-proximos-passos.md` (atualizar quando fechar itens).
+Use como **segunda passagem** quando o objetivo for demo estável ou case público. A coluna **Plano 14d** corresponde aos marcos em `10-guia-junior-piloto-deploy-proximos-passos.md` e `plano-execucao-sprint-1-a-6.md` (atualizar quando fechar itens).
 
 | Bloco | Entregável / verificação | Plano 14d |
 |-------|---------------------------|-----------|
@@ -196,8 +196,8 @@ Use como **segunda passagem** quando o objetivo for demo estável ou case públi
 | Aceite e decisões | `18-decisoes-e-checklist-entrega.md` |
 | Índice geral | `00-indice-prioridades-sistema.md` |
 | Índice técnico | `28-indice-tecnico-unificado.md` |
-| Segurança mínima (Dia 8 plano) | `31-checklist-seguranca-operacional-dia8.md` |
-| Hardening deploy (Dia 9 plano) | `32-checklist-hardening-deploy-dia9.md` |
+| Segurança mínima (Dia 8 plano) | `CHECKLIST_FINAL.md` secção 4; `13-threat-model-auth-spa.md` |
+| Hardening deploy (Dia 9 plano) | `CHECKLIST_FINAL.md` secção 8; `docker-compose.prod.yml` |
 | **Este checklist (PRD → entrega)** | `31-checklist-producao-prd-lojapp.md` |
 
 ---

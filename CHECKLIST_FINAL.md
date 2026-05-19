@@ -10,6 +10,78 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 
 ---
 
+## Execucao vertical com agentes de IA (como fechar o checklist)
+
+**Execucao vertical** aqui significa: para cada objetivo do checklist, percorrer **de ponta a ponta** o que esse objetivo exige — codigo, testes, documentacao e evidencia — em **uma fatia coerente**, em vez de espalhar tarefas soltas por camada sem fechar o ciclo.
+
+### Como usar agentes de IA neste fluxo
+
+| Papel (conceitual) | Responsabilidade | Saida esperada |
+|--------------------|------------------|----------------|
+| **Orquestrador (tu)** | Escolhe o proximo passo do plano sequencial (Fase 1 -> 2 -> 3), aprova escopo e gates sensiveis. | Decisao: qual P0/P1 atacar agora. |
+| **Agente planejador** | Quebra o passo em subtarefas verificaveis; aponta arquivos e riscos. | Lista curta de edits + comandos de validacao. |
+| **Agente executor** | Implementa o minimo necessario; segue convencoes do repo (`AGENTS.md`, Flyway, contratos). | Diff focado + checklist atualizado quando concluido. |
+| **Agente qualidade** | Roda testes, ArchUnit, lint; bloqueia merge se vermelho. | Log de comandos + pass/fail. |
+| **Revisor humano** | Obrigatorio em: migrations destrutivas, mudanca de contrato publico da API, segredos, dados sensiveis. | Aprovacao explicita antes de publicar. |
+
+### Ciclo recomendado por item do checklist
+
+1. **Escolher um unico item** (ex.: Passo 5 segredos, ou um P0 da secao 4 Seguranca).
+2. **Definir criterio de aceite** copiado do proprio checklist ("Como validar").
+3. **Implementar + verificar** com comando real (`mvn test`, perfil `ci-unit-tests` / `ci-integration-tests` conforme `pom.xml`).
+4. **Marcar `[x]`** so quando o criterio estiver cumprido (sem marcar por antecipacao).
+5. **Seguir para o proximo** na ordem do plano sequencial ate zerar P0.
+
+### Ambiente sem Docker Desktop (Windows)
+
+- Integracoes com **Testcontainers** exigem **Docker acessivel** (ex.: Ubuntu, WSL2 com Docker, ou CI no GitHub).
+- No Windows **sem** Docker no PATH: trate integracao como **validar no Ubuntu** ou **no CI**; nao bloqueie o resto do checklist (Passos 1-3, higiene, README) por isso.
+- Referencia operacional: `docs/docker-wsl-ubuntu.md` e `AGENTS.md` na raiz do repositorio.
+
+### O que nao delegar aos agentes sem gate
+
+- Rotacao de segredos apos exposicao.
+- Apagar ou reescrever historico Git.
+- Merge em `main` sem pipeline verde e revisao humana em mudancas sensiveis.
+
+---
+
+## Automatizado vs manual (fechamento do projeto)
+
+### Ja aplicado automaticamente (sem decisao tua)
+
+- **`.gitignore` reforcado:** `application-local.yml` / `application-local.properties` (overrides Spring locais); `id_rsa` / `*.ppk` (chaves comuns acidentais); mantidos `.env`, `backup.sql`, certificados, etc.
+- **CI (`.github/workflows/ci.yml`):** o job `repo-hygiene` falha se `.env` estiver versionado (alem de `node_modules`, `backup.sql`, relatorios Playwright).
+- **Varredura leve de higiene:** sem `System.out.println` / `printStackTrace` obvios em `src/main/java`; sem `console.log` obvios em `frontend/src` (ultima verificacao por grep).
+
+### Nao feito de proposito (exige decisao ou validacao tua)
+
+- **Passo 6 (JaCoCo):** percentuais minimos de cobertura e politica de falha no CI.
+- **Passo 7 (CI):** existem **dois** workflows (`ci.yml` e `backend-ci.yml`); unificar ou manter e escolha de equipa — nao alterado aqui.
+- **Remocao ampla de codigo morto / refactors:** so com criterio ou revisao manual.
+- **Passo 4 (screenshots/GIF):** depende de capturas reais na tua maquina.
+
+### Sequencia manual recomendada (ordem logica)
+
+1. **Passo 4** — Gerar ficheiros em `docs/screenshots/` e ativar imagens/GIF no `README.md`.
+2. **Passo 5** — Confirmar que `.env` / `backup.sql` / `target/` nunca vao em commit nem ZIP; rotacionar segredos se houve exposicao; usar so `.env.example` no Git.
+3. **Secao 4.2 + 6.1 (P1)** — Smoke manual (login, CRUD, venda, stock, dashboard) ou repetir no Ubuntu com Docker para integracao.
+4. **Secoes 7.1, 8, 9** — Historico Git, deploy alvo, pitch e casos para entrevista (trabalho teu).
+5. **Fase 2** — JaCoCo e consolidacao de CI **depois** de decidires thresholds e estrategia de pipeline.
+6. **Gate final** — So publicar quando todos os P0 estiverem objetivamente fechados.
+
+### Referencia rapida dos gates em `ci.yml`
+
+- `repo-hygiene` — bloqueia artefactos e `.env` no indice Git.
+- `backend-unit` — `./mvnw -Pci-unit-tests test`.
+- `backend-integration` — `./mvnw -Pci-integration-tests test` (Docker/Testcontainers no runner).
+- `frontend` — `lint`, `test`, `e2e`, `build`.
+- `docker-image` — build da imagem + Trivy (conforme workflow).
+
+Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres). Consolidar com `ci.yml` e opcional (Passo 7).
+
+---
+
 ## Analise Consolidada - Especialista 3 e 4
 
 ### Especialista 3 (Recrutador Tecnico) - diagnostico de empregabilidade
@@ -61,6 +133,7 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 - [ ] **Passo 5 - Seguranca de segredos e ambiente**
   - **Por que:** vazamento de credencial reprova projeto.
   - **Como validar:** nenhum segredo em git + `.gitignore` revisado + envs documentadas.
+  - **Automatizado (ja feito):** ver secao **Automatizado vs manual** mais acima neste ficheiro; validacao final e rotacao de segredos continuam **contigo**.
 
 ### Fase 2 - Fortalecimento tecnico (P1)
 
@@ -167,8 +240,9 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 
 - [ ] **P0** Garantir que segredos nao estao no repositorio
   - `.env`, JWT secret e credenciais apenas por variavel de ambiente.
-- [ ] **P0** Revisar `.gitignore` para arquivos sensiveis
+- [x] **P0** Revisar `.gitignore` para arquivos sensiveis
   - Bloquear chaves, dumps e credenciais locais.
+  - Reforco aplicado: overrides Spring locais, chaves SSH comuns; CI bloqueia `.env` versionado.
 
 ### 4.2 API e protecao de acesso
 
@@ -245,8 +319,9 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 - [ ] **P0** Incluir evidencias visuais
   - Screenshots atuais e, se possivel, GIF curto do fluxo principal.
   - Estado atual: estrutura e instrucoes prontas no README; faltam arquivos visuais reais em `docs/screenshots/`.
-- [ ] **P1** Documentar CI/qualidade
+- [x] **P1** Documentar CI/qualidade
   - Quais gates existem e o que eles garantem.
+  - Resumo incluido neste ficheiro (secao **Referencia rapida dos gates em `ci.yml`**); detalhe completo nos YAML em `.github/workflows/`.
 
 ---
 
@@ -342,5 +417,5 @@ Se qualquer item acima falhar, status do projeto: **NAO PRONTO PARA ENVIO**.
 - [ ] Banco conectado
 - [ ] Login funcionando
 - [ ] CRUD funcionando
-- [ ] Docker funcionando
+- [ ] Docker disponivel **onde for necessario** (integracao/Testcontainers: Ubuntu/WSL/CI) — no Windows sem Docker Desktop, validar essa linha no ambiente Linux ou no CI
 - [ ] Projeto pronto para GitHub
