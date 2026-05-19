@@ -21,8 +21,13 @@
         <java.version>21</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <!-- CVE-2026-42198: parent 3.5.14 ainda traz 42.7.10; Trivy CI exige >= 42.7.11 -->
+        <!-- Overrides vs Spring Boot 3.5.14 BOM — Trivy docker-image (app.jar) -->
+        <!-- CVE-2026-42198 -->
         <postgresql.version>42.7.11</postgresql.version>
+        <!-- CVE-2026-42583, CVE-2026-42584, CVE-2026-42587 -->
+        <netty.version>4.1.133.Final</netty.version>
+        <!-- CVE-2026-41293, CVE-2026-43512, CVE-2026-41284, CVE-2026-42498, CVE-2026-43513 -->
+        <tomcat.version>10.1.55</tomcat.version>
     </properties>
 
     <dependencies>
