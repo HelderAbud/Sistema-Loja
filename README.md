@@ -1,34 +1,38 @@
-# LojApp — Loja Sistema
+# LojApp — Plataforma de Gestão Comercial
 
-[![Docker / WSL2 / Ubuntu](https://img.shields.io/badge/Docker-WSL2%20%26%20Ubuntu-2496ED?logo=docker&logoColor=white)](docs/docker-wsl-ubuntu.md)
+[![Java 21](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
+[![Spring Boot 3.5](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
+[![Docker](https://img.shields.io/badge/Docker-WSL2%20%26%20Ubuntu-2496ED?logo=docker&logoColor=white)](docs/docker-wsl-ubuntu.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Plataforma de Gestão Comercial com Automação Fiscal** (**LojApp**: API Spring Boot + SPA React neste repositório).
-
-## Em 15 segundos
-
-| Pergunta | Resposta |
-|----------|----------|
-| **O que é?** | SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, vendas, importação de **NFe (XML)** e **dashboard** com KPIs, gráficos e **curva ABC**. |
-| **Que problema resolve?** | Sai da planilha frágil e do ERP pesado: um fluxo **MVP real** — nota entra, stock atualiza, venda baixa saldo, indicadores apoiam **compra e precificação**. Dados **isolados por conta** (multi-loja: uma conta = uma loja). |
-| **Como rodar?** | `docker compose up -d` para stack completa + `cd frontend && npm install && npm run dev` para desenvolvimento visual — ver secção [Como rodar (local)](#como-rodar-local). |
-| **Por que é especial?** | **JWT + refresh** com rotação, **rate limit**, **Actuator/Prometheus**, **auditoria**, API documentada (OpenAPI), frontend com **TanStack Query**, gráficos e **skeleton** no dashboard — stack alinhada a **produção**, não a demo descartável. |
+SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, vendas, importação de **NFe (XML)**, **PDV/caixa**, dashboard com KPIs, gráficos e **curva ABC**.
 
 ---
 
-## Screenshots (portfolio)
+## Visão geral
 
-Coloque **capturas reais** em [`docs/screenshots/`](docs/screenshots/) com estes nomes (o recrutador precisa *ver* o produto):
+| | |
+|---|---|
+| **Problema** | Sair da planilha frágil sem cair num ERP pesado |
+| **Solução** | Fluxo MVP real — nota entra, stock atualiza, venda baixa saldo, indicadores apoiam compra e precificação |
+| **Isolamento** | Dados isolados por conta (multi-loja: uma conta = uma loja) |
+| **Diferenciais** | JWT + refresh com rotação, rate limit, Actuator/Prometheus, auditoria, OpenAPI, TanStack Query, skeletons no dashboard |
 
-| Ficheiro | Ecrã |
-|----------|------|
-| `01-login.png` | Login / registo |
+---
+
+## Screenshots
+
+> Adicione capturas reais em [`docs/screenshots/`](docs/screenshots/) para dar credibilidade imediata ao portfólio.
+
+| Arquivo | Tela |
+|---------|------|
+| `01-login.png` | Login / registro |
 | `02-dashboard.png` | Dashboard (KPIs + gráficos) |
-| `03-vendas.png` | Histórico de vendas ou nova venda |
+| `03-vendas.png` | Histórico de vendas |
 | `04-estoque.png` | Stock / inventário |
 | `05-importacao-xml.png` | Importação NFe (XML) |
-| `06-relatorios.png` | Vista de relatórios (ex.: tabela ABC / marcas no dashboard) |
-
-Quando os ficheiros existirem, descomente o bloco abaixo no README (ou substitua por caminhos reais). **Estado atual:** a pasta só contém o guia — execute a app localmente, capture os ecrãs e faça commit dos PNG para o portfólio ganhar credibilidade imediata.
+| `06-relatorios.png` | Relatórios (curva ABC / marcas) |
 
 <!--
 ![Login](docs/screenshots/01-login.png)
@@ -39,18 +43,13 @@ Quando os ficheiros existirem, descomente o bloco abaixo no README (ou substitua
 ![Relatórios](docs/screenshots/06-relatorios.png)
 -->
 
-Guia rápido: [`docs/screenshots/README.md`](docs/screenshots/README.md).
-
-**Piloto (3 contas / isolamento):** podes guardar capturas de evidência em [`docs/screenshots/piloto/`](docs/screenshots/piloto/README.md), alinhado à Parte 1 de [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
-
-### GIF curto do fluxo principal
-
-Além dos screenshots, inclua um GIF curto (`10-20s`) em `docs/screenshots/07-fluxo-principal.gif` com o fluxo:
-`login -> dashboard -> venda/estoque -> importação XML`.
+Inclua também um GIF curto (`10–20 s`) do fluxo principal em `docs/screenshots/07-fluxo-principal.gif`:
 
 ```md
 ![Fluxo principal](docs/screenshots/07-fluxo-principal.gif)
 ```
+
+Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
 ---
 
@@ -58,35 +57,53 @@ Além dos screenshots, inclua um GIF curto (`10-20s`) em `docs/screenshots/07-fl
 
 | Camada | Tecnologia |
 |--------|------------|
-| API | Java 21, Spring Boot 3.4, JPA, Flyway, PostgreSQL |
-| Segurança | JWT (access + **refresh** opaco com rotação), rate limit (Bucket4j), roles no token (`USER`/`ADMIN`) |
-| Docs API | springdoc-openapi / Swagger (desligável em `prod`) |
-| Observabilidade | Spring **Actuator** (health, info, **metrics**, **Prometheus**), logs com **correlation id** (`X-Request-Id` / MDC) |
-| Frontend | React 19, Vite 6, TypeScript, **TanStack Query**, **Zustand**, **Recharts**, **Sonner** (toasts) |
-| Testes | JUnit 5, Mockito, H2 (CI), Testcontainers + Postgres quando Docker disponível |
+| API | Java 21, Spring Boot 3.5, JPA, Flyway, PostgreSQL 16 |
+| Segurança | JWT (access + refresh opaco com rotação), Bucket4j (rate limit), `@PreAuthorize` por role |
+| Documentação | springdoc-openapi / Swagger (desativável em `prod`) |
+| Observabilidade | Spring Actuator (`health`, `info`, `metrics`, `prometheus`), correlation id via `X-Request-Id` / MDC |
+| Frontend | React 19, Vite 6, TypeScript, TanStack Query, Zustand, Recharts, Sonner |
+| Testes | JUnit 5, Mockito, H2 (testes leves), Testcontainers + Postgres (integração) |
 
-## Arquitetura (visão rápida)
+### Roles (`AppRole`)
+
+| Role | Uso típico |
+|------|------------|
+| `USER` | Operador da loja (catálogo, vendas, NFe, dashboard) |
+| `ADMIN` | Administração (`GET /users/admin/list`, etc.) |
+| `REPRESENTATIVE` | Representante B2B (mesmo acesso operacional base que `USER`) |
+| `CASHIER` / `SELLER` | PDV — finalização de venda |
+| `MANAGER` | PDV — abertura/fecho de turno de caixa |
+
+---
+
+## Arquitetura
 
 ```text
-[ React SPA ]  -- JWT + refresh -->  [ REST /api/v1 ]
-                                         |
-                    +--------------------+--------------------+
-                    |                    |                    |
-              AuthController      LojApp controllers    Actuator /prometheus
-                    |                    |                    |
-               AuthService          Services          Métricas JVM/HTTP
-                    |                    |
-             refresh_tokens          Repositories (user_id em todo o lado)
-             audit_logs              PostgreSQL (Flyway V1…V6)
+[ React SPA ]  ──── JWT + refresh ────▶  [ REST /api/v1 ]
+                                               │
+                   ┌───────────────────────────┼──────────────────────┐
+                   │                           │                      │
+             AuthController           LojApp controllers        Actuator /prometheus
+                   │                           │                      │
+            Auth*UseCase                 application/              Métricas JVM/HTTP
+                   │                    (use cases)                      │
+              AuthService                  Services                      │
+                   │                           │                      │
+             refresh_tokens              Repositories
+             audit_logs                  PostgreSQL (Flyway V1…V20)
 ```
 
-- **Camadas:** controllers finos → `service` → `repository`; DTOs para contratos HTTP; entidades em `entity`.
-- **Auditoria:** tabela `audit_logs` com eventos (`AUTH_LOGIN`, `SALE_CREATED`, `NFE_IMPORT`, `STOCK_ADJUST`, …).
-- **Dashboard:** KPIs de stock (`/dashboard/inventory-kpis`), marcas (`/dashboard/brands`), **ABC por produto** (`/dashboard/products-abc`).
+**Camadas:** controllers finos → `application` (use cases) + `service` → `repository`. DTOs para contratos HTTP; entidades em `entity`. ArchUnit valida dependências entre camadas.
 
-### Erros da API (formato estável)
+**Auditoria:** tabela `audit_logs` com eventos (`AUTH_LOGIN`, `SALE_CREATED`, `NFE_IMPORT`, `STOCK_ADJUST`, …).
 
-Respostas de erro seguem `ApiErrorResponse` (tratamento em `GlobalExceptionHandler`):
+**Dashboard:** `/dashboard/inventory-kpis`, `/dashboard/brands`, `/dashboard/products-abc` (curva ABC).
+
+**PDV:** turnos de caixa (`/pos/cash-sessions/*`) e finalização de venda (`/pos/sales/finalize`).
+
+### Formato de erro da API
+
+Respostas de erro seguem `ApiErrorResponse` (tratado em `GlobalExceptionHandler`):
 
 ```json
 {
@@ -98,16 +115,18 @@ Respostas de erro seguem `ApiErrorResponse` (tratamento em `GlobalExceptionHandl
 }
 ```
 
-O campo `code` usa valores do enum `ApiErrorCode` (ex.: `BAD_REQUEST`, `FORBIDDEN`, `CONFLICT`, `INTERNAL_ERROR`) ou o nome do estado HTTP em respostas via `ResponseStatusException`. O SPA lê este formato em `frontend/src/api.ts`.
+O campo `code` usa valores do enum `ApiErrorCode` (`BAD_REQUEST`, `FORBIDDEN`, `CONFLICT`, `INTERNAL_ERROR`, …). O SPA consome este formato em `frontend/src/api.ts`.
+
+---
 
 ## Fluxo principal
 
-1. Registo/login → JSON com `accessToken` (só em memória no browser); refresh opaco em cookie HttpOnly (`lojapp_rt`, path `/api/v1/auth`). Ao abrir a app, tenta-se renovar o access a partir dessa cookie.
-2. Cadastro de marcas/produtos; ajuste de stock ou entrada via **importação NFe**.
-3. Vendas registam movimento `SALE` e reduzem saldo.
-4. Dashboard consolida **faturamento/lucro por marca**, **top produtos**, **curva ABC** (faixas 80/15/5 %) e alertas de stock.
+1. **Auth** — registro/login devolve `accessToken` (memória do browser); refresh opaco em cookie HttpOnly (`lojapp_rt`, path `/api/v1/auth`). Ao abrir a app, renova o access a partir dessa cookie.
+2. **Catálogo** — marcas, fornecedores, coleções, modelos e produtos; ajuste de stock ou entrada via importação NFe.
+3. **Vendas** — registam movimento `SALE` e reduzem saldo; PDV com pagamentos e turno de caixa.
+4. **Dashboard** — faturamento/lucro por marca, top produtos, curva ABC (80/15/5 %) e alertas de stock baixo.
 
-### Importação NFe → stock (sequência)
+### Importação NFe → stock
 
 ```mermaid
 sequenceDiagram
@@ -121,214 +140,232 @@ sequenceDiagram
   API-->>UI: nfeEntryId, nfeNumber, importedItems
 ```
 
+---
+
+## Portas (referência única)
+
+| Serviço | Porta host | Onde está definido |
+|---------|------------|-------------------|
+| **API Spring Boot** | **8000** | `application.yml`, `docker-compose.yml`, `docker-compose.prod.yml`, `vite.config.ts` (proxy) |
+| **Frontend Vite (dev)** | **3000** | `frontend/vite.config.ts` |
+| **PostgreSQL** | **5432** | `docker-compose.yml` |
+| **Redis** | **6379** | `docker-compose.yml` |
+
+**Links locais (dev):**
+
+| | URL |
+|---|-----|
+| Frontend | http://localhost:3000 |
+| Login | http://localhost:3000/login |
+| Swagger | http://localhost:8000/swagger-ui.html |
+| Health | http://localhost:8000/actuator/health |
+
+O proxy Vite encaminha `/api/*` → `http://localhost:8000`. Se a API não estiver na **8000**, o front devolve 502.
+
+---
+
 ## Como rodar (local)
 
-### Docker no WSL2 / Ubuntu
+**Requisitos:** Java 21, Maven 3.9+, Node 20+, Docker (recomendado para Postgres/Redis).
 
-Se aparecer `permission denied` ao ligar ao Docker daemon, ou fores correr `docker compose` a partir de WSL com o repo em `/mnt/c/...`, segue o guia **[docs/docker-wsl-ubuntu.md](docs/docker-wsl-ubuntu.md)** (permissões, paths e checklist). Opcional: `bash scripts/docker-wsl-check.sh` na raiz (Linux/WSL).
+Maven Wrapper na raiz: `./mvnw` (Linux/Mac) ou `.\mvnw.cmd` (Windows).
 
-**Resumo mínimo** (detalhes no guia):
+### 0. Variáveis de ambiente (obrigatório)
 
 ```bash
-curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker "$USER"
-# Novo login na sessão WSL/Ubuntu (ou: no Windows, wsl --shutdown)
-docker run --rm hello-world
+cp .env.example .env
 ```
 
-Com o utilizador no grupo `docker` e sessão recarregada, evita usar `sudo docker` no dia a dia.
+Preencha no `.env`:
 
-**Requisitos:** Java 21, Maven 3.9+, Node 20+, PostgreSQL 16+ (ou só Docker).
+| Variável | Obrigatório | Descrição |
+|----------|-------------|-----------|
+| `POSTGRES_PASSWORD` | Sim (Docker) | Password do Postgres no Compose |
+| `LOJAPP_JWT_SECRET` | Sim | Segredo JWT (≥ 32 caracteres) |
+| `SPRING_DATASOURCE_PASSWORD` | Sim (Maven + Docker) | Mesmo valor que `POSTGRES_PASSWORD` |
+| `SPRING_DATASOURCE_URL` | Recomendado | Com Postgres do Compose: `jdbc:postgresql://localhost:5432/loja_db` |
+| `SPRING_DATASOURCE_USERNAME` | Recomendado | `loja_user` (Compose dev) |
+| `LOJAPP_CORS_ORIGINS` | Produção | Origens do frontend |
+| `VITE_API_BASE` | Build prod | URL pública da API (sem barra final) |
 
-Na raiz existe **Maven Wrapper** (`mvnw` / `mvnw.cmd`): podes usar `.\mvnw.cmd` em Windows ou `./mvnw` no Git Bash/Linux no lugar de `mvn` (mesma versão para toda a gente/CI).
+> **Não commite `.env`.** O repositório inclui apenas `.env.example`.
+
+### Fluxo A — recomendado para desenvolvimento diário
+
+Infra no Docker; API com Maven (hot reload, alinhado ao proxy Vite):
+
+```bash
+docker compose up -d db redis
+./mvnw spring-boot:run          # API → http://localhost:8000
+cd frontend && npm install && npm run dev   # SPA → http://localhost:3000
+```
+
+### Fluxo B — stack completa no Docker
 
 ```bash
 docker compose up -d
-# API em http://localhost:8080 (serviço `api` no compose)
+# API → http://localhost:8000 (mesma porta que Maven e proxy Vite)
+cd frontend && npm install && npm run dev
 ```
 
-Frontend:
+> **Não corra `mvn spring-boot:run` e o serviço `api` do Compose em simultâneo** — ambos usam a porta **8000** e o mesmo Postgres/Redis.
+
+### Fluxo C — produção local (exemplo)
 
 ```bash
+docker compose -f docker-compose.prod.yml up -d
+# API prod → http://localhost:8000 (Swagger desligado)
+```
+
+### Docker no WSL2 / Ubuntu
+
+Se aparecer `permission denied` ao conectar ao Docker daemon, siga [docs/docker-wsl-ubuntu.md](docs/docker-wsl-ubuntu.md).
+
+### Executar testes
+
+```bash
+# Backend
+./mvnw test
+
+# Frontend
 cd frontend
-npm install
-npm run dev
-# http://localhost:3000 — proxy `/api` para a API em desenvolvimento (Vite)
-# CSP: cabeçalho em dev e meta em `dist/index.html` após build (ver `frontend/vite.config.ts`).
+npm run lint
+npm run test
+npm run e2e
 ```
 
-Variáveis úteis:
+---
 
-| Variável | Descrição |
-|----------|-----------|
-| `LOJAPP_JWT_SECRET` | Segredo JWT (≥ 32 caracteres) |
-| `SPRING_DATASOURCE_URL` | JDBC PostgreSQL |
-| `LOJAPP_CORS_ORIGINS` | Origens CORS (produção) |
-| `LOJAPP_TRUST_FORWARD_HEADERS` | `true` só atrás de reverse proxy de confiança (rate limit auth usa então `X-Forwarded-For`) |
-| `VITE_API_BASE` | URL pública da API no build do frontend (sem barra final) |
-| `VITE_CSP_CONNECT_SRC` | Origens extra em `connect-src` da CSP (ex.: API noutro domínio), separadas por espaço |
+## Troubleshooting
 
-### Troubleshooting — `POST /api/v1/auth/login` retorna 401
+### `POST /api/v1/auth/login` retorna 401
 
-O login **não** usa `UserDetailsService`: o fluxo é `AuthLoginUseCase` → `UserRepository.findByEmailIgnoreCase` + `PasswordEncoder.matches` na coluna **`password_hash`**. Um 401 genérico (“Credenciais inválidas”) quase sempre é **email sem correspondência** ou **hash/senha em desacordo**.
+O login usa `AuthLoginUseCase` → `UserRepository.findByEmailIgnoreCase` + `PasswordEncoder.matches` em `password_hash`. 401 quase sempre = email inexistente ou senha errada.
 
-1. **Confere o utilizador no Postgres** (valores do `docker compose` de desenvolvimento: utilizador `loja_user`, base `loja_db`, contentor `loja-postgres`):
-
-   ```bash
-   docker exec -it loja-postgres psql -U loja_user -d loja_db -c "
-   SELECT id, email, left(password_hash, 7) AS prefix, length(password_hash) AS tamanho
-   FROM users
-   WHERE lower(email) = lower('exemplo@email.com');
-   "
-   ```
-
-2. **Interpretação rápida**
-
-   | Resultado | Significado |
-   |-----------|-------------|
-   | 0 linhas | Utilizador inexistente — usar `POST /api/v1/auth/register` ou inserir linha válida. O `docker-compose.yml` de desenvolvimento define `LOJAPP_REGISTRATION_ENABLED=true` no serviço `api` para o registo público funcionar sem variáveis extra. |
-   | `prefix` começa por `$2a$`, `$2b$` ou `$2y$` e `tamanho = 60` | Hash BCrypt plausível; se ainda der 401, confere **a mesma** palavra-passe usada no `curl`, espaços no email no JSON, ou email no banco com typo/espaço. |
-   | Texto plano (ex. dígitos sem `$2`) ou `tamanho ≠ 60` | Atualizar `password_hash` com BCrypt (força **12** rounds, alinhado a `BCryptPasswordEncoder(12)` no código). |
-
-3. **Gerar hash BCrypt (12 rounds)** sem depender de `main` no JAR:
-
-   ```bash
-   docker run --rm python:3.12-alpine sh -c "pip install -q bcrypt && python -c \"import bcrypt; print(bcrypt.hashpw(b'SUA_SENHA', bcrypt.gensalt(rounds=12)).decode())\""
-   ```
-
-   Depois, no `psql`:
-
-   ```sql
-   UPDATE users SET password_hash = 'COLA_O_HASH_AQUI'
-   WHERE lower(email) = lower('exemplo@email.com');
-   ```
-
-4. **Porta ao testar com `curl`:** no fluxo oficial por `docker-compose.yml`, a API responde em **8080** no host (`http://localhost:8080/api/v1/auth/login`).
-
-5. **`curl: (56) Recv failure: Connection reset by peer`:** o Tomcat caiu ou nunca arrancou. Vê `docker logs loja-api --tail 80`. Causas frequentes: JDBC com host errado (na rede Compose usa-se o nome do serviço **`db`**, não `loja-postgres`); Postgres ainda a aceitar ligações (o `docker-compose` espera pelo healthcheck do `db`); falta de **`LOJAPP_JWT_SECRET`**; erro do Flyway/PSQL. O compose de desenvolvimento inclui **Redis** e `SPRING_DATA_REDIS_HOST=redis` porque o projeto tem `spring-boot-starter-data-redis`.
-
-**Testes:**
+**1. Verificar utilizador no Postgres** (Compose dev: `loja_user` / `loja_db`, contentor `loja-postgres`):
 
 ```bash
-mvn test
-cd frontend && npm run lint
-cd frontend && npm run test
-cd frontend && npm run e2e
+docker exec -it loja-postgres psql -U loja_user -d loja_db -c "
+SELECT id, email, left(password_hash, 7) AS prefix, length(password_hash) AS tamanho
+FROM users
+WHERE lower(email) = lower('exemplo@email.com');
+"
 ```
+
+**2. Interpretar o resultado:**
+
+| Resultado | Causa provável |
+|-----------|----------------|
+| 0 linhas | Utilizador inexistente — use `POST /api/v1/auth/register` (`LOJAPP_REGISTRATION_ENABLED=true` no Compose dev) |
+| `prefix` `$2a$`/`$2b$`/`$2y$`, `tamanho = 60` | Hash BCrypt plausível — confira senha e email |
+| Texto plano ou `tamanho ≠ 60` | Atualize com BCrypt (12 rounds) |
+
+**3. Gerar hash BCrypt:**
+
+```bash
+docker run --rm python:3.12-alpine sh -c \
+  "pip install -q bcrypt && python -c \"import bcrypt; print(bcrypt.hashpw(b'SUA_SENHA', bcrypt.gensalt(rounds=12)).decode())\""
+```
+
+**4. Porta ao testar com `curl`:** API em **http://localhost:8000** (`http://localhost:8000/api/v1/auth/login`).
+
+**5. `curl: (56) Connection reset by peer`:** veja `docker logs loja-api --tail 80`. Causas: JDBC com host errado (use **`db`** na rede Compose), Postgres a iniciar, `LOJAPP_JWT_SECRET` ausente, erro Flyway.
+
+### Frontend 502 em `/api`
+
+A API não está em **http://localhost:8000**. Confirme com `curl http://localhost:8000/actuator/health`.
+
+---
+
+## API — Rotas principais (`/api/v1`)
+
+| Método | Caminho | Descrição |
+|--------|---------|-----------|
+| `POST` | `/auth/register` | Registro → tokens |
+| `POST` | `/auth/login` | Login → tokens |
+| `POST` | `/auth/refresh` | Renovar par access + refresh |
+| `POST` | `/auth/logout` | Terminar sessão (limpa cookie) |
+| `GET` | `/users/me` | Utilizador autenticado |
+| `GET` | `/lojapp/dashboard/brands` | KPI por marca (`from`, `to`) |
+| `GET` | `/lojapp/dashboard/products-abc` | Curva ABC / top produtos |
+| `GET` | `/lojapp/dashboard/inventory-kpis` | Totais SKUs, unidades, stock baixo |
+| `GET/POST` | `/lojapp/products`, `/brands`, `/suppliers`, … | Catálogo e hierarquia |
+| `POST` | `/lojapp/sales` | Registar venda |
+| `POST` | `/lojapp/sales/{id}/cancel` | Cancelar venda |
+| `POST` | `/lojapp/nfe/import` | Importar XML NFe |
+| `POST` | `/lojapp/inventory/adjust` | Ajuste manual de stock |
+| `POST` | `/lojapp/pos/sales/finalize` | Finalizar venda PDV |
+| `POST/GET` | `/lojapp/pos/cash-sessions/*` | Turno de caixa (abrir/fechar) |
+
+Documentação completa: **http://localhost:8000/swagger-ui.html** (desligado em `prod`).
+
+**Actuator:** em dev expõe `metrics` e `prometheus`. Em `SPRING_PROFILES_ACTIVE=prod` apenas `health` e `info` por defeito. Override: `LOJAPP_MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE`.
+
+---
 
 ## Scripts operacionais
 
 | Caminho | Objetivo |
-|--------|----------|
-| `scripts/verify-api-env.ps1` / `scripts/verify-api-env.sh` | Verifica variáveis e pré-requisitos da API antes de subir/deploy |
-| `scripts/import-nfe-folder.sh` | Importa lote de XML de NFe para ambiente de teste |
-| `scripts/run-nfe-integration-tests.sh` | Executa a bateria de testes de integração NFe |
-| `scripts/git-untrack-frontend-artifacts.ps1` | Remove artefatos (`target`, `dist`, `node_modules`, `build`) do índice Git; commit só se necessário; `-NoPush` opcional |
-| `scripts/package-source-safe.ps1` | Gera ZIP seguro do código-fonte, excluindo segredos e artefatos locais (`.env`, `backup.sql`, `target`, etc.) |
-
-### Empacotamento seguro (ZIP de código-fonte)
-
-Antes de partilhar o projeto fora do GitHub (ex.: envio direto por ZIP), use:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/package-source-safe.ps1
-```
-
-Com nome/caminho customizado:
+|---------|----------|
+| `scripts/verify-api-env.ps1` / `.sh` | Verifica variáveis antes de subir/deploy |
+| `scripts/import-nfe-folder.sh` | Importa lote de XMLs NFe |
+| `scripts/run-nfe-integration-tests.sh` | Bateria de testes integração NFe |
+| `scripts/git-untrack-frontend-artifacts.ps1` | Remove artefatos do índice Git |
+| `scripts/package-source-safe.ps1` | ZIP seguro do código-fonte |
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/package-source-safe.ps1 -OutputZip "C:\temp\lojapp-safe.zip"
 ```
 
-O script exclui automaticamente `.env`, `backup.sql`, `target/`, `.git/` e artefatos comuns do frontend.
+---
 
-## Deploy (sugestão)
+## Git: não versionar artefatos de build
 
-- **Backend:** imagem Docker (JAR + perfil `prod`), Postgres gerido (RDS, Supabase, Neon, etc.). Definir `SPRING_PROFILES_ACTIVE=prod`, `LOJAPP_JWT_SECRET` forte, `LOJAPP_CORS_ORIGINS` com o domínio do frontend.
-- **Frontend:** build estático (`npm run build`) em **Vercel**, **Netlify**, **Cloudflare Pages** ou bucket S3; apontar `VITE_API_BASE` para a API.
-- **Railway / Render / Fly.io / VPS:** um serviço para API + Postgres; outro ou CDN para o SPA.
-
-**Ter uma demo online muda o jogo no portfolio.** Guia detalhado: [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
-
-## API — rotas principais (`/api/v1`)
-
-| Método | Caminho | Descrição |
-|--------|---------|-----------|
-| POST | `/auth/register` | Registo → tokens |
-| POST | `/auth/login` | Login → tokens |
-| POST | `/auth/refresh` | Novo par access + refresh |
-| GET | `/lojapp/dashboard/brands` | KPI por marca (`from`, `to`) |
-| GET | `/lojapp/dashboard/products-abc` | Curva ABC / top produtos (`from`, `to`) |
-| GET | `/lojapp/dashboard/inventory-kpis` | Totais de SKUs, unidades, stock baixo |
-| … | `/lojapp/products`, `/sales`, `/nfe/import`, … | Ver Swagger em dev |
-
-**Actuator:** em **desenvolvimento** expõe também `metrics` e `prometheus`. Em **`SPRING_PROFILES_ACTIVE=prod`** só `health` e `info` ficam expostos por defeito (ver `application-prod.yml`). Para Prometheus noutro ambiente, defina `LOJAPP_MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE` (ex.: `health,info,prometheus`) e proteja na rede.
-
-## Git: não versionar `node_modules`, `dist`, `target`, `build`
-
-O [`.gitignore`](.gitignore) já exclui dependências e artefactos. Se **já foram commitados** por engano, remova do índice **sem apagar ficheiros locais** — isto é **obrigatório** para o repositório parecer profissional.
-
-**Um comando (Windows), na raiz do clone onde existe `.git`:**
+O `.gitignore` exclui `node_modules`, `dist`, `target` e `build`. Se entraram no índice:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.ps1
-# opcional: sem push
-powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.ps1 -NoPush
 ```
 
-O script faz `git rm -r --cached` em `frontend/node_modules`, `frontend/dist`, `target` e `build`. **Só cria commit** se algum desses paths estiver no índice; a mensagem é `chore: remove tracked build artifacts from git index`. Por omissão faz `git push`; para só preparar o commit localmente: `-NoPush` no fim do comando.
+---
 
-**Manual — Bash (macOS/Linux/Git Bash):**
+## Deploy
 
-```bash
-git rm -r --cached frontend/node_modules frontend/dist target build 2>/dev/null || true
-if ! git diff --cached --quiet; then
-  git commit -m "chore: remove tracked build artifacts from git index"
-fi
-git push
-```
+- **Backend:** imagem Docker (JAR + perfil `prod`), Postgres gerenciado. Defina `SPRING_PROFILES_ACTIVE=prod`, `LOJAPP_JWT_SECRET` forte, `LOJAPP_CORS_ORIGINS`.
+- **Frontend:** `npm run build` em Vercel, Netlify ou CDN; `VITE_API_BASE` apontando para a API.
+- **All-in-one:** Railway, Render, Fly.io ou VPS — ver `docker-compose.prod.yml`.
 
-**Manual — PowerShell:**
+Guia detalhado: [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
 
-```powershell
-git rm -r --cached frontend/node_modules 2>$null
-git rm -r --cached frontend/dist 2>$null
-git rm -r --cached target 2>$null
-git rm -r --cached build 2>$null
-git diff --cached --quiet; if ($LASTEXITCODE -ne 0) { git commit -m "chore: remove tracked build artifacts from git index" }
-git push
-```
+---
 
-> **Nota:** A pasta “Loja Sistema” que só tem código no Cursor pode não ser o clone Git (sem `.git`). Abra o projeto no **GitHub Desktop** ou `cd` para a pasta do clone real e execute aí.
+## Resultados do MVP
 
-Confirme com `git status` que só entram ficheiros de código. O histórico antigo ainda pode conter blobs grandes — para apagar do remoto é preciso `git filter-repo` ou repositório novo (só se for problema de tamanho).
+- Fluxo ponta a ponta: registro/login, catálogo, stock, venda, NFe, dashboard e PDV.
+- Segurança: JWT com refresh, `@PreAuthorize`, auditoria e isolamento por `user_id`.
+- Qualidade: testes unitários, ArchUnit, Testcontainers, CI (GitHub Actions).
+- Schema versionado com Flyway (V1…V20).
 
-## Documentação de produto
+## Próximos passos
+
+- PWA / modo offline leve; code-split do bundle do dashboard.
+- Expandir `@PreAuthorize` e políticas por role (admin multi-loja).
+- Soft delete em produtos; cache (Caffeine) em leituras frequentes.
+- Export CSV/PDF do dashboard; integração fiscal adicional.
+
+---
+
+## Documentação
 
 - [Escopo MVP](docs/lojapp/01-escopo-mvp.md)
-- [Guia júnior — deploy e próximos passos](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
-- [Plano piloto / implantação nas lojas](docs/lojapp/03-implantacao-pilotos.md)
-
-## Resultados alcançados (MVP)
-
-- Fluxo de ponta a ponta validado: registo/login, catálogo, stock, venda e dashboard.
-- Segurança e consistência operacional: JWT com refresh, auditoria por evento e isolamento por `user_id`.
-- Qualidade técnica com gates automatizados: testes unitários, arquitetura (ArchUnit) e integrações com Testcontainers.
-- Evolução de base de dados versionada com Flyway, reduzindo regressão de schema entre ambientes.
-
-## Próximos passos (ideias)
-
-- PWA / offline leve; code-split do bundle do dashboard.
-- `@PreAuthorize` por `app_role`; utilizador admin multi-loja.
-- Soft delete em produtos; cache (Caffeine) em leituras quentes.
-- Export CSV/PDF do dashboard; integração fiscal adicional.
+- [Plano piloto / implantação](docs/lojapp/03-implantacao-pilotos.md)
+- [Guia deploy e próximos passos](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
+- [Docker + WSL2 / Ubuntu](docs/docker-wsl-ubuntu.md)
 
 ## Licença
 
-Este projeto está disponível sob a licença MIT — ver [`LICENSE`](LICENSE).
+Distribuído sob a licença MIT — ver [`LICENSE`](LICENSE).
 
-## Origem
+---
 
-
-
-Repositório GitHub: [HelderAbud/Sistema-Loja](https://github.com/HelderAbud/Sistema-Loja).
+Repositório: [HelderAbud/Sistema-Loja](https://github.com/HelderAbud/Sistema-Loja)

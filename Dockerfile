@@ -17,5 +17,5 @@ WORKDIR /app
 COPY --from=build /app/target/lojapp-api-*.jar /app/app.jar
 RUN chown lojapp:lojapp /app/app.jar
 USER lojapp
-EXPOSE 8080
+EXPOSE 8000
 ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "/app/app.jar"]

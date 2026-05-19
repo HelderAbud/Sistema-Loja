@@ -28,10 +28,10 @@ services:
     build: .
     container_name: loja-api
     ports:
-      - "8080:8080"
+      - "8000:8000"
     environment:
-      # application.yml usa 8000 por omissão; no container alinhamos à 8080 para bater com ports abaixo.
-      SERVER_PORT: 8080
+      # Alinhado a application.yml (8000), vite.config.ts (proxy) e scripts de smoke/verify.
+      SERVER_PORT: 8000
       # Hostname tem de ser o *nome do serviço* na rede Compose: "db", não o container_name.
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/loja_db
       SPRING_DATASOURCE_USERNAME: loja_user
