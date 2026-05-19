@@ -1,3 +1,5 @@
+# Desenvolvimento local: copie .env.example para .env e defina POSTGRES_PASSWORD e LOJAPP_JWT_SECRET.
+# Sem literais de segredo neste ficheiro (Trivy/CI e boas práticas de portfólio).
 services:
   db:
     image: postgres:16
@@ -5,7 +7,7 @@ services:
     environment:
       POSTGRES_DB: loja_db
       POSTGRES_USER: loja_user
-      POSTGRES_PASSWORD: 123456
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
     ports:
       - "5432:5432"
     volumes:
@@ -33,10 +35,10 @@ services:
       # Hostname tem de ser o *nome do serviço* na rede Compose: "db", não o container_name.
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/loja_db
       SPRING_DATASOURCE_USERNAME: loja_user
-      SPRING_DATASOURCE_PASSWORD: "123456"
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD no .env}
       # Starter Redis: dentro do contentor não há Redis em localhost; aponta para o serviço redis.
       SPRING_DATA_REDIS_HOST: redis
-      LOJAPP_JWT_SECRET: SegredoSuperForteComMaisDe32Bytes123456789
+      LOJAPP_JWT_SECRET: ${LOJAPP_JWT_SECRET:?defina LOJAPP_JWT_SECRET no .env}
       # Dev local: permite POST /api/v1/auth/register. Em produção manter false ou controlar domínios/convite.
       LOJAPP_REGISTRATION_ENABLED: "true"
     depends_on:

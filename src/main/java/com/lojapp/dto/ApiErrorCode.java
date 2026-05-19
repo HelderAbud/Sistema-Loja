@@ -45,6 +45,7 @@ public enum ApiErrorCode {
             case FORBIDDEN -> FORBIDDEN;
             case NOT_FOUND -> NOT_FOUND;
             case CONFLICT -> CONFLICT;
+            case TOO_MANY_REQUESTS -> BAD_REQUEST;
             case INTERNAL_SERVER_ERROR, BAD_GATEWAY, SERVICE_UNAVAILABLE, GATEWAY_TIMEOUT ->
                     INTERNAL_ERROR;
             default ->

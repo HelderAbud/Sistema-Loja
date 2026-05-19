@@ -41,6 +41,8 @@ Quando os ficheiros existirem, descomente o bloco abaixo no README (ou substitua
 
 Guia rápido: [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
+**Piloto (3 contas / isolamento):** podes guardar capturas de evidência em [`docs/screenshots/piloto/`](docs/screenshots/piloto/README.md), alinhado à Parte 1 de [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
+
 ### GIF curto do fluxo principal
 
 Além dos screenshots, inclua um GIF curto (`10-20s`) em `docs/screenshots/07-fluxo-principal.gif` com o fluxo:
