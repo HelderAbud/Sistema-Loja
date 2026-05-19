@@ -5,7 +5,13 @@ import com.lojapp.dto.inventory.ProductStockResponse;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
 import com.lojapp.security.JwtUser;
 import com.lojapp.service.contract.InventoryServiceContract;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -34,6 +40,18 @@ public class InventoryController {
         this.inventory = inventory;
     }
 
+    @Operation(
+            summary = "Ajustar stock manualmente",
+            description =
+                    "Delta em `quantity`: positivo entra stock, negativo sai. Motivo obrigatório. "
+                            + "Opcionalmente enviar `Idempotency-Key` para evitar duplicar o mesmo ajuste em retries.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Ajuste aplicado"),
+        @ApiResponse(
+                responseCode = "400",
+                description = "Validação (ex.: quantity zero, reason vazio)"),
+        @ApiResponse(responseCode = "404", description = "Produto inexistente ou de outro utilizador")
+    })
     @PostMapping("/inventory/adjust")
     public void adjustStock(
             @Valid @RequestBody StockAdjustmentRequest request,
@@ -47,11 +65,26 @@ public class InventoryController {
                 principal.userId(), request, Optional.ofNullable(idempotencyKey));
     }
 
+    @Operation(summary = "Listar produtos com stock abaixo do mínimo")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Lista de itens em baixo stock",
+            content =
+                    @Content(
+                            array = @ArraySchema(schema = @Schema(implementation = LowStockResponse.class))))
     @GetMapping("/inventory/low-stock")
     public List<LowStockResponse> lowStock(@AuthenticationPrincipal JwtUser principal) {
         return inventory.listLowStock(principal.userId());
     }
 
+    @Operation(summary = "Consultar quantidade em stock de um produto")
+    @ApiResponses({
+        @ApiResponse(
+                responseCode = "200",
+                content =
+                        @Content(schema = @Schema(implementation = ProductStockResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Produto inexistente ou de outro utilizador")
+    })
     @GetMapping("/inventory/products/{productId}/stock")
     public ProductStockResponse productStock(
             @PathVariable long productId, @AuthenticationPrincipal JwtUser principal) {
