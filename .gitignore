@@ -11,7 +11,11 @@ coverage/
 .env
 .env.*
 !.env.example
-.idea/
+# Overrides Spring locais (costumam ter segredos; nunca versionar)
+application-local.yml
+application-local.properties
+**/application-local.yml
+**/application-local.properties.idea/
 .vscode/
 .cursor/
 *.code-workspace
@@ -46,6 +50,9 @@ jacoco.exec
 *.pem
 *.p12
 *.jks
+id_rsa
+id_rsa.pub
+*.ppk
 # exceção: se precisares de um cert público de teste versionado, usa pasta dedicada e ! negado
 
 # direnv
@@ -58,6 +65,12 @@ jacoco.exec
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Traces / corridas do assistente (metadados locais; nunca versionar tokens)
+local/agent-runs/
+
+# WIP local (ex.: módulo assistente fora do PR atual)
+.local-wip/
 
 # Playwright (frontend)
 frontend/playwright-report/

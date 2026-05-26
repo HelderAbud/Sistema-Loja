@@ -944,7 +944,7 @@ Marca como concluído apenas com evidência:
 - [ ] Ambiente `prod` sobe com variáveis obrigatórias e sem Swagger público — fechar após **Passo 3** acima e marcar em `01-escopo-mvp.md` → *Deploy em perfil prod validado*.
 - [x] Smoke test A–F aprovado nas 3 lojas (evidência em `03-implantacao-pilotos.md`, 2026-04-24).
 - [x] `01-escopo-mvp.md` atualizado com critérios de aceite marcados por evidência.
-- [x] Backlog pós-piloto separado em «corrigir agora» vs «evolução» em `29-resumo-executivo-status-riscos-proximos-passos.md` (evidência histórica 2026-04-24).
+- [x] Backlog pós-piloto separado em «corrigir agora» vs «evolução» — histórico em `plano-execucao-sprint-1-a-6.md` / `18-decisoes-e-checklist-entrega.md` (documento `29-resumo-*` não versionado neste repo; evidência 2026-04-24).
 
 ---
 
@@ -956,7 +956,7 @@ Marca como concluído apenas com evidência:
 | `01-escopo-mvp.md` | Critérios oficiais |
 | `02-pilotos-e-xmls.md` | XMLs de teste / piloto |
 | `03-implantacao-pilotos.md` | Implantação por loja, evidências smoke e feedback |
-| `29-resumo-executivo-status-riscos-proximos-passos.md` | Backlog «corrigir agora» vs «evolução», riscos e próximos passos |
+| `plano-execucao-sprint-1-a-6.md`, `CHECKLIST_FINAL.md`, `18-decisoes-e-checklist-entrega.md` | Roadmap, portfólio/P0 e decisões (substitui doc `29-resumo-*` não presente no repo) |
 | Swagger UI | Contrato vivo da API |
 
 ---

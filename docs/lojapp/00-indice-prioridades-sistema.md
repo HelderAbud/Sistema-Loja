@@ -29,16 +29,18 @@ Tambem sinaliza lacunas de documentacao e ordem sugerida de leitura/execucao.
 
 ## Prioridade B - Desenvolvimento Diario (alto impacto)
 
-1. `11-checklist-pr-e-convencoes-repositorio.md`
+1. `05-workflow-cursor-superpowers.md`
+   - Workflow Cursor + Superpowers + ligacao ao plano Rheyder; usar com `AGENTS.md` e `.cursor/plans/`.
+2. `11-checklist-pr-e-convencoes-repositorio.md`
    - Checklist de PR, arquitetura e seguranca para contribuicoes.
-2. `31-checklist-producao-prd-lojapp.md`
-   - PRD ate merge/QA: comandos LojApp, NFe sintetico vs piloto real; estado do roadmap em `29-resumo-executivo-status-riscos-proximos-passos.md` e `10-guia-junior-piloto-deploy-proximos-passos.md`.
-3. `18-decisoes-e-checklist-entrega.md`
+3. `31-checklist-producao-prd-lojapp.md`
+   - PRD ate merge/QA: comandos LojApp, NFe sintetico vs piloto real. Estado macro do roadmap: `plano-execucao-sprint-1-a-6.md`; portfólio / pré-GitHub: `CHECKLIST_FINAL.md` (raiz do repo).
+4. `18-decisoes-e-checklist-entrega.md`
    - Aceite minimo por entrega e registo de decisoes.
-4. `19-checklist-revisao-senior.md`
-   - Revisao tecnica pre-merge/deploy (faseada).
 5. `14-arquitetura-frontend-por-feature.md`
    - Guia de organizacao frontend por capability (migracao incremental).
+
+**Nota:** documentos numerados `19`, `21`, `22`, `23`, `26`, `27`, `29`, `31-checklist-seguranca-*`, `32-checklist-hardening-*` referenciados em versões antigas do indice **ainda nao estao neste repositório**. Para revisão pre-merge, usar `11` + `18`; para segurança operacional e segredos, `CHECKLIST_FINAL.md` (secções 4 e 8), `12`, `13-threat-model-auth-spa.md` e configs `application-prod.yml` / `docker-compose.prod.yml`.
 
 ## Prioridade C - Negocio e Operacao com Pilotos (necessario para escala comercial)
 
@@ -54,12 +56,11 @@ Tambem sinaliza lacunas de documentacao e ordem sugerida de leitura/execucao.
 - `13-threat-model-auth-spa.md`
   - Documento de risco e mitigacoes para SPA + auth.
   - Deve ser usado em revisoes de seguranca, sem bloquear fluxo diario.
-- `31-checklist-seguranca-operacional-dia8.md`
-  - Checklist operacional: segredos, CORS, sessão JWT/refresh, verificação de 401.
-  - Complementa `12` antes de demo/produção controlada.
-- `32-checklist-hardening-deploy-dia9.md`
-  - Hardening de deploy: perfis, CORS, compose prod, probes health/readiness/liveness.
-  - Usar com `21-go-no-go-deploy-producao.md` antes da demo pública.
+- `12-contratos-autenticacao-e-sessao.md`
+  - Complementa o threat model para sessão, cookies e CORS em piloto/demo.
+- `CHECKLIST_FINAL.md` (raiz)
+  - Secções **4 (Segurança)** e **10 (anti-vazamento)** — segredos, `.env`, gate antes de partilhar o repo.
+- Deploy hardening (quando fores a demo pública): `docker-compose.prod.yml`, `src/main/resources/application-prod.yml`, health/readiness em `AGENTS.md`.
 
 ## Lacunas / manutencao de links
 
@@ -69,11 +70,12 @@ Tambem sinaliza lacunas de documentacao e ordem sugerida de leitura/execucao.
 ## Ordem recomendada de uso no dia a dia
 
 1. Planejar escopo atual: `01`.
-2. Por entrega (PRD ate QA): seguir `31-checklist-producao-prd-lojapp.md` e `29-resumo-executivo-status-riscos-proximos-passos.md` quando aplicavel.
-3. Implementar/ajustar backend com contratos: `12`, `13`, `16`, `17` (ambiente local: `10-guia-junior-piloto-deploy-proximos-passos.md` secção **6** — Ubuntu/Bash).
-4. Validar entrega tecnica: `11`, `18`, `19`.
-5. Executar prontidao operacional/deploy: `15`.
-6. Rodar piloto comercial: `02`, `03`, `04`.
+2. Por entrega (PRD ate QA): seguir `31-checklist-producao-prd-lojapp.md`; visão macro em `plano-execucao-sprint-1-a-6.md`; portfólio em `CHECKLIST_FINAL.md`.
+3. Workflow Cursor/agentes: `05-workflow-cursor-superpowers.md` e plano ativo em `.cursor/plans/` (ex.: piloto Rheyder).
+4. Implementar/ajustar backend com contratos: `12`, `13-estoque-concorrencia-e-idempotencia.md`, `16`, `17` (ambiente local: `10-guia-junior-piloto-deploy-proximos-passos.md` secção **6** — Ubuntu/Bash).
+5. Validar entrega tecnica: `11`, `18`.
+6. Executar prontidao operacional/deploy: `15`.
+7. Rodar piloto comercial: `02`, `03`, `04`.
 
 ## O que e necessario agora para o sistema (curto prazo)
 

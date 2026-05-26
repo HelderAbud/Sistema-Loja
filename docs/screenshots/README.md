@@ -16,11 +16,34 @@ Coloque aqui **capturas reais** da aplicação (PNG ou WebP). Sem imagens, o Git
 
 ## Como gerar
 
-1. Suba a API (`mvn spring-boot:run` ou Docker) e o frontend (`cd frontend && npm run dev`).
-2. Abra `http://localhost:3000`, faça login e navegue por cada separador.
-3. Capture a janela (Windows: **Win+Shift+S** ou ferramenta do browser).
-4. Grave o GIF com **ScreenToGif**, **ShareX** ou OBS (tempo curto, sem cortes bruscos).
-5. Guarde com os nomes acima e descomente o bloco de imagens no `README.md` na raiz do repositório.
+### Opção A — script (PNG 01–06)
+
+1. Suba Postgres: `docker compose up -d`
+2. API: `mvn spring-boot:run` (porta 8000)
+3. Frontend: `cd frontend && npm run dev` (porta 3000)
+4. Conta demo com dados (ex.: registar `piloto@lojapp.demo` via Swagger)
+5. Na raiz do repo:
+
+```powershell
+$env:LOJAPP_SCREENSHOT_PASSWORD = 'sua-password-demo'
+.\scripts\capture-portfolio-screenshots.ps1
+```
+
+### Opção B — manual
+
+1. Mesmo stack que acima.
+2. Abra `http://localhost:3000`, login, navegue por cada separador.
+3. Capture (**Win+Shift+S**) com os nomes da tabela.
+
+### GIF (sempre manual)
+
+Grave `07-fluxo-principal.gif` (10–20 s) com **ScreenToGif**, **ShareX** ou OBS.
+
+### Fechar A1
+
+1. Confirme ficheiros: `Get-ChildItem docs/screenshots/*.png, docs/screenshots/*.gif`
+2. Descomente o bloco de imagens no `README.md` na raiz
+3. Marque Passo 4 em `CHECKLIST_FINAL.md`
 
 ## Roteiro recomendado para o GIF
 

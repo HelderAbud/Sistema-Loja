@@ -21,6 +21,10 @@ jobs:
             echo "Remova do git e mantenha no .gitignore."
             exit 1
           fi
+          if git ls-files | grep -E '(^|/)\.env$' >/dev/null; then
+            echo "Erro: ficheiro .env nao deve ser versionado. Use apenas .env.example sem segredos."
+            exit 1
+          fi
 
   backend-unit:
     needs: [repo-hygiene]
@@ -101,6 +105,8 @@ jobs:
             --scanners vuln,secret,misconfig \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
+            --skip-files "**/.local-wip/**" \
+            --skip-dirs "frontend/node_modules,target,frontend/dist" \
             --exit-code 1 \
             --no-progress \
             /src
