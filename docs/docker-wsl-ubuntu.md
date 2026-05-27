@@ -169,14 +169,9 @@ Para desenvolvimento local com Maven, suba só Postgres e Redis:
 docker compose up -d db redis
 ```
 
-**Motivo:** O `docker-compose.yml` define três serviços: `db`, `redis` e `api`. Com `docker compose up -d` (sem filtro), o contentor `loja-api` expõe a API na porta **8080** do host.
+**Motivo:** O `docker-compose.yml` define três serviços: `db`, `redis` e `api`. Com `docker compose up -d` (sem filtro), o contentor `loja-api` expõe a API na porta **8000** do host (alinhada a `application.yml` e ao proxy Vite).
 
-Se correr `./mvnw spring-boot:run` em paralelo, ficam **duas instâncias** da mesma aplicação:
-
-- **Docker:** `loja-api` na porta **8080**
-- **Maven local:** `application.yml` na porta **8000**
-
-Ambas usam o mesmo Postgres e Redis — evite (dados inconsistentes, cache Redis desalinhado, logs duplicados).
+Se correr `./mvnw spring-boot:run` em paralelo com o serviço `api`, **ambos disputam a porta 8000** e usam o mesmo Postgres/Redis — evite (dados inconsistentes, cache Redis desalinhado, logs duplicados).
 
 **Regra:** ou sobe a API no Docker (`docker compose up -d`), ou corre a API só com `./mvnw`. Para o fluxo habitual de desenvolvimento neste repo, preferir **`db` + `redis` no Compose** e **API com Maven**.
 
@@ -213,7 +208,7 @@ docker compose stop api
 | Ambiente                 | Porta |
 |--------------------------|-------|
 | Maven local (`./mvnw`)   | 8000  |
-| Contentor `loja-api`     | 8080  |
+| Contentor `loja-api`     | 8000  |
 | Postgres                 | 5432  |
 | Redis                    | 6379  |
 

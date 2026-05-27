@@ -8,7 +8,11 @@ set -euo pipefail
 API_BASE="${API_BASE:-http://localhost:8000}"
 API_BASE="${API_BASE%/}"
 AUTO_REGISTER="${AUTO_REGISTER:-true}"
-PASSWORD="${SMOKE_PASSWORD:-Smoke12345!}"
+PASSWORD="${SMOKE_PASSWORD:-}"
+if [[ -z "$PASSWORD" ]]; then
+  echo "Defina SMOKE_PASSWORD (ex.: export SMOKE_PASSWORD='sua-senha-demo')" >&2
+  exit 1
+fi
 EMAIL="${SMOKE_EMAIL:-smoke.$(date +%s)@example.com}"
 
 require_cmd() {
