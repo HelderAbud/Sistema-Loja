@@ -70,7 +70,10 @@ async function createProductWithStock(
 
 test.describe("jornada real (API + UI, sem mocks)", () => {
   test.skip(!ENABLED, "Defina E2E_REAL_FLOW=1 para correr contra API real");
-  test.skip(!E2E_EMAIL || !E2E_PASSWORD, "Defina E2E_REAL_EMAIL e E2E_REAL_PASSWORD (conta demo local)");
+  test.skip(
+    !E2E_EMAIL || !E2E_PASSWORD,
+    "Defina E2E_REAL_EMAIL e E2E_REAL_PASSWORD (conta demo local)",
+  );
 
   test("login -> nova venda -> dashboard", async ({ page, request }) => {
     const token = await apiLoginAccessToken(request);
