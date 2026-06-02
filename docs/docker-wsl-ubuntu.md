@@ -214,6 +214,22 @@ docker compose stop api
 
 Health check local (API em Maven): `curl -i http://localhost:8000/actuator/health`. Swagger: `http://localhost:8000/swagger-ui.html`.
 
+### 5. Backup e restore do Postgres (Windows / WSL)
+
+Com o serviço `db` no ar (`docker compose up -d db`), use os scripts na raiz do repositório (PowerShell):
+
+| Ambiente | Compose | Credenciais (default) |
+|----------|---------|------------------------|
+| Dev | `docker-compose.yml` | `loja_user` / `loja_db` |
+| Prod-like | `docker-compose.prod.yml` | `lojapp` / `lojapp` |
+
+```powershell
+.\scripts\backup-postgres-docker.ps1 -ComposeFile docker-compose.yml
+.\scripts\restore-postgres-docker.ps1 -BackupPath .\backups\loja_db-YYYYMMDD-HHMMSS.dump
+```
+
+Override manual: `-DbUser` e `-DbName`. A pasta `backups/` não deve ir para o Git.
+
 ---
 
-*Última revisão: alinhamento com permissões POSIX, WSL2, fluxo `db redis` + Maven e boas práticas de desenvolvimento local.*
+*Última revisão: alinhamento com permissões POSIX, WSL2, fluxo `db redis` + Maven, backup/restore Compose e boas práticas de desenvolvimento local.*
