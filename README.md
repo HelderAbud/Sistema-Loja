@@ -45,6 +45,8 @@ SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, v
 
 Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md).
 
+**Pitch para entrevista (60–90 s + 3 casos técnicos):** [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md)
+
 ---
 
 ## Stack

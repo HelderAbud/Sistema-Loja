@@ -35,6 +35,10 @@ Este é o ponto único de entrada para arquitetura, segurança, operação e gov
 - `31-checklist-seguranca-operacional-dia8.md` — segurança operacional (dia 8).
 - `32-checklist-hardening-deploy-dia9.md` — hardening e deploy (dia 9).
 
+## Portfólio e entrevista
+
+- `pitch-portfolio.md` — pitch 60–90 s + 3 casos de risco com evidência (testes/docs).
+
 ## Planeamento e execução
 
 - `plano-execucao-sprint-1-a-6.md` — macroplaneamento por sprint.
