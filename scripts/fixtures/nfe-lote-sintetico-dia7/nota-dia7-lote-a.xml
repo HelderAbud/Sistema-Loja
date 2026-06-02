@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfe>
+  <nNF>77001</nNF>
+  <xNome>Fornecedor Sintetico Dia7 Lote A</xNome>
+  <chNFe>35200111111111111111111111111111111111111111</chNFe>
+  <prod>
+    <xProd>Produto Dia7 Lote Alpha</xProd>
+    <qCom>2</qCom>
+    <vUnCom>10.50</vUnCom>
+  </prod>
+</nfe>
