@@ -323,9 +323,11 @@ Documentação completa: **http://localhost:8000/swagger-ui.html** (desligado em
 | `scripts/run-nfe-integration-tests.sh` | Bateria de testes integração NFe |
 | `scripts/git-untrack-frontend-artifacts.ps1` | Remove artefatos do índice Git |
 | `scripts/package-source-safe.ps1` | ZIP seguro do código-fonte |
+| `scripts/verify-zip-safe.ps1` | Valida ZIP (sem `.env`, `target/`, etc.) |
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/package-source-safe.ps1 -OutputZip "C:\temp\lojapp-safe.zip"
+powershell -ExecutionPolicy Bypass -File scripts/verify-zip-safe.ps1 -ZipPath "C:\temp\lojapp-safe.zip"
 ```
 
 ---

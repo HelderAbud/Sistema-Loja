@@ -38,6 +38,7 @@ Este é o ponto único de entrada para arquitetura, segurança, operação e gov
 ## Portfólio e entrevista
 
 - `pitch-portfolio.md` — pitch 60–90 s + 3 casos de risco com evidência (testes/docs).
+- `grill-logs/2026-06-02-A4-commits-zip.md` — ZIP seguro + auditoria de commits (A4).
 
 ## Planeamento e execução
 

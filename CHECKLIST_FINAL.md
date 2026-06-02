@@ -148,9 +148,10 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
   - **Por que:** saber explicar trade-off vale tanto quanto codar.
   - **Como validar:** pitch de 60-90s + 3 casos de bug/risco mitigado com evidencia.
   - **Feito (A3, 2026-06-02):** `docs/lojapp/pitch-portfolio.md` + grill log `docs/lojapp/grill-logs/2026-06-02-A3-pitch-portfolio.md`. Falta apenas ensaio em voz alta (secao 9.1).
-- [ ] **Passo 9 - Organizar historico Git profissional**
+- [x] **Passo 9 - Organizar historico Git profissional**
   - **Por que:** historico limpo demonstra maturidade de engenharia.
   - **Como validar:** commits tematicos + conventional commits + branches limpas.
+  - **Feito (A4, 2026-06-02):** PRs #14–#17 com mensagens conventional; grill log `2026-06-02-A4-commits-zip.md`. Limpar branches locais obsoletas apos merge (manual).
 
 ### Fase 3 - Diferenciais de portfolio (P2)
 
@@ -308,10 +309,12 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 ### 7.1 Historico e branch strategy
 
-- [ ] **P0** Organizar commits por tema
+- [x] **P0** Organizar commits por tema
   - Cada commit deve ter objetivo claro e diff revisavel.
-- [ ] **P1** Padronizar mensagens em Conventional Commits
+  - **Feito (A4):** entregas portfólio em PRs temáticas (A1/A2/sync/A3); sem commits gigantes na fase atual.
+- [x] **P1** Padronizar mensagens em Conventional Commits
   - Ex.: `feat:`, `fix:`, `test:`, `refactor:`, `docs:`.
+  - **Feito (A4):** historico recente em `Principal` segue prefixos conventional.
 - [ ] **P1** Limpar branches obsoletas locais/remotas
   - Manter repositorio navegavel para recrutador.
 
@@ -319,9 +322,9 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 - [x] **P0** README principal forte e atualizado
   - Problema, solucao, stack, arquitetura, como rodar, como testar, roadmap.
-- [ ] **P0** Incluir evidencias visuais
+- [x] **P0** Incluir evidencias visuais
   - Screenshots atuais e, se possivel, GIF curto do fluxo principal.
-  - Estado atual: estrutura e instrucoes prontas no README; faltam arquivos visuais reais em `docs/screenshots/`.
+  - **Feito (A1):** PNG 01–06 + GIF em `docs/screenshots/`, README ativo.
 - [x] **P1** Documentar CI/qualidade
   - Quais gates existem e o que eles garantem.
   - Resumo incluido neste ficheiro (secao **Referencia rapida dos gates em `ci.yml`**); detalhe completo nos YAML em `.github/workflows/`.
@@ -395,13 +398,16 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 Executar imediatamente antes de gerar ZIP/partilhar codigo:
 
-- [ ] **P0** Confirmar que `.env` nao sera incluido no pacote.
-- [ ] **P0** Confirmar que `backup.sql` nao sera incluido no pacote.
-- [ ] **P0** Confirmar que pasta `target/` nao sera incluida no pacote.
-- [ ] **P0** Garantir que apenas `.env.example` (sem segredos reais) sera partilhado.
-- [ ] **P0** Rever se `LOJAPP_JWT_SECRET` e senha de banco foram rotacionados apos qualquer exposicao.
-- [ ] **P1** Gerar ZIP de codigo-fonte com exclusoes ativas (`.env`, `backup.sql`, `target/`).
-- [ ] **P1** Testar o ZIP em pasta limpa e validar que sobe sem artefatos sensiveis.
+- [x] **P0** Confirmar que `.env` nao sera incluido no pacote.
+- [x] **P0** Confirmar que `backup.sql` nao sera incluido no pacote.
+- [x] **P0** Confirmar que pasta `target/` nao sera incluida no pacote.
+- [x] **P0** Garantir que apenas `.env.example` (sem segredos reais) sera partilhado.
+- [x] **P0** Rever se `LOJAPP_JWT_SECRET` e senha de banco foram rotacionados apos qualquer exposicao.
+  - **Feito (A2):** rotacao documentada; exemplo antigo no historico Git nao reutilizar.
+- [x] **P1** Gerar ZIP de codigo-fonte com exclusoes ativas (`.env`, `backup.sql`, `target/`).
+  - **Feito (A4):** `scripts/package-source-safe.ps1` + `verify-zip-safe.ps1`.
+- [x] **P1** Testar o ZIP em pasta limpa e validar que sobe sem artefatos sensiveis.
+  - **Feito (A4):** extraido em `dist/zip-verify-extract/`; `mvn -Pci-unit-tests test` OK; lint Prettier depende de LF (CI verde).
 
 ---
 
