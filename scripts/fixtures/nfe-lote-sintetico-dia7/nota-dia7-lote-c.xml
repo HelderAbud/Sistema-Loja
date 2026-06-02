@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nfeProc xmlns="http://www.portalfiscal.inf.br/nfe">
+  <nNF>77003</nNF>
+  <emit>
+    <CNPJ>12345678000199</CNPJ>
+    <xNome>Fornecedor Sintetico Dia7 Lote C</xNome>
+  </emit>
+  <chNFe>35200333333333333333333333333333333333333333</chNFe>
+  <prod>
+    <xProd>Produto Dia7 Lote Gamma</xProd>
+    <qCom>1</qCom>
+    <vUnCom>99.90</vUnCom>
+  </prod>
+</nfeProc>
