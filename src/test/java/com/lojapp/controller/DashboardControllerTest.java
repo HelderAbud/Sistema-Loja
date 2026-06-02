@@ -1,5 +1,6 @@
 package com.lojapp.controller;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -8,7 +9,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.lojapp.config.MethodSecurityConfig;
+import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.dashboard.BrandDashboardResponse;
+import com.lojapp.exception.GlobalExceptionHandler;
 import com.lojapp.support.TestJwtAuth;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
@@ -28,7 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 @WebMvcTest(controllers = DashboardController.class)
-@Import(MethodSecurityConfig.class)
+@Import({MethodSecurityConfig.class, GlobalExceptionHandler.class})
 @AutoConfigureMockMvc(addFilters = false)
 class DashboardControllerTest {
 
@@ -72,5 +75,16 @@ class DashboardControllerTest {
         mockMvc.perform(get("/api/v1/lojapp/dashboard/brands").with(lojappUser(USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metrics").isArray());
+    }
+
+    @Test
+    void dashboardByBrand_negativeBrandOffset_returns400Not500() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/dashboard/brands")
+                                .param("brandOffset", "-1")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(ApiErrorCode.VALIDATION_ERROR.code()))
+                .andExpect(jsonPath("$.message").value(containsString("brandOffset")));
     }
 }

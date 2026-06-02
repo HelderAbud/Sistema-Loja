@@ -7,7 +7,11 @@ import static org.mockito.Mockito.when;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.ApiErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Path;
 import java.sql.SQLException;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -80,5 +84,26 @@ class GlobalExceptionHandlerTest {
         assertThat(res.getBody().message())
                 .isEqualTo(
                         "Não foi possível guardar os dados devido a um conflito na base de dados (unicidade ou referência).");
+    }
+
+    @Test
+    void handleConstraintViolation_returns400WithParameterName() {
+        @SuppressWarnings("unchecked")
+        ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
+        Path path = mock(Path.class);
+        when(path.toString()).thenReturn("dashboardByBrand.brandOffset");
+        when(violation.getPropertyPath()).thenReturn(path);
+        when(violation.getMessage()).thenReturn("must be greater than or equal to 0");
+
+        var ex = new ConstraintViolationException(Set.of(violation));
+        HttpServletRequest req = mock(HttpServletRequest.class);
+        when(req.getRequestURI()).thenReturn("/api/v1/lojapp/dashboard/brands");
+
+        ResponseEntity<ApiErrorResponse> res = handler.handleConstraintViolation(ex, req);
+
+        assertThat(res.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(res.getBody()).isNotNull();
+        assertThat(res.getBody().code()).isEqualTo(ApiErrorCode.VALIDATION_ERROR.code());
+        assertThat(res.getBody().message()).contains("brandOffset");
     }
 }

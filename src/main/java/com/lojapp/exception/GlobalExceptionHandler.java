@@ -4,6 +4,8 @@ import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.ApiErrorResponse;
 import com.lojapp.exception.domain.LojappDomainException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Locale;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.server.ResponseStatusException;
 
 @RestControllerAdvice
@@ -81,6 +84,66 @@ public class GlobalExceptionHandler {
                 ApiErrorCode.VALIDATION_ERROR,
                 msg.isEmpty() ? "Dados inválidos" : msg,
                 req);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ApiErrorResponse> handleHandlerMethodValidation(
+            HandlerMethodValidationException ex, HttpServletRequest req) {
+        log.warn("Validação de parâmetros em {}: {}", req.getRequestURI(), ex.getMessage());
+        return buildParameterValidationResponse(methodValidationUserMessage(ex), req);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(
+            ConstraintViolationException ex, HttpServletRequest req) {
+        log.warn("Validação de parâmetros em {}: {}", req.getRequestURI(), ex.getMessage());
+        return buildParameterValidationResponse(constraintViolationUserMessage(ex), req);
+    }
+
+    private static ResponseEntity<ApiErrorResponse> buildParameterValidationResponse(
+            String msg, HttpServletRequest req) {
+        return build(
+                HttpStatus.BAD_REQUEST,
+                ApiErrorCode.VALIDATION_ERROR,
+                msg.isEmpty() ? "Dados inválidos" : msg,
+                req);
+    }
+
+    /**
+     * Mensagens de {@link jakarta.validation} em query/path params ({@code @Validated} no controller)
+     * — caminho Spring 6.2+ ({@link HandlerMethodValidationException}).
+     */
+    static String methodValidationUserMessage(HandlerMethodValidationException ex) {
+        return ex.getAllValidationResults().stream()
+                .flatMap(
+                        result -> {
+                            String name = result.getMethodParameter().getParameterName();
+                            String label = name != null ? name : "param";
+                            return result.getResolvableErrors().stream()
+                                    .map(
+                                            err -> {
+                                                String detail = err.getDefaultMessage();
+                                                return label
+                                                        + ": "
+                                                        + (detail != null ? detail : "inválido");
+                                            });
+                        })
+                .collect(Collectors.joining("; "));
+    }
+
+    /** Mensagens quando o interceptor AOP lança {@link ConstraintViolationException} (ex.: dashboard). */
+    static String constraintViolationUserMessage(ConstraintViolationException ex) {
+        return ex.getConstraintViolations().stream()
+                .map(GlobalExceptionHandler::formatConstraintViolation)
+                .collect(Collectors.joining("; "));
+    }
+
+    private static String formatConstraintViolation(ConstraintViolation<?> violation) {
+        String path = violation.getPropertyPath().toString();
+        String label =
+                path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+        String detail = violation.getMessage();
+        return label + ": " + (detail != null ? detail : "inválido");
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
