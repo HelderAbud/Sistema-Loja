@@ -130,9 +130,10 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 - [x] **Passo 4 - Evidencias visuais obrigatorias**
   - **Por que:** aumenta percepcao de produto real.
   - **Como validar:** screenshots atuais + GIF curto do fluxo principal.
-- [ ] **Passo 5 - Seguranca de segredos e ambiente**
+- [x] **Passo 5 - Seguranca de segredos e ambiente**
   - **Por que:** vazamento de credencial reprova projeto.
   - **Como validar:** nenhum segredo em git + `.gitignore` revisado + envs documentadas.
+  - **Feito (A2, 2026-06-01/06-02):** compose com `${VAR:?}`; `.env` nao versionado (`git check-ignore .env`); `.gitignore` corrigido (`.idea/`); `LOJAPP_JWT_SECRET` rotacionado (valor de exemplo do historico Git queimado); `docker compose up` validado (`/actuator/health` UP). Grill log `docs/lojapp/grill-logs/2026-05-24-A2-secrets-jwt.md`.
   - **Automatizado (ja feito):** ver secao **Automatizado vs manual** mais acima neste ficheiro; validacao final e rotacao de segredos continuam **contigo**.
 
 ### Fase 2 - Fortalecimento tecnico (P1)
@@ -238,8 +239,9 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 ### 4.1 Segredos e configuracao
 
-- [ ] **P0** Garantir que segredos nao estao no repositorio
+- [x] **P0** Garantir que segredos nao estao no repositorio
   - `.env`, JWT secret e credenciais apenas por variavel de ambiente.
+  - Working tree sem literais; `.env` gitignored. Segredo de exemplo exposto em commit antigo foi **rotacionado** (mitigacao) — ver `.env.example` e README.
 - [x] **P0** Revisar `.gitignore` para arquivos sensiveis
   - Bloquear chaves, dumps e credenciais locais.
   - Reforco aplicado: overrides Spring locais, chaves SSH comuns; CI bloqueia `.env` versionado.

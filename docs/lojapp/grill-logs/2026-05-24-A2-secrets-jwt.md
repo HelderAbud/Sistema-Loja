@@ -60,10 +60,15 @@ git status --ignored | findstr .env
 - [x] `.gitignore` corrigido (.env, .idea/, overrides locais)
 - [x] README documenta geração + rotação do JWT
 - [x] Decisão sobre `REGISTRATION_ENABLED` documentada
-- [ ] `docker compose up` validado com `.env` (gate utilizador)
-- [ ] `LOJAPP_JWT_SECRET` rotacionado no ambiente local (gate utilizador)
-- [ ] CHECKLIST 4.1 + Passo 5 marcados (após validação)
+- [x] `docker compose up` validado com `.env` (`/actuator/health` → `{"status":"UP"}`, 2026-06-02)
+- [x] `LOJAPP_JWT_SECRET` rotacionado no ambiente local
+- [x] CHECKLIST 4.1 + Passo 5 marcados
+
+## Nota de validação (2026-06-02)
+
+- Volume Postgres antigo tinha password dessincronizada do `.env`; recriado com `docker compose down -v` + `up -d` (dados de demo locais descartados — screenshots A1 já commitados).
+- Apenas o JWT foi rotacionado; password do banco mantém-se via `.env` (sem default forte no `application.yml`, que conserva fallback dev `lojapp_local_dev_only` — endurecimento opcional futuro).
 
 ## Aprovado para fechar A2?
 
-- [ ] Sim — após validação local (compose + rotação)
+- [x] Sim — validação local concluída (compose UP + rotação JWT)
