@@ -228,6 +228,26 @@ docker compose -f docker-compose.prod.yml up -d
 # API prod → http://localhost:8000 (Swagger desligado)
 ```
 
+### Backup e restore (Postgres no Docker)
+
+Scripts em `scripts/` alinham credenciais ao ficheiro Compose:
+
+| Compose | Utilizador | Base de dados |
+|---------|------------|---------------|
+| `docker-compose.yml` (dev) | `loja_user` | `loja_db` |
+| `docker-compose.prod.yml` | `lojapp` | `lojapp` |
+
+```powershell
+# Dev (stack com db a correr)
+.\scripts\backup-postgres-docker.ps1 -ComposeFile docker-compose.yml
+.\scripts\restore-postgres-docker.ps1 -BackupPath .\backups\loja_db-<timestamp>.dump -ComposeFile docker-compose.yml
+
+# Prod-like
+.\scripts\backup-postgres-docker.ps1 -ComposeFile docker-compose.prod.yml
+```
+
+Os ficheiros `.dump` ficam em `backups/` (não versionados). O restore usa `--clean` — só em ambiente descartável.
+
 ### Docker no WSL2 / Ubuntu
 
 Se aparecer `permission denied` ao conectar ao Docker daemon, siga [docs/docker-wsl-ubuntu.md](docs/docker-wsl-ubuntu.md).

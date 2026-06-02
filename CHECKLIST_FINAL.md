@@ -230,8 +230,8 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 - [ ] **P1** Revisar seeds/dados de demonstracao
   - Dados suficientes para demo funcional sem poluicao de producao.
-- [ ] **P1** Validar scripts de backup/restore
-  - Execucao testada em ambiente local Docker.
+- [x] **P1** Validar scripts de backup/restore
+  - **Feito (B3, 2026-06-02):** `backup-postgres-docker.ps1` / `restore-postgres-docker.ps1` com defaults por compose (`loja_user`/`loja_db` dev, `lojapp` prod); grill log `docs/lojapp/grill-logs/2026-06-02-B3-backup-restore-compose.md`; README + `docs/docker-wsl-ubuntu.md`.
 - [ ] **P2** Verificar consistencia de dados antigos
   - Sem registros orfaos e sem violacao de regras de negocio.
 
