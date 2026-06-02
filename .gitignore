@@ -15,7 +15,10 @@ coverage/
 application-local.yml
 application-local.properties
 **/application-local.yml
-**/application-local.properties.idea/
+**/application-local.properties
+
+# IDE
+.idea/
 .vscode/
 .cursor/
 *.code-workspace

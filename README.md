@@ -184,6 +184,21 @@ Preencha no `.env`:
 
 > **Não commite `.env`.** O repositório inclui apenas `.env.example`.
 
+> **Segredos por ambiente.** Gere um `LOJAPP_JWT_SECRET` **próprio** em cada máquina/deploy
+> (≥ 32 caracteres). Não reutilize segredos de exemplo nem de outros ambientes — um valor de
+> demonstração já circulou no histórico Git e não deve ser usado.
+>
+> ```bash
+> # Linux/macOS
+> openssl rand -base64 48
+> ```
+> ```powershell
+> # Windows PowerShell
+> -join ((48..57) + (65..90) + (97..122) | Get-Random -Count 48 | % {[char]$_})
+> ```
+>
+> Após rotacionar o segredo, os tokens emitidos com o valor anterior deixam de validar — faça login novamente.
+
 ### Fluxo A — recomendado para desenvolvimento diário
 
 Infra no Docker; API com Maven (hot reload, alinhado ao proxy Vite):
