@@ -144,9 +144,10 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 - [ ] **Passo 7 - Consolidar workflows de CI**
   - **Por que:** reduz duplicidade e melhora manutencao.
   - **Como validar:** pipeline unico/claramente segmentado com jobs backend.
-- [ ] **Passo 8 - Refinar narrativa para entrevista**
+- [x] **Passo 8 - Refinar narrativa para entrevista**
   - **Por que:** saber explicar trade-off vale tanto quanto codar.
   - **Como validar:** pitch de 60-90s + 3 casos de bug/risco mitigado com evidencia.
+  - **Feito (A3, 2026-06-02):** `docs/lojapp/pitch-portfolio.md` + grill log `docs/lojapp/grill-logs/2026-06-02-A3-pitch-portfolio.md`. Falta apenas ensaio em voz alta (secao 9.1).
 - [ ] **Passo 9 - Organizar historico Git profissional**
   - **Por que:** historico limpo demonstra maturidade de engenharia.
   - **Como validar:** commits tematicos + conventional commits + branches limpas.
@@ -351,19 +352,24 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 ### 9.1 Narrativa tecnica
 
-- [ ] **P0** Preparar pitch de 60-90 segundos
+- [x] **P0** Preparar pitch de 60-90 segundos
   - Problema de negocio, solucao tecnica e resultado.
-- [ ] **P0** Destacar diferenciais reais
+  - **Feito:** `docs/lojapp/pitch-portfolio.md` (secao 1).
+- [x] **P0** Destacar diferenciais reais
   - Testcontainers, Flyway com validate, guardrails ArchUnit, idempotencia.
-- [ ] **P1** Explicar decisoes tecnicas e trade-offs
+  - **Feito:** `docs/lojapp/pitch-portfolio.md` (secoes 2–3).
+- [x] **P1** Explicar decisoes tecnicas e trade-offs
   - O que foi priorizado no MVP e o que ficou para versao seguinte.
+  - **Feito:** `docs/lojapp/pitch-portfolio.md` (secao 4).
 
 ### 9.2 Argumentacao para entrevista
 
-- [ ] **P1** Preparar respostas para perguntas previsiveis
+- [x] **P1** Preparar respostas para perguntas previsiveis
   - seguranca, escalabilidade, consistencia de dados, estrategia de testes.
-- [ ] **P1** Mapear 3 bugs/risco mitigados
+  - **Feito:** `docs/lojapp/pitch-portfolio.md` (secao 4).
+- [x] **P1** Mapear 3 bugs/risco mitigados
   - antes/depois e evidencia de teste.
+  - **Feito:** casos A/B/C em `docs/lojapp/pitch-portfolio.md` (secao 2).
 
 ---
 
