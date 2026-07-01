@@ -19,8 +19,6 @@ import com.lojapp.repository.InventoryBalanceRepository;
 import com.lojapp.repository.InventoryMovementRepository;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.UserRepository;
-import com.lojapp.application.idempotency.ApiIdempotencyService;
-import com.lojapp.application.idempotency.RequestFingerprint;
 import com.lojapp.service.contract.InventoryServiceContract;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -49,21 +47,18 @@ public class InventoryService implements InventoryServiceContract {
     private final InventoryMovementRepository inventoryMovements;
     private final InventoryBalanceRepository inventoryBalances;
     private final AuditService auditService;
-    private final ApiIdempotencyService idempotencyService;
 
     public InventoryService(
             ProductRepository products,
             UserRepository users,
             InventoryMovementRepository inventoryMovements,
             InventoryBalanceRepository inventoryBalances,
-            AuditService auditService,
-            ApiIdempotencyService idempotencyService) {
+            AuditService auditService) {
         this.products = products;
         this.users = users;
         this.inventoryMovements = inventoryMovements;
         this.inventoryBalances = inventoryBalances;
         this.auditService = auditService;
-        this.idempotencyService = idempotencyService;
     }
 
     /**
@@ -210,14 +205,11 @@ public class InventoryService implements InventoryServiceContract {
         }
     }
 
-    public void adjustStock(
-            long userId, StockAdjustmentRequest request, Optional<String> idempotencyKeyHeader) {
-        String fingerprint = RequestFingerprint.stockAdjustRequestHash(request);
-        idempotencyService.runStockAdjust(
-                userId,
-                idempotencyKeyHeader,
-                fingerprint,
-                () -> applyManualStockAdjustment(userId, request));
+    @Override
+    @Transactional
+    @CacheEvict(cacheNames = CacheNames.DASHBOARD_INVENTORY_KPIS, allEntries = true)
+    public void adjustStock(long userId, StockAdjustmentRequest request) {
+        applyManualStockAdjustment(userId, request);
     }
 
     @Transactional

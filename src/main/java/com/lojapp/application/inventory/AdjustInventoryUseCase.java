@@ -1,5 +1,6 @@
 package com.lojapp.application.inventory;
 
+import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
 import com.lojapp.application.idempotency.ApiIdempotencyService;
 import com.lojapp.application.idempotency.RequestFingerprint;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
  * Caso de uso: ajuste manual de stock com suporte a {@code Idempotency-Key}.
  */
 @Service
-public class AdjustInventoryUseCase {
+public class AdjustInventoryUseCase implements AdjustInventoryUseCaseContract {
 
     private final ApiIdempotencyService idempotencyService;
     private final InventoryServiceContract inventoryService;
@@ -22,6 +23,7 @@ public class AdjustInventoryUseCase {
         this.inventoryService = inventoryService;
     }
 
+    @Override
     public void execute(
             long userId, StockAdjustmentRequest request, Optional<String> idempotencyKeyHeader) {
         String fingerprint = RequestFingerprint.stockAdjustRequestHash(request);

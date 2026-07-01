@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.exception.GlobalExceptionHandler;
@@ -48,6 +49,8 @@ class InventoryControllerTest {
     @MockBean private AuthRateLimitFilter authRateLimitFilter;
 
     @MockBean private InventoryServiceContract inventory;
+
+    @MockBean private AdjustInventoryUseCaseContract adjustInventory;
 
     @AfterEach
     void clearSecurity() {
@@ -90,7 +93,7 @@ class InventoryControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(ApiErrorCode.VALIDATION_ERROR.code()));
 
-        verifyNoInteractions(inventory);
+        verifyNoInteractions(inventory, adjustInventory);
     }
 
     @Test
@@ -103,11 +106,11 @@ class InventoryControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(ApiErrorCode.VALIDATION_ERROR.code()));
 
-        verifyNoInteractions(inventory);
+        verifyNoInteractions(inventory, adjustInventory);
     }
 
     @Test
-    void adjustStock_withIdempotencyHeader_forwardsHeaderToService() throws Exception {
+    void adjustStock_withIdempotencyHeader_forwardsHeaderToUseCase() throws Exception {
         mockMvc.perform(
                         post("/api/v1/lojapp/inventory/adjust")
                                 .header("Idempotency-Key", "stock-k-1")
@@ -119,15 +122,15 @@ class InventoryControllerTest {
                                 .with(lojappUser(USER_ID)))
                 .andExpect(status().isOk());
 
-        verify(inventory)
-                .adjustStock(
+        verify(adjustInventory)
+                .execute(
                         eq(USER_ID),
                         eq(new com.lojapp.dto.inventory.StockAdjustmentRequest(1L, new BigDecimal("1"), "ajuste")),
                         eq(Optional.of("stock-k-1")));
     }
 
     @Test
-    void adjustStock_withoutIdempotencyHeader_forwardsEmptyOptional() throws Exception {
+    void adjustStock_withoutIdempotencyHeader_forwardsEmptyOptionalToUseCase() throws Exception {
         mockMvc.perform(
                         post("/api/v1/lojapp/inventory/adjust")
                                 .contentType(APPLICATION_JSON)
@@ -138,8 +141,8 @@ class InventoryControllerTest {
                                 .with(lojappUser(USER_ID)))
                 .andExpect(status().isOk());
 
-        verify(inventory)
-                .adjustStock(
+        verify(adjustInventory)
+                .execute(
                         eq(USER_ID),
                         eq(new com.lojapp.dto.inventory.StockAdjustmentRequest(2L, new BigDecimal("3"), "entrada")),
                         eq(Optional.empty()));
