@@ -205,6 +205,13 @@ public class InventoryService implements InventoryServiceContract {
         }
     }
 
+    @Override
+    @Transactional
+    @CacheEvict(cacheNames = CacheNames.DASHBOARD_INVENTORY_KPIS, allEntries = true)
+    public void adjustStock(long userId, StockAdjustmentRequest request) {
+        applyManualStockAdjustment(userId, request);
+    }
+
     @Transactional
     @CacheEvict(cacheNames = CacheNames.DASHBOARD_INVENTORY_KPIS, allEntries = true)
     public void applyManualStockAdjustment(long userId, StockAdjustmentRequest request) {
