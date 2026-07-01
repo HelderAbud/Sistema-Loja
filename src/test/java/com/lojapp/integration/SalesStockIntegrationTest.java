@@ -25,6 +25,7 @@ import com.lojapp.repository.InventoryMovementRepository;
 import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
+import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
 import com.lojapp.application.sale.CreatePosSaleUseCase;
 import com.lojapp.service.InventoryService;
 import com.lojapp.service.LojappCatalogService;
@@ -77,6 +78,7 @@ class SalesStockIntegrationTest {
     @Autowired private CashSessionRepository cashSessions;
     @Autowired private SalePaymentRepository salePayments;
     @Autowired private CreatePosSaleUseCase createPosSaleUseCase;
+    @Autowired private AdjustInventoryUseCaseContract adjustInventoryUseCase;
 
     @Test
     void registerSale_decreasesStockAndPersistsSaleMovement() {
@@ -280,8 +282,8 @@ class SalesStockIntegrationTest {
         long movementsBefore = movements.count();
         String key = "idem-adj-" + UUID.randomUUID();
         var req = new StockAdjustmentRequest(product.id(), new BigDecimal("3"), "INV");
-        inventory.adjustStock(userId, req, Optional.of(key));
-        inventory.adjustStock(userId, req, Optional.of(key));
+        adjustInventoryUseCase.execute(userId, req, Optional.of(key));
+        adjustInventoryUseCase.execute(userId, req, Optional.of(key));
 
         assertThat(movements.count()).isEqualTo(movementsBefore + 1);
     }

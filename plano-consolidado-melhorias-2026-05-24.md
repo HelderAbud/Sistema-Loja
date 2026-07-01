@@ -761,8 +761,10 @@ CI instala **Chromium** (`playwright install chromium`), mas config usa projeto 
 
 #### DoD
 
-- [ ] CI frontend verde
-- [ ] Grill log curto
+- [~] CI frontend verde — config já alinhada (Chromium em CI) desde commit `0554d67`; confirmar run verde no GitHub Actions (job `frontend`).
+- [x] Grill log curto — `docs/lojapp/grill-logs/2026-06-23-B4-playwright-ci-browser.md`.
+
+> **Estado (2026-06-23):** correção já presente no código; `git diff Principal...fix/B4-playwright-ci-browser` = vazio. Falta apenas confirmar CI verde no GitHub e mergear/descartar a branch.
 
 ---
 
@@ -826,10 +828,12 @@ Depois:
 
 #### DoD
 
-- [ ] ADR 0001 accepted
-- [ ] Controller não duplica idempotência
-- [ ] ArchUnit verde
-- [ ] PR referencia grill log + ADR
+- [x] ADR 0001 accepted — `docs/adr/0001-idempotencia-somente-em-application.md`
+- [x] Controller não duplica idempotência — `InventoryController` delega ajuste para `AdjustInventoryUseCaseContract`; `InventoryService` mantém só alias sem idempotência + `applyManualStockAdjustment`.
+- [x] ArchUnit verde — `mvn test -Dtest=LojappLayerArchitectureTest` (5 testes, 0 falhas).
+- [x] PR referencia grill log + ADR — `docs/lojapp/grill-logs/2026-06-23-PR1-adjust-inventory-use-case.md`.
+
+**Estado (2026-06-23):** implementação local concluída. Validação: unitários alvo verdes (`AdjustInventoryUseCaseTest`, `InventoryControllerTest`, `InventoryServiceTest`), ArchUnit verde, `mvn test` verde (268 testes, 0 falhas, 39 skipped por integrações/Testcontainers sem Docker válido nesta sessão). Teste específico `SalesStockIntegrationTest#adjustStock_sameIdempotencyKey_singleMovement` foi migrado para o use case, mas ficou skipped localmente pelo mesmo motivo; validar em CI/ambiente com Docker.
 
 ---
 

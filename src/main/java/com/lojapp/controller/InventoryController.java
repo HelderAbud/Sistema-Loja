@@ -1,5 +1,6 @@
 package com.lojapp.controller;
 
+import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
 import com.lojapp.dto.inventory.LowStockResponse;
 import com.lojapp.dto.inventory.ProductStockResponse;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
@@ -35,9 +36,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class InventoryController {
 
     private final InventoryServiceContract inventory;
+    private final AdjustInventoryUseCaseContract adjustInventory;
 
-    public InventoryController(InventoryServiceContract inventory) {
+    public InventoryController(
+            InventoryServiceContract inventory, AdjustInventoryUseCaseContract adjustInventory) {
         this.inventory = inventory;
+        this.adjustInventory = adjustInventory;
     }
 
     @Operation(
@@ -61,7 +65,7 @@ public class InventoryController {
                     @RequestHeader(value = "Idempotency-Key", required = false)
                     String idempotencyKey,
             @AuthenticationPrincipal JwtUser principal) {
-        inventory.adjustStock(
+        adjustInventory.execute(
                 principal.userId(), request, Optional.ofNullable(idempotencyKey));
     }
 

@@ -7,7 +7,6 @@ import com.lojapp.entity.Product;
 import com.lojapp.entity.User;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
 public interface InventoryServiceContract {
 
@@ -25,15 +24,12 @@ public interface InventoryServiceContract {
     void assertSufficientStock(long userId, long productId, BigDecimal quantityRequested);
 
     default void adjustStock(long userId, StockAdjustmentRequest request) {
-        adjustStock(userId, request, Optional.empty());
+        applyManualStockAdjustment(userId, request);
     }
 
-    void adjustStock(
-            long userId, StockAdjustmentRequest request, Optional<String> idempotencyKeyHeader);
-
     /**
-     * Aplica movimento de ajuste (delta + motivo). Para API HTTP usar {@link #adjustStock} com
-     * idempotência; este método expõe o núcleo para o caso de uso.
+     * Aplica movimento de ajuste (delta + motivo). Para API HTTP usar
+     * AdjustInventoryUseCaseContract com idempotência; este método expõe o núcleo transacional.
      */
     void applyManualStockAdjustment(long userId, StockAdjustmentRequest request);
 
