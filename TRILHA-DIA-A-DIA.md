@@ -1,0 +1,261 @@
+# Trilha dia a dia — LojApp (Loja Sistema)
+
+> **Metodologia:** [Rheyder Method v1.2](../Agentes/rheyder-method-v1.2-resumo-compartilhavel.md) + [Superpowers Cursor Playbook](../Skills/superpowers-cursor-playbook.md)  
+> **Iniciativa:** Portfólio carro-chefe — apresentação + deploy grátis + piloto  
+> **Triagem Rheyder:** **Normal** (deploy, CORS, secrets; contrato API existente)  
+> **Custo:** R$ 0 (Railway/Render/Vercel free tier)  
+
+---
+
+## Como usar
+
+1. **1 dia = 1 fatia vertical** verificável.
+2. **Plan Mode** obrigatório em dias marcados com 📋.
+3. Salvar planos em `.cursor/plans/plan-YYYY-MM-DD-lojapp-*.md`.
+4. Registros de validação: `docs/lojapp/grill-logs/validation-YYYY-MM-DD-*.md`.
+5. **HITL:** commit/push, secrets, deploy, mudança de contrato API.
+
+### Gates HITL
+
+- Rotacionar / definir `LOJAPP_JWT_SECRET` em produção
+- Alterar endpoints públicos ou migrations Flyway destrutivas
+- Push para repo público com arquivos sensíveis
+- Deploy (credenciais Railway/Vercel)
+
+---
+
+## Visão das fases (21 dias úteis)
+
+| Fase | Dias | Foco | Trilha |
+|------|------|------|--------|
+| A — Apresentação | 1–5 | Screenshots, etapas, pitch | Simple |
+| B — Deploy | 6–10 | API + front no ar | Normal |
+| C — Piloto | 11–15 | 1 loja demo + evidência | Normal |
+| D — Polimento | 16–18 | CI badge, README, LinkedIn | Simple |
+| E — Opcional local | 19–21 | HA Docker doc (sem AWS) | Simple |
+
+---
+
+## Fase A — Apresentação
+
+### Dia 1 — Auditoria README e screenshots 📋 ✅ (2026-07-08)
+
+**Fatia:** Inventário do que já existe vs placeholder.
+
+**Tarefas**
+- [x] Listar screenshots em `docs/screenshots/` — quais são reais?
+- [x] Rodar local: `docker compose up` + login + dashboard
+- [x] Capturar ou substituir: `01-login.png`, `02-dashboard.png` (mínimo)
+- [x] Plano: `.cursor/plans/plan-2026-07-08-screenshots-audit.md`
+
+**Validação**
+- [x] App sobe local; health `GET /actuator/health` → UP
+- [x] ≥2 screenshots reais no README (01–06 entregues; GIF 07 → Dia 2)
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-08-trilha-dia-1.md`
+
+**Prompt Cursor**
+```text
+LojApp Dia 1 — trilha Simple. Auditar docs/screenshots, rodar compose,
+capturar login e dashboard com dados fictícios. Plan Mode primeiro.
+Não alterar código de negócio.
+```
+
+---
+
+### Dia 2 — Screenshots restantes + GIF
+
+- [ ] Capturar `03-vendas`, `04-estoque`, `05-importacao-xml`, `06-relatorios`
+- [ ] GIF curto (15–30s): login → dashboard → 1 venda (`07-fluxo-principal.gif`)
+- [ ] Seguir [`docs/screenshots/README.md`](docs/screenshots/README.md)
+
+**Validação:** README exibe todas as imagens sem link quebrado.
+
+---
+
+### Dia 3 — `docs/portfolio/etapas.md` 📋
+
+**Fatia:** Narrativa 7 etapas (formato portfólio).
+
+**Conteúdo das 7 etapas**
+1. API REST + Flyway + PostgreSQL  
+2. SPA React + JWT + roles  
+3. NFe → estoque (transação ACID)  
+4. Docker Compose + health checks  
+5. CI GitHub Actions  
+6. Deploy Railway/Vercel *(pendente → atualizar no Dia 10)*  
+7. Dashboard KPI + curva ABC  
+
+Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidência”.
+
+**Validação:** arquivo linkado no README.
+
+---
+
+### Dia 4 — Diagrama Mermaid + badge CI
+
+- [ ] Adicionar diagrama Browser → SPA → API → Postgres/Redis no README
+- [ ] Badge CI no topo (workflow `.github/workflows/ci.yml`)
+- [ ] Verificar CI verde no GitHub
+
+**Trilha:** Simple.
+
+---
+
+### Dia 5 — Pitch ensaio 📋
+
+- [ ] Ler [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md)
+- [ ] Gravar ou ensaiar 60–90s (3 casos técnicos)
+- [ ] Resumo 5 linhas no README apontando para pitch completo
+- [ ] `docs/grill-logs/validation-YYYY-MM-DD-fase-apresentacao.md`
+
+**DoD Fase A:** screenshots + etapas + diagrama + pitch linkado.
+
+---
+
+## Fase B — Deploy (R$ 0)
+
+### Dia 6 — Preparação deploy 📋
+
+| Trilha | Normal |
+
+**Tarefas**
+- [ ] Ler [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
+- [ ] Plan: `.cursor/plans/plan-YYYY-MM-DD-deploy-railway.md`
+- [ ] Checklist env: `LOJAPP_JWT_SECRET`, `POSTGRES_PASSWORD`, `LOJAPP_CORS_ORIGINS`
+- [ ] **HITL:** gerar secrets; não commitar `.env`
+
+---
+
+### Dia 7 — Postgres + API (Railway ou Render)
+
+- [ ] Criar projeto + Postgres managed
+- [ ] Deploy API (Dockerfile raiz)
+- [ ] Flyway aplica migrations
+- [ ] Testar `/actuator/health` e Swagger público
+
+**Validação:** URL API responde 200 no health.
+
+---
+
+### Dia 8 — Frontend (Vercel ou estático)
+
+- [ ] Deploy frontend com `VITE_API_BASE` apontando para API
+- [ ] Ajustar `LOJAPP_CORS_ORIGINS` na API
+- [ ] Smoke: login → dashboard
+
+**HITL:** revisar CORS e URLs antes de considerar done.
+
+---
+
+### Dia 9 — Smoke produção + segurança
+
+- [ ] Rodar [`scripts/verify-api-env.ps1`](scripts/verify-api-env.ps1) ou `.sh` adaptado
+- [ ] Confirmar Swagger desabilitado ou protegido em prod (se policy)
+- [ ] Documentar URLs em README (seção Demo)
+
+---
+
+### Dia 10 — Atualizar etapas + validation deploy
+
+- [ ] Etapa 6 em `docs/portfolio/etapas.md` → ✅ com URLs
+- [ ] `docs/grill-logs/validation-YYYY-MM-DD-deploy.md`
+- [ ] **DoD Normal:** app no ar + health + login funcional
+
+---
+
+## Fase C — Piloto demo
+
+### Dia 11 — Conta loja fictícia 📋
+
+- [ ] Criar usuário demo (dados fictícios)
+- [ ] Seed ou cadastro manual: produtos, 1 NFe exemplo anonimizada
+- [ ] Plano piloto: `.cursor/plans/plan-YYYY-MM-DD-piloto-demo.md`
+
+---
+
+### Dia 12 — Fluxo ponta a ponta piloto
+
+**Fatia vertical:** NFe entra → estoque atualiza → venda baixa saldo.
+
+- [ ] Executar fluxo no deploy (ou local se deploy instável)
+- [ ] Screenshots em [`docs/screenshots/piloto/`](docs/screenshots/piloto/)
+
+---
+
+### Dia 13 — Testes de regressão críticos
+
+- [ ] `mvn test` / CI verde
+- [ ] Se bug encontrado: trilha **Hotfix** (patch mínimo + teste)
+
+---
+
+### Dias 14–15 — Documentar piloto
+
+- [ ] 1 página `docs/lojapp/piloto-demo-resultado.md` (sem dados reais)
+- [ ] Validation fase C
+
+---
+
+## Fase D — Polimento portfólio
+
+### Dia 16 — README final
+
+- [ ] Seção Demo com links clicáveis
+- [ ] Como rodar local (5 linhas)
+- [ ] Revisão CONTRIBUTING + CHECKLIST_FINAL
+
+---
+
+### Dia 17 — LinkedIn
+
+- [ ] Post com GIF dashboard + link GitHub + link demo
+- [ ] 3 bullets técnicos (NFe/transação, JWT, deploy)
+
+---
+
+### Dia 18 — Revisão code-reviewer (simulada)
+
+- [ ] Diff da trilha inteira vs main
+- [ ] Rubrica: segurança, secrets, aderência AGENTS.md
+- [ ] `validation-YYYY-MM-DD-trilha-completa.md`
+
+---
+
+## Fase E — Opcional (sem AWS)
+
+### Dias 19–21 — HA local documentada
+
+| Trilha | Simple — só documentação |
+
+- [ ] `docs/portfolio/etapa-ha-local.md`: 2 réplicas API + nginx + script curl loop
+- [ ] Opcional: implementar compose override se sobrar tempo
+- [ ] **Não** claimar AWS ALB — ser honesto
+
+---
+
+## Prompt base (copiar no Cursor)
+
+```text
+LojApp — Trilha dia N do TRILHA-DIA-A-DIA.md.
+Rheyder Normal + Superpowers: Plan Mode → fatia vertical → TDD se regra de negócio
+→ validation antes de concluir. HITL em secrets/deploy/API.
+Referências: AGENTS.md, docs/lojapp/pitch-portfolio.md.
+```
+
+---
+
+## Calendário resumido
+
+| Dia | Entrega |
+|-----|---------|
+| 1–2 | Screenshots |
+| 3–5 | etapas.md + diagrama + pitch |
+| 6–10 | Deploy |
+| 11–15 | Piloto demo |
+| 16–18 | README + LinkedIn + validation |
+| 19–21 | HA local doc (opcional) |
+
+---
+
+*Trilha v1.0 — 2026-07-07 — LojApp carro-chefe #1*

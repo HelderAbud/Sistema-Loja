@@ -14,6 +14,8 @@ Coloque aqui **capturas reais** da aplicação (PNG ou WebP). Sem imagens, o Git
 | `06-relatorios.png` | Relatórios: por exemplo tabela de marcas/ABC no dashboard, ou export futuro |
 | `07-fluxo-principal.gif` | GIF curto (`10-20s`) com navegação principal |
 
+Extras opcionais (portfólio): `08-marcas.png`, `09-nova-venda.png`.
+
 ## Como gerar
 
 ### Opção A — script (PNG 01–06)
