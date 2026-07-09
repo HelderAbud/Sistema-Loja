@@ -7,7 +7,7 @@ Este é o ponto único de entrada para arquitetura, segurança, operação e gov
 ## Núcleo técnico (ficheiros presentes no repo)
 
 - `00-indice-prioridades-sistema.md` — ordem de leitura A/B/C e segurança.
-- `05-workflow-cursor-superpowers.md` — workflow Cursor + Superpowers + Rheyder (resumo operacional).
+- `05-workflow-cursor-superpowers.md` — workflow Cursor + Superpowers + Helder (resumo operacional).
 - `11-checklist-pr-e-convencoes-repositorio.md` — higiene de contribuição e critérios de PR.
 - `18-decisoes-e-checklist-entrega.md` — registo de decisões e aceite por entrega.
 - `17-versionamento-api-rest.md` — política de versionamento de contrato REST.
@@ -44,7 +44,7 @@ Este é o ponto único de entrada para arquitetura, segurança, operação e gov
 
 - `plano-execucao-sprint-1-a-6.md` — macroplaneamento por sprint.
 - `10-guia-junior-piloto-deploy-proximos-passos.md` — deploy local, piloto, demo e portfólio.
-- `.cursor/plans/` — planos aprovados (ex.: piloto método Rheyder); podem não existir em clones se a pasta não for commitada; ver nota abaixo.
+- `.cursor/plans/` — planos aprovados (ex.: piloto método Helder); podem não existir em clones se a pasta não for commitada; ver nota abaixo.
 
 > **Nota (clones do repositório):** roteiros detalhados podem existir em `.cursor/plans/` na tua máquina. Quem clona o projeto deve basear-se **nos `.md` em `docs/lojapp/`**, no `AGENTS.md`, no `CHECKLIST_FINAL.md` e no bloco **Núcleo técnico** acima.
 

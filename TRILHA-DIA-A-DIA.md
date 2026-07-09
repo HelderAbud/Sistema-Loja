@@ -1,8 +1,8 @@
 # Trilha dia a dia — LojApp (Loja Sistema)
 
-> **Metodologia:** [Rheyder Method v1.2](../Agentes/rheyder-method-v1.2-resumo-compartilhavel.md) + [Superpowers Cursor Playbook](../Skills/superpowers-cursor-playbook.md)  
+> **Metodologia:** [Helder Method v1.2](../Agentes/helder-method-v1.2-resumo-compartilhavel.md) + [skills-pessoal](../Agentes/skills-pessoal/skills-pessoal/README-pt_br.md) ([WORKFLOW](../Agentes/skills-pessoal/skills-pessoal/WORKFLOW.md))  
 > **Iniciativa:** Portfólio carro-chefe — apresentação + deploy grátis + piloto  
-> **Triagem Rheyder:** **Normal** (deploy, CORS, secrets; contrato API existente)  
+> **Triagem Helder:** **Normal** (deploy, CORS, secrets; contrato API existente)  
 > **Custo:** R$ 0 (Railway/Render/Vercel free tier)  
 
 ---
@@ -10,10 +10,33 @@
 ## Como usar
 
 1. **1 dia = 1 fatia vertical** verificável.
-2. **Plan Mode** obrigatório em dias marcados com 📋.
+2. Dias 📋 / Normal: `to-spec` → `to-issues` antes de editar; Simple: fast path.
 3. Salvar planos em `.cursor/plans/plan-YYYY-MM-DD-lojapp-*.md`.
-4. Registros de validação: `docs/lojapp/grill-logs/validation-YYYY-MM-DD-*.md`.
-5. **HITL:** commit/push, secrets, deploy, mudança de contrato API.
+4. Registros de validação: `docs/lojapp/grill-logs/validation-YYYY-MM-DD-*.md` + `slice-verification`.
+5. Regra de negócio / bug: `tdd` → Verify com health/CI.
+6. **HITL:** commit/push, secrets, deploy, mudança de contrato API.
+
+### Helder → skills-pessoal
+
+| Trilha Helder | Caminho |
+|---------------|---------|
+| **Simple** | Fast path: fazer → verificar → resumir |
+| **Normal** | `to-spec` → `to-issues` → `tdd` (se regra) → `slice-verification` → `code-review` |
+| **Complex** | igual Normal + HITL entre fases; `context-discovery` se houver ADR/contrato |
+| **Hotfix** | `diagnose` → patch mínimo → regressão → só então retomar a trilha |
+
+### Core Workflow (mapa)
+
+| Fase | Skill |
+|------|-------|
+| Spec | `to-spec` |
+| Plan | `to-issues` |
+| Branch | `git-workflow-and-versioning` |
+| Build | `tdd` (regra de negócio / bug) |
+| Verify | `slice-verification` (health, CI, smoke) |
+| Review | `code-review` |
+| Simplify | `code-simplification` |
+| Ship | `finishing-a-development-branch` |
 
 ### Gates HITL
 
@@ -21,6 +44,7 @@
 - Alterar endpoints públicos ou migrations Flyway destrutivas
 - Push para repo público com arquivos sensíveis
 - Deploy (credenciais Railway/Vercel)
+- Commit, push ou PR
 
 ---
 
@@ -57,7 +81,7 @@
 **Prompt Cursor**
 ```text
 LojApp Dia 1 — trilha Simple. Auditar docs/screenshots, rodar compose,
-capturar login e dashboard com dados fictícios. Plan Mode primeiro.
+capturar login e dashboard com dados fictícios. Fast path / to-issues primeiro.
 Não alterar código de negócio.
 ```
 
@@ -240,9 +264,10 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ```text
 LojApp — Trilha dia N do TRILHA-DIA-A-DIA.md.
-Rheyder Normal + Superpowers: Plan Mode → fatia vertical → TDD se regra de negócio
-→ validation antes de concluir. HITL em secrets/deploy/API.
-Referências: AGENTS.md, docs/lojapp/pitch-portfolio.md.
+Helder [Simple|Normal|Complex|Hotfix] + skills-pessoal.
+Normal: to-spec → to-issues → fatia vertical → tdd se regra de negócio
+→ slice-verification (health/CI) → code-review proporcional.
+HITL em secrets/deploy/API/commit. Referências: AGENTS.md, docs/lojapp/pitch-portfolio.md.
 ```
 
 ---
@@ -260,4 +285,4 @@ Referências: AGENTS.md, docs/lojapp/pitch-portfolio.md.
 
 ---
 
-*Trilha v1.0 — 2026-07-07 — LojApp carro-chefe #1*
+*Trilha v1.1 — 2026-07-09 — Helder v1.2 + skills-pessoal*
