@@ -65,11 +65,13 @@ Não alterar código de negócio.
 
 ### Dia 2 — Screenshots restantes + GIF
 
-- [ ] Capturar `03-vendas`, `04-estoque`, `05-importacao-xml`, `06-relatorios`
-- [ ] GIF curto (15–30s): login → dashboard → 1 venda (`07-fluxo-principal.gif`)
-- [ ] Seguir [`docs/screenshots/README.md`](docs/screenshots/README.md)
+- [x] Capturar `03-vendas`, `04-estoque`, `05-importacao-xml`, `06-relatorios`
+- [x] GIF curto (15–30s): login → dashboard → 1 venda (`07-fluxo-principal.gif`)
+- [x] Seguir [`docs/screenshots/README.md`](docs/screenshots/README.md)
 
 **Validação:** README exibe todas as imagens sem link quebrado.
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-09-trilha-dia-2.md`
 
 ---
 
