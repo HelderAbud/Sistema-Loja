@@ -30,7 +30,7 @@ Tambem sinaliza lacunas de documentacao e ordem sugerida de leitura/execucao.
 ## Prioridade B - Desenvolvimento Diario (alto impacto)
 
 1. `05-workflow-cursor-superpowers.md`
-   - Workflow Cursor + Superpowers + ligacao ao plano Rheyder; usar com `AGENTS.md` e `.cursor/plans/`.
+   - Workflow Cursor + Superpowers + ligacao ao plano Helder; usar com `AGENTS.md` e `.cursor/plans/`.
 2. `11-checklist-pr-e-convencoes-repositorio.md`
    - Checklist de PR, arquitetura e seguranca para contribuicoes.
 3. `31-checklist-producao-prd-lojapp.md`
@@ -71,7 +71,7 @@ Tambem sinaliza lacunas de documentacao e ordem sugerida de leitura/execucao.
 
 1. Planejar escopo atual: `01`.
 2. Por entrega (PRD ate QA): seguir `31-checklist-producao-prd-lojapp.md`; visão macro em `plano-execucao-sprint-1-a-6.md`; portfólio em `CHECKLIST_FINAL.md`.
-3. Workflow Cursor/agentes: `05-workflow-cursor-superpowers.md` e plano ativo em `.cursor/plans/` (ex.: piloto Rheyder).
+3. Workflow Cursor/agentes: `05-workflow-cursor-superpowers.md` e plano ativo em `.cursor/plans/` (ex.: piloto Helder).
 4. Implementar/ajustar backend com contratos: `12`, `13-estoque-concorrencia-e-idempotencia.md`, `16`, `17` (ambiente local: `10-guia-junior-piloto-deploy-proximos-passos.md` secção **6** — Ubuntu/Bash).
 5. Validar entrega tecnica: `11`, `18`.
 6. Executar prontidao operacional/deploy: `15`.
