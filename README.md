@@ -397,7 +397,7 @@ Guia detalhado: [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](
 
 ## Licença
 
-Distribuído sob a licença MIT — ver [`LICENSE`](LICENSE).
+Distribuído sob a licença [MIT](LICENSE). Copyright (c) 2026 Helder Abud.
 
 ---
 
