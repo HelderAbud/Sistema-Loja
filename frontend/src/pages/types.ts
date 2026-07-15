@@ -1,11 +1,5 @@
 export type PilotoTab =
-  | "products"
-  | "sales"
-  | "brands"
-  | "nfe"
-  | "inventory"
-  | "sale"
-  | "dashboard";
+  "products" | "sales" | "brands" | "nfe" | "inventory" | "sale" | "dashboard";
 
 export const PILOTO_TABS = [
   "products",
