@@ -99,22 +99,25 @@ Não alterar código de negócio.
 
 ---
 
-### Dia 3 — `docs/portfolio/etapas.md` 📋
+### Dia 3 — `docs/portfolio/etapas.md` 📋 ✅ (2026-07-15)
 
 **Fatia:** Narrativa 7 etapas (formato portfólio).
 
 **Conteúdo das 7 etapas**
-1. API REST + Flyway + PostgreSQL  
-2. SPA React + JWT + roles  
-3. NFe → estoque (transação ACID)  
-4. Docker Compose + health checks  
-5. CI GitHub Actions  
-6. Deploy Railway/Vercel *(pendente → atualizar no Dia 10)*  
-7. Dashboard KPI + curva ABC  
+- [x] API REST + Flyway + PostgreSQL  
+- [x] SPA React + JWT + roles  
+- [x] NFe → estoque (transação ACID)  
+- [x] Docker Compose + health checks  
+- [x] CI GitHub Actions  
+- [x] Deploy Railway/Vercel *(pendente no texto → atualizar no Dia 10)*  
+- [x] Dashboard KPI + curva ABC  
 
 Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidência”.
 
 **Validação:** arquivo linkado no README.
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-15-trilha-dia-3.md`  
+**Plano:** `.cursor/plans/plan-2026-07-15-lojapp-etapas.md`
 
 ---
 
