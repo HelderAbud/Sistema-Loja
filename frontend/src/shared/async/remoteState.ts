@@ -8,10 +8,7 @@ export type RemoteSuccess<T> = { status: "success"; data: T };
 export type RemoteError<E = string> = { status: "error"; error: E };
 
 export type RemoteState<T, E = string> =
-  | RemoteIdle
-  | RemoteLoading
-  | RemoteSuccess<T>
-  | RemoteError<E>;
+  RemoteIdle | RemoteLoading | RemoteSuccess<T> | RemoteError<E>;
 
 export function isRemoteSuccess<T, E>(s: RemoteState<T, E>): s is RemoteSuccess<T> {
   return s.status === "success";

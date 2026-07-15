@@ -1,8 +1,7 @@
 export type ManualAdjustInput = { productId: number; qty: number; reason: string };
 
 export type ManualAdjustValidation =
-  | { ok: true; value: ManualAdjustInput }
-  | { ok: false; message: string };
+  { ok: true; value: ManualAdjustInput } | { ok: false; message: string };
 
 export function validateManualStockAdjust(
   productIdRaw: string,
