@@ -45,6 +45,8 @@ SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, v
 
 Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md). Trilha portfólio: [`TRILHA-DIA-A-DIA.md`](TRILHA-DIA-A-DIA.md).
 
+**Narrativa em 7 etapas:** [`docs/portfolio/etapas.md`](docs/portfolio/etapas.md)
+
 **Pitch para entrevista (60–90 s + 3 casos técnicos):** [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md)
 
 ---
