@@ -88,6 +88,13 @@ Aliases: `Próximo dia` · `Seguir trilha`.
 - Não commitar segredos reais; usar `LOJAPP_JWT_SECRET` (e credenciais DB) só no ambiente.
 - Pedir aprovação explícita antes de: migrations destrutivas ou amplas, mudança de contrato API pública, deleções em massa.
 
+### Autor dos commits (portfólio)
+
+- Commits e PRs: **só Helder Abud** — sem `Co-authored-by: Cursor` / `cursoragent` / `Made-with: Cursor`.
+- No Cursor: **Settings → Agents → Attribution** (ou **Git & PRs → Attribution**) → desligar Commit e PR Attribution → **reiniciar o Cursor**.
+- Dependabot automático: **pausado** em `.github/dependabot.yml` (updates manuais). Histórico antigo no GitHub não some sem rewrite.
+- Fluxo: branch a partir de `Principal` → PR → merge só após conferência.
+
 ## Caminhos importantes
 
 | Caminho | Conteúdo |

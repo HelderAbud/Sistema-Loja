@@ -1,88 +1,26 @@
-# Dependabot — LojApp
-# Objetivo: atualizações de segurança/patch sem encher o repo de PRs majors quebrados.
-# Majors de Boot / springdoc / ESLint / Vitest / logstash ficam fora do automático
-# (tratar em fatia própria com CI verde).
+# Dependabot — PRs de versão PAUSADOS (portfólio: autor humano no histórico recente)
+# Motivo: dependabot[bot] aparece como contributor quando abre/merge PRs.
+# Updates: manuais em branch chore/*, commit Helder Abud.
+# Reativar: subir open-pull-requests-limit (ex.: 3) e restaurar groups/ignores do histórico.
+#
+# Alertas de segurança no GitHub Security podem continuar ativos sem PRs de versão.
 
 version: 2
 updates:
   - package-ecosystem: maven
     directory: /
     schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 3
+      interval: monthly
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - maven
-    ignore:
-      # Spring Boot 4.x = iniciativa Complex (CI já falhou no PR #30)
-      - dependency-name: "org.springframework.boot:spring-boot-starter-parent"
-        update-types: ["version-update:semver-major"]
-      # springdoc 3.x costuma exigir alinhamento com Boot major
-      - dependency-name: "org.springdoc:springdoc-openapi-starter-webmvc-ui"
-        update-types: ["version-update:semver-major"]
-      # logstash-encoder 9.x — CI docker falhou no PR #27
-      - dependency-name: "net.logstash.logback:logstash-logback-encoder"
-        update-types: ["version-update:semver-major"]
-    groups:
-      maven-patch-minor:
-        patterns:
-          - "*"
-        update-types:
-          - "minor"
-          - "patch"
 
   - package-ecosystem: npm
     directory: /frontend
     schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 3
+      interval: monthly
+    open-pull-requests-limit: 0
     labels:
       - dependencies
       - frontend
-    ignore:
-      # ESLint 10 — frontend CI falhou no PR #35
-      - dependency-name: "eslint"
-        update-types: ["version-update:semver-major"]
-      # Vitest 4 — adiado na limpeza (PR #31)
-      - dependency-name: "vitest"
-        update-types: ["version-update:semver-major"]
-    groups:
-      frontend-devtools:
-        patterns:
-          - "eslint*"
-          - "@eslint/*"
-          - "typescript-eslint"
-          - "@typescript-eslint/*"
-          - "vitest"
-          - "@vitest/*"
-        update-types:
-          - "minor"
-          - "patch"
-      frontend-runtime:
-        patterns:
-          - "react"
-          - "react-dom"
-          - "react-router*"
-          - "@tanstack/*"
-        update-types:
-          - "minor"
-          - "patch"
-      frontend-other:
-        patterns:
-          - "*"
-        exclude-patterns:
-          - "eslint*"
-          - "@eslint/*"
-          - "typescript-eslint"
-          - "@typescript-eslint/*"
-          - "vitest"
-          - "@vitest/*"
-          - "react"
-          - "react-dom"
-          - "react-router*"
-          - "@tanstack/*"
-        update-types:
-          - "minor"
-          - "patch"
