@@ -121,24 +121,28 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 4 — Diagrama Mermaid + badge CI
+### Dia 4 — Diagrama Mermaid + badge CI ✅ (2026-07-16)
 
-- [ ] Adicionar diagrama Browser → SPA → API → Postgres/Redis no README
-- [ ] Badge CI no topo (workflow `.github/workflows/ci.yml`)
-- [ ] Verificar CI verde no GitHub
+- [x] Adicionar diagrama Browser → SPA → API → Postgres/Redis no README
+- [x] Badge CI no topo (workflow `.github/workflows/ci.yml`)
+- [x] Verificar CI verde no GitHub
 
 **Trilha:** Simple.
 
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-16-trilha-dia-4.md`
+
 ---
 
-### Dia 5 — Pitch ensaio 📋
+### Dia 5 — Pitch ensaio 📋 ✅ (2026-07-16)
 
-- [ ] Ler [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md)
-- [ ] Gravar ou ensaiar 60–90s (3 casos técnicos)
-- [ ] Resumo 5 linhas no README apontando para pitch completo
-- [ ] `docs/grill-logs/validation-YYYY-MM-DD-fase-apresentacao.md`
+- [x] Ler [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md)
+- [ ] Gravar ou ensaiar 60–90s (3 casos técnicos) — **HITL:** voz alta (checklist no pitch §6)
+- [x] Resumo 5 linhas no README apontando para pitch completo
+- [x] `docs/lojapp/grill-logs/validation-2026-07-16-fase-apresentacao.md`
 
-**DoD Fase A:** screenshots + etapas + diagrama + pitch linkado.
+**DoD Fase A:** screenshots + etapas + diagrama + pitch linkado — **OK** (ensaio oral = gate humano).
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-16-fase-apresentacao.md`
 
 ---
 
@@ -263,7 +267,15 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-## Prompt base (copiar no Cursor)
+## Prompt base (Cursor)
+
+**Uso diário (preferido):** a regra `.cursor/rules/helder-trilha-diaria.mdc` + `AGENTS.md` já amarram Helder + skills. Digite só:
+
+```text
+Continuar LojApp
+```
+
+**Prompt longo (opcional / sessão sem a regra):**
 
 ```text
 LojApp — Trilha dia N do TRILHA-DIA-A-DIA.md.
