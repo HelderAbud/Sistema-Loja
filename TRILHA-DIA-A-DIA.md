@@ -148,15 +148,17 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ## Fase B — Deploy (R$ 0)
 
-### Dia 6 — Preparação deploy 📋
+### Dia 6 — Preparação deploy 📋 ✅ (2026-07-16)
 
 | Trilha | Normal |
 
 **Tarefas**
-- [ ] Ler [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
-- [ ] Plan: `.cursor/plans/plan-YYYY-MM-DD-deploy-railway.md`
-- [ ] Checklist env: `LOJAPP_JWT_SECRET`, `POSTGRES_PASSWORD`, `LOJAPP_CORS_ORIGINS`
-- [ ] **HITL:** gerar secrets; não commitar `.env`
+- [x] Ler [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md) (Parte 4)
+- [x] Plan: [`docs/lojapp/plans/plan-2026-07-16-deploy-railway.md`](docs/lojapp/plans/plan-2026-07-16-deploy-railway.md)
+- [x] Checklist env: `LOJAPP_JWT_SECRET`, `POSTGRES_PASSWORD`, `LOJAPP_CORS_ORIGINS` (documentado)
+- [x] **HITL:** gerar secrets offline; não commitar `.env` — OK (Helder, 2026-07-16)
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-16-trilha-dia-6.md`
 
 ---
 
