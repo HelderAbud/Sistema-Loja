@@ -67,7 +67,21 @@ Swagger local: `http://localhost:8000/swagger-ui.html` (porta por defeito em `ap
 
 - Tarefa **não trivial**: usar **Plan Mode**, validar plano, depois executar em passos verificáveis.
 - Planos relevantes: guardar em `.cursor/plans/` após aprovação.
-- Regras persistentes do agente: `.cursor/rules/*.md`.
+- Regras persistentes do agente: `.cursor/rules/*.md` (inclui `helder-trilha-diaria.mdc`).
+
+### Continuar a trilha (sem prompt longo)
+
+Fonte: [`TRILHA-DIA-A-DIA.md`](TRILHA-DIA-A-DIA.md) · Helder v1.2 + skills-pessoal (ver regra `helder-trilha-diaria`).
+
+Basta escrever no chat:
+
+```text
+Continuar LojApp
+```
+
+O agente deve: achar o próximo dia aberto na trilha → triar Helder → aplicar skills → fechar fatia com evidência em `docs/lojapp/grill-logs/`.
+
+Aliases: `Próximo dia` · `Seguir trilha`.
 
 ## Segurança
 
@@ -83,6 +97,7 @@ Swagger local: `http://localhost:8000/swagger-ui.html` (porta por defeito em `ap
 | `src/test/java/com/lojapp/` | Testes |
 | `docs/docker-wsl-ubuntu.md` | Docker, permissões e WSL2 (troubleshooting local) |
 | `docs/lojapp/` | Produto, pilotos, workflow Cursor (`05-workflow-cursor-superpowers.md`); guia operacional: `10-guia-junior-piloto-deploy-proximos-passos.md`; índices: `00-indice-prioridades-sistema.md`, `28-indice-tecnico-unificado.md`; frontend por feature: `14-arquitetura-frontend-por-feature.md`; continuidade/SLO: `15-operacao-continuidade-filas-s3-slo.md`; NFe sem chave: `16-nfe-xml-sem-chave-dedup.md`; versionamento API: `17-versionamento-api-rest.md`; decisões e aceite: `18-decisoes-e-checklist-entrega.md` |
+| `TRILHA-DIA-A-DIA.md` | Trilha portfólio (1 dia = 1 fatia); gatilho `Continuar LojApp` |
 | `CHECKLIST_FINAL.md` (raiz) | Auditoria portfólio / pré-GitHub (P0/P1); cruza com `.cursor/plans/plan-2026-05-04-helder-piloto-trilha-normal.md` |
 | `deploy/prometheus/` | Exemplo de alertas: `alerts.lojapp.example.yml` |
 | `scripts/` | Backup/restore Postgres (Docker): `backup-postgres-docker.ps1`, `restore-postgres-docker.ps1`; verificação Docker/WSL: `docker-wsl-check.sh` (bash) |

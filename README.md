@@ -1,5 +1,6 @@
 # LojApp — Plataforma de Gestão Comercial
 
+[![CI](https://github.com/HelderAbud/Sistema-Loja/actions/workflows/ci.yml/badge.svg?branch=Principal)](https://github.com/HelderAbud/Sistema-Loja/actions/workflows/ci.yml)
 [![Java 21](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot 3.5](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -47,7 +48,15 @@ Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md). Tri
 
 **Narrativa em 7 etapas:** [`docs/portfolio/etapas.md`](docs/portfolio/etapas.md)
 
-**Pitch para entrevista (60–90 s + 3 casos técnicos):** [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md)
+### Pitch (60–90 s)
+
+1. **Problema** — planilha frágil: stock errado, NFe manual, sem visão de margem.
+2. **Solução** — LojApp: XML da NFe entra → stock atualiza → venda baixa saldo → dashboard (KPIs + curva ABC), dados isolados por loja.
+3. **Stack** — Java 21, Spring Boot, PostgreSQL/Flyway, JWT + rate limit, React 19, CI no GitHub.
+4. **Prova** — testes de concorrência de stock, isolamento multi-loja, Testcontainers + ArchUnit — não é só CRUD.
+5. **Estado** — MVP em Docker local; screenshots e pitch completo no repo.
+
+Texto falado, 3 casos técnicos e roteiro de ensaio: [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md).
 
 ---
 
@@ -75,6 +84,16 @@ Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md). Tri
 ---
 
 ## Arquitetura
+
+```mermaid
+flowchart LR
+  Browser[Browser] --> SPA[React SPA]
+  SPA -->|JWT + refresh /api/v1| API[Spring Boot API]
+  API --> PG[(PostgreSQL)]
+  API --> Redis[(Redis)]
+```
+
+Visão em camadas (API):
 
 ```text
 [ React SPA ]  ──── JWT + refresh ────▶  [ REST /api/v1 ]
