@@ -162,14 +162,20 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 7 — Postgres + API (Railway ou Render)
+### Dia 7 — Postgres + API (Railway ou Render) ✅ (2026-07-17)
 
-- [ ] Criar projeto + Postgres managed
-- [ ] Deploy API (Dockerfile raiz)
-- [ ] Flyway aplica migrations
-- [ ] Testar `/actuator/health` e Swagger público
+- [x] Criar projeto + Postgres managed (Render `lojapp-db`)
+- [x] Deploy API (Dockerfile raiz) → `lojapp-api`
+- [x] Flyway aplica migrations (arranque `prod`)
+- [x] Testar `/actuator/health` → **UP**  
+  - URL: `https://lojapp-api.onrender.com`  
+  - Nota: `MANAGEMENT_HEALTH_REDIS_ENABLED=false` + `LOJAPP_RATE_LIMIT_MODE=memory` (sem Redis no free tier)  
+  - Swagger desligado em `prod` (esperado)
 
-**Validação:** URL API responde 200 no health.
+**Validação:** URL API responde health UP.
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-17-trilha-dia-7.md`  
+**Plano/runbook:** `docs/lojapp/plans/plan-2026-07-17-deploy-api-dia-7.md` · `docs/lojapp/runbooks/runbook-dia-7-deploy-api.md`
 
 ---
 
@@ -275,6 +281,12 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ```text
 Continuar LojApp
+```
+
+**Versionar a fatia (branch → PR, sem merge):**
+
+```text
+PR LojApp
 ```
 
 **Prompt longo (opcional / sessão sem a regra):**

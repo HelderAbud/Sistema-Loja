@@ -83,6 +83,22 @@ O agente deve: achar o próximo dia aberto na trilha → triar Helder → aplica
 
 Aliases: `Próximo dia` · `Seguir trilha`.
 
+### Abrir PR (sem prompt longo)
+
+Regra: `.cursor/rules/git-autor-unico.mdc`.
+
+Basta escrever no chat:
+
+```text
+PR LojApp
+```
+
+O agente deve: `Principal` atualizada → branch → commit (só Helder, sem Cursor co-author) → push → PR para `Principal` → **sem merge** → devolver URL + o que conferir.
+
+Aliases: `Abrir PR` · `Abrir PR desta fatia`.
+
+Nunca stage `.env` / secrets.
+
 ## Segurança
 
 - Não commitar segredos reais; usar `LOJAPP_JWT_SECRET` (e credenciais DB) só no ambiente.
@@ -94,6 +110,7 @@ Aliases: `Próximo dia` · `Seguir trilha`.
 - No Cursor: **Settings → Agents → Attribution** (ou **Git & PRs → Attribution**) → desligar Commit e PR Attribution → **reiniciar o Cursor**.
 - Dependabot automático: **pausado** em `.github/dependabot.yml` (updates manuais). Histórico antigo no GitHub não some sem rewrite.
 - Fluxo: branch a partir de `Principal` → PR → merge só após conferência.
+- Gatilho curto: `PR LojApp` (ver secção acima).
 
 ## Caminhos importantes
 
