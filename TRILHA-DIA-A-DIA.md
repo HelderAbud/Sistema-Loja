@@ -179,13 +179,18 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 8 — Frontend (Vercel ou estático)
+### Dia 8 — Frontend (Vercel ou estático) ✅ (2026-07-20)
 
-- [ ] Deploy frontend com `VITE_API_BASE` apontando para API
-- [ ] Ajustar `LOJAPP_CORS_ORIGINS` na API
-- [ ] Smoke: login → dashboard
+- [x] Deploy frontend com `VITE_API_BASE` apontando para API  
+  - Front: `https://sistema-loja-psi.vercel.app`  
+  - API: `https://lojapp-api.onrender.com`
+- [x] Ajustar `LOJAPP_CORS_ORIGINS` na API (origem Vercel)
+- [x] Smoke: login → dashboard (registo temporário com `LOJAPP_REGISTRATION_ENABLED=true`)
 
-**HITL:** revisar CORS e URLs antes de considerar done.
+**HITL:** CORS e URLs revistos; conta demo criada em produção.
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-20-trilha-dia-8.md`  
+**Plano/runbook:** `docs/lojapp/plans/plan-2026-07-20-deploy-frontend-dia-8.md` · `docs/lojapp/runbooks/runbook-dia-8-vercel-cors.md`
 
 ---
 
