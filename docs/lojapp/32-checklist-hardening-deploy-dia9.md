@@ -68,4 +68,4 @@ Executar no **mesmo** ambiente que será usado na demo (ou réplica 1:1):
 
 | Data | Ambiente | health | readiness | liveness | Notas |
 |------|----------|--------|-----------|----------|-------|
-| | | | | | |
+| 2026-07-21 | Render `lojapp-api` | UP (200) | 401 (auth) | 401 (auth) | Swagger/OpenAPI 401; registo público 403; JWT via smoke Dia 8; ver `grill-logs/validation-2026-07-21-trilha-dia-9.md` |

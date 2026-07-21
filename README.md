@@ -54,7 +54,7 @@ Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md). Tri
 2. **Solução** — LojApp: XML da NFe entra → stock atualiza → venda baixa saldo → dashboard (KPIs + curva ABC), dados isolados por loja.
 3. **Stack** — Java 21, Spring Boot, PostgreSQL/Flyway, JWT + rate limit, React 19, CI no GitHub.
 4. **Prova** — testes de concorrência de stock, isolamento multi-loja, Testcontainers + ArchUnit — não é só CRUD.
-5. **Estado** — MVP em Docker local; screenshots e pitch completo no repo.
+5. **Estado** — demo pública no ar (API Render + front Vercel); screenshots e pitch completo no repo.
 
 Texto falado, 3 casos técnicos e roteiro de ensaio: [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md).
 
@@ -390,6 +390,25 @@ powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.
 - **All-in-one:** Railway, Render, Fly.io ou VPS — ver `docker-compose.prod.yml`.
 
 Guia detalhado: [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
+
+## Demo
+
+| Serviço | URL |
+|---------|-----|
+| Frontend | https://sistema-loja-psi.vercel.app |
+| API | https://lojapp-api.onrender.com |
+| Health | https://lojapp-api.onrender.com/actuator/health |
+
+Swagger / OpenAPI (`/swagger-ui.html`, `/v3/api-docs`) **não** estão públicos em `prod` (HTTP 401). Conta demo: pedido sob HITL — registo público desligado.
+
+Smoke JWT (local, sem versionar senha):
+
+```powershell
+$env:API_BASE = 'https://lojapp-api.onrender.com'
+$env:LOJAPP_VERIFY_EMAIL = 'sua-conta-demo@exemplo.com'
+$env:LOJAPP_VERIFY_PASSWORD = '...'
+.\scripts\verify-api-env.ps1
+```
 
 ---
 
