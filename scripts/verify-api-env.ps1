@@ -41,20 +41,17 @@ try {
   Write-Error "GET brands falhou: $_"
 }
 $nBrands = @($brands).Count
-Write-Host "GET brands OK — $nBrands marca(s)."
+# Aspas simples: em string expansivel, "(s)" / "$(s)" partem o parser do PowerShell.
+Write-Host ('GET brands OK - {0} marca(s).' -f $nBrands)
 
 try {
-  $productsUriBuilder = [System.UriBuilder]::new("$base/api/v1/lojapp/products")
-  $productsQuery = [System.Web.HttpUtility]::ParseQueryString([string]::Empty)
-  $productsQuery["page"] = "0"
-  $productsQuery["size"] = "20"
-  $productsQuery["sort"] = "name,asc"
-  $productsUriBuilder.Query = $productsQuery.ToString()
-  $products = Invoke-RestMethod -Method Get -Uri $productsUriBuilder.Uri.AbsoluteUri -Headers $headers
+  # Query na URI (evita System.Web.HttpUtility, nem sempre carregado no Windows PowerShell).
+  $productsUri = "$base/api/v1/lojapp/products?page=0&size=20&sort=name%2Casc"
+  $products = Invoke-RestMethod -Method Get -Uri $productsUri -Headers $headers
 } catch {
   Write-Error "GET products falhou: $_"
 }
 $total = $products.totalElements
-Write-Host "GET products OK — totalElements=$total (pagina 0)."
+Write-Host ('GET products OK - totalElements={0} (pagina 0).' -f $total)
 
 Write-Host "Verificacao concluida: API em $base responde com esta conta."

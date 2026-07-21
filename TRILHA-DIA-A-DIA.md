@@ -194,11 +194,14 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 9 — Smoke produção + segurança
+### Dia 9 — Smoke produção + segurança ✅ (2026-07-21)
 
-- [ ] Rodar [`scripts/verify-api-env.ps1`](scripts/verify-api-env.ps1) ou `.sh` adaptado
-- [ ] Confirmar Swagger desabilitado ou protegido em prod (se policy)
-- [ ] Documentar URLs em README (seção Demo)
+- [x] Rodar smoke de produção (`verify-api-env.ps1` OK em Render; health UP)
+- [x] Confirmar Swagger desabilitado ou protegido em prod (401 em `/swagger-ui.html` e `/v3/api-docs`)
+- [x] Documentar URLs em README (seção Demo)
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-21-trilha-dia-9.md`  
+**Plano:** `docs/lojapp/plans/plan-2026-07-21-smoke-dia-9.md`
 
 ---
 
