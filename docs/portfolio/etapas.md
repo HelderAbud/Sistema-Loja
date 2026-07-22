@@ -1,6 +1,6 @@
 # LojApp — 7 etapas (portfólio)
 
-Narrativa curta do que o repositório já demonstra. Deploy público fica pendente até a Fase B (Dias 6–10).
+Narrativa curta do que o repositório já demonstra. Deploy público: API **Render** + front **Vercel** (Fase B, Dias 6–10).
 
 **Repo:** [HelderAbud/Sistema-Loja](https://github.com/HelderAbud/Sistema-Loja)  
 **Evidências visuais:** [`docs/screenshots/`](../screenshots/)  
@@ -58,13 +58,19 @@ Pipelines em `.github/workflows/` com testes unitários, integração com **Post
 
 ---
 
-## 6. Deploy Railway / Vercel
+## 6. Deploy Render / Vercel ✅
 
-**Status: pendente** — Fase B da trilha (Dias 6–10): API + Postgres managed, frontend com `VITE_API_BASE`, CORS e smoke de login.
+API e Postgres managed no **Render**; SPA no **Vercel** com `VITE_API_BASE` e CORS (`LOJAPP_CORS_ORIGINS`). Smoke: health UP, login → dashboard, `verify-api-env.ps1`.
 
-**Tags:** `Railway` · `Vercel` · `CORS` · `secrets`
+| Serviço | URL |
+|---------|-----|
+| Frontend | https://sistema-loja-psi.vercel.app |
+| API | https://lojapp-api.onrender.com |
+| Health | https://lojapp-api.onrender.com/actuator/health |
 
-**Evidência:** URLs públicas e etapa marcada ✅ após o Dia 10.
+**Tags:** `Render` · `Vercel` · `CORS` · `secrets`
+
+**Evidência:** [README Demo](../../README.md#demo) · grill-logs Dias [7](../lojapp/grill-logs/validation-2026-07-17-trilha-dia-7.md)–[9](../lojapp/grill-logs/validation-2026-07-21-trilha-dia-9.md) · [validation deploy](../lojapp/grill-logs/validation-2026-07-22-deploy.md)
 
 ---
 
@@ -82,5 +88,5 @@ Dashboard com faturamento/lucro por marca, top produtos, **curva ABC (80/15/5 %)
 
 1. Problema (planilha frágil) → solução (NFe + stock + venda + KPI).  
 2. Apontar etapas **1–5 e 7** com screenshots.  
-3. Ser honesto na **etapa 6** até o deploy existir.  
+3. Mostrar a **etapa 6** com a demo pública (Front Vercel + API Render + health).  
 4. Aprofundar com os 3 casos de [`pitch-portfolio.md`](../lojapp/pitch-portfolio.md).
