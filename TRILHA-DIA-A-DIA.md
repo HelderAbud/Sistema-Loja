@@ -109,7 +109,7 @@ Não alterar código de negócio.
 - [x] NFe → estoque (transação ACID)  
 - [x] Docker Compose + health checks  
 - [x] CI GitHub Actions  
-- [x] Deploy Railway/Vercel *(pendente no texto → atualizar no Dia 10)*  
+- [x] Deploy Railway/Vercel *(texto etapa 6 atualizado no Dia 10 → Render/Vercel ✅)*  
 - [x] Dashboard KPI + curva ABC  
 
 Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidência”.
@@ -205,11 +205,14 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 10 — Atualizar etapas + validation deploy
+### Dia 10 — Atualizar etapas + validation deploy ✅ (2026-07-22)
 
-- [ ] Etapa 6 em `docs/portfolio/etapas.md` → ✅ com URLs
-- [ ] `docs/grill-logs/validation-YYYY-MM-DD-deploy.md`
-- [ ] **DoD Normal:** app no ar + health + login funcional
+- [x] Etapa 6 em `docs/portfolio/etapas.md` → ✅ com URLs (Render + Vercel)
+- [x] `docs/lojapp/grill-logs/validation-2026-07-22-deploy.md`
+- [x] **DoD Normal:** app no ar + health + login funcional
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-22-deploy.md`  
+**Plano:** `docs/lojapp/plans/plan-2026-07-22-etapas-dia-10.md`
 
 ---
 
