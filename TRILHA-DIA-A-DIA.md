@@ -218,11 +218,16 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ## Fase C — Piloto demo
 
-### Dia 11 — Conta loja fictícia 📋
+### Dia 11 — Conta loja fictícia 📋 ✅ (2026-07-23)
 
-- [ ] Criar usuário demo (dados fictícios)
-- [ ] Seed ou cadastro manual: produtos, 1 NFe exemplo anonimizada
-- [ ] Plano piloto: `.cursor/plans/plan-YYYY-MM-DD-piloto-demo.md`
+- [x] Criar usuário demo (dados fictícios) — local Ubuntu  
+- [x] Seed ou cadastro manual: produtos (`seed-demo-roupas.sh`) + NFe fixtures sintéticas  
+- [x] Plano piloto: `docs/lojapp/plans/plan-2026-07-23-piloto-demo.md`
+
+**HITL:** stack local (API + Vite); seed **não** em Render.
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-23-trilha-dia-11.md`  
+**Plano:** `docs/lojapp/plans/plan-2026-07-23-piloto-demo.md`
 
 ---
 
