@@ -231,12 +231,15 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 12 — Fluxo ponta a ponta piloto
+### Dia 12 — Fluxo ponta a ponta piloto ✅ (2026-07-24)
 
 **Fatia vertical:** NFe entra → estoque atualiza → venda baixa saldo.
 
-- [ ] Executar fluxo no deploy (ou local se deploy instável)
-- [ ] Screenshots em [`docs/screenshots/piloto/`](docs/screenshots/piloto/)
+- [x] Executar fluxo no deploy (ou local se deploy instável) — **local** WSL; produto 13 qty 2→1
+- [x] Screenshots em [`docs/screenshots/piloto/`](docs/screenshots/piloto/) — captura UI real (`piloto-dia12@lojapp.demo`, Chrome + `LOJAPP_API_PROXY`)
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-24-trilha-dia-12.md`  
+**Plano:** `docs/lojapp/plans/plan-2026-07-24-lojapp-dia-12-piloto-e2e.md`
 
 ---
 
