@@ -105,6 +105,7 @@ jobs:
             --scanners vuln,secret,misconfig \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
+            --ignorefile /src/.trivyignore \
             --skip-files "**/.local-wip/**" \
             --skip-dirs "frontend/node_modules,target,frontend/dist" \
             --exit-code 1 \
