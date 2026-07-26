@@ -253,10 +253,15 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dias 14–15 — Documentar piloto
+### Dias 14–15 — Documentar piloto ✅ (2026-07-26)
 
-- [ ] 1 página `docs/lojapp/piloto-demo-resultado.md` (sem dados reais)
-- [ ] Validation fase C
+- [x] 1 página [`docs/lojapp/piloto-demo-resultado.md`](docs/lojapp/piloto-demo-resultado.md) (sem dados reais)
+- [x] Validation fase C — `docs/lojapp/grill-logs/validation-2026-07-26-fase-c-piloto.md`
+
+**DoD Fase C:** piloto local E2E + regressão + página de resultado — **OK**.
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-26-fase-c-piloto.md`  
+**Plano:** `docs/lojapp/plans/plan-2026-07-26-lojapp-dia-14-15-piloto.md`
 
 ---
 
