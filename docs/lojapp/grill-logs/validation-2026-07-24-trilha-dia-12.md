@@ -47,11 +47,10 @@ Nota UI: a aba Stock mostra “stock baixo” + ajuste, não a grelha de saldos;
 
 ## Residual
 
-- Dia 13: `mvn test` / CI  
-- Commit/PR — aguarda `PR LojApp`
+- Dia 13: `mvn test` / CI — fechado em `validation-2026-07-25-trilha-dia-13.md`
 
 ## Aprovado?
 
 - [x] Fatia Dia 12 verificável (E2E API + pasta screenshots preenchida)
 - [x] Captura UI real da conta dia12
-- [ ] Commit/PR — aguarda pedido explícito
+- [x] Commit/PR — [#52](https://github.com/HelderAbud/Sistema-Loja/pull/52) merged (`57cb6d2`)
