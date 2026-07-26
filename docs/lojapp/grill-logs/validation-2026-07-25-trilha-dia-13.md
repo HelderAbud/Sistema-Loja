@@ -24,10 +24,10 @@
 
 ## Residual
 
-- Dias 14–15: `docs/lojapp/piloto-demo-resultado.md` + validation fase C  
-- Commit/PR — aguarda `PR LojApp`
+- Dias 14–15: fechados em `validation-2026-07-26-fase-c-piloto.md`  
+- Commit/PR Dia 13 — PR [#53](https://github.com/HelderAbud/Sistema-Loja/pull/53)
 
 ## Aprovado?
 
 - [x] Fatia Dia 13 verificável (backend + frontend verdes, sem Hotfix)
-- [ ] Commit/PR — aguarda pedido explícito
+- [x] Commit/PR — [#53](https://github.com/HelderAbud/Sistema-Loja/pull/53) (abrir/merge HITL)

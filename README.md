@@ -431,6 +431,7 @@ $env:LOJAPP_VERIFY_PASSWORD = '...'
 ## Documentação
 
 - [Escopo MVP](docs/lojapp/01-escopo-mvp.md)
+- [Resultado do piloto demo (Fase C)](docs/lojapp/piloto-demo-resultado.md)
 - [Plano piloto / implantação](docs/lojapp/03-implantacao-pilotos.md)
 - [Guia deploy e próximos passos](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
 - [Docker + WSL2 / Ubuntu](docs/docker-wsl-ubuntu.md)
