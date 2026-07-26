@@ -243,10 +243,13 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 13 — Testes de regressão críticos
+### Dia 13 — Testes de regressão críticos ✅ (2026-07-25)
 
-- [ ] `mvn test` / CI verde
-- [ ] Se bug encontrado: trilha **Hotfix** (patch mínimo + teste)
+- [x] `mvn test` / CI verde — local: Surefire 268/0 fail; front lint + Vitest 37 OK
+- [x] Se bug encontrado: trilha **Hotfix** (patch mínimo + teste) — N/A (sem falhas)
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-25-trilha-dia-13.md`  
+**Plano:** `docs/lojapp/plans/plan-2026-07-25-lojapp-dia-13-regressao.md`
 
 ---
 
