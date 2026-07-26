@@ -3,3 +3,7 @@
 #
 # Exemplo (não descomentar sem revisão de segurança):
 # CVE-2024-12345
+
+# GHSA-qwww-vcr4-c8h2 (react-router >=7.12 <8.3) — só afeta unstable RSC APIs.
+# LojApp SPA usa BrowserRouter (sem RSC). Fix upstream é major 8.3.0; acompanhar em fatia dedicada.
+GHSA-qwww-vcr4-c8h2

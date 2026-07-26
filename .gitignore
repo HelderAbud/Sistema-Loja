@@ -11,6 +11,7 @@ coverage/
 .env
 .env.*
 !.env.example
+.scratch/
 # Overrides Spring locais (costumam ter segredos; nunca versionar)
 application-local.yml
 application-local.properties

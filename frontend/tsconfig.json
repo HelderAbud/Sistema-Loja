@@ -25,6 +25,7 @@
     "vite.config.ts",
     "playwright.config.ts",
     "playwright.capture.config.ts",
+    "playwright.piloto-dia12.config.ts",
     "e2e"
   ]
 }

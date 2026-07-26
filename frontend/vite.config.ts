@@ -5,7 +5,9 @@ import path from "path";
 import type { IndexHtmlTransformContext, Plugin } from "vite";
 import { defineConfig } from "vite";
 
-const API_TARGET = "http://localhost:8000";
+// Em WSL2, a API no Linux às vezes não aparece em Windows via localhost —
+// use LOJAPP_API_PROXY=http://<ip-wsl>:8000 na sessão (ex.: captura Playwright).
+const API_TARGET = (process.env.LOJAPP_API_PROXY ?? "http://localhost:8000").replace(/\/$/, "");
 
 /** Origens extra para connect-src (ex.: API absoluta em VITE_API_BASE), separadas por espaço. */
 function cspConnectExtra(): string {
