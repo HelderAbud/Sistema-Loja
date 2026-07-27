@@ -59,11 +59,11 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 - **Passo 6 (JaCoCo):** percentuais minimos de cobertura e politica de falha no CI.
 - **Passo 7 (CI):** existem **dois** workflows (`ci.yml` e `backend-ci.yml`); unificar ou manter e escolha de equipa — nao alterado aqui.
 - **Remocao ampla de codigo morto / refactors:** so com criterio ou revisao manual.
-- **Passo 4 (screenshots/GIF):** depende de capturas reais na tua maquina.
+- **Passo 4 (screenshots/GIF):** entregue na trilha (Dias 1–2); ver `docs/screenshots/` e README.
 
 ### Sequencia manual recomendada (ordem logica)
 
-1. **Passo 4** — Gerar ficheiros em `docs/screenshots/` e ativar imagens/GIF no `README.md`.
+1. **Passo 4** — ~~Gerar ficheiros~~ **Feito** (`docs/screenshots/` + GIF no README). Confirmar só se substituir capturas.
 2. **Passo 5** — Confirmar que `.env` / `backup.sql` / `target/` nunca vao em commit nem ZIP; rotacionar segredos se houve exposicao; usar so `.env.example` no Git.
 3. **Secao 4.2 + 6.1 (P1)** — Smoke manual (login, CRUD, venda, stock, dashboard) ou repetir no Ubuntu com Docker para integracao.
 4. **Secoes 7.1, 8, 9** — Historico Git, deploy alvo, pitch e casos para entrevista (trabalho teu).
@@ -94,7 +94,7 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 - **Riscos de avaliacao em processo seletivo**
   - Padrao por contratos ainda nao esta 100% uniforme em todos os controllers.
   - Falta gate explicito de cobertura (JaCoCo threshold) no CI.
-  - Apresentacao de portfolio pode ficar fraca sem screenshots/demo forte.
+  - Apresentacao de portfolio: screenshots/GIF e demo publica ja existem (trilha Fases A–C); residual = ensaio oral + LinkedIn (Fase D).
 - **Leitura de senioridade (referencia)**
   - Júnior: forte.
   - Pleno inicial: competitivo.
@@ -107,7 +107,7 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
   - Pipeline de qualidade e testes estruturados.
 - **Riscos de percepcao no GitHub**
   - Historico pode perder impacto sem commits organizados por tema.
-  - README sem narrativa de valor + evidencias visuais reduz conversao para entrevista.
+  - README + evidencias visuais + Demo no ar (trilha Dias 1–16); risco residual = cold start free tier e conta demo sob HITL.
   - Sem padrao claro de PR/branch, projeto parece menos profissional para recrutador.
 
 ---
@@ -127,6 +127,7 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 - [x] **Passo 3 - README de portfolio de alto impacto**
   - **Por que:** recrutador decide rapido pelo README.
   - **Como validar:** problema, stack, arquitetura, como rodar, como testar, resultados, roadmap.
+  - **Atualizado (Dia 16, 2026-07-27):** Demo no topo com links clicaveis; quickstart local em 5 linhas; `CONTRIBUTING.md` + links no README. Grill-log `docs/lojapp/grill-logs/validation-2026-07-27-trilha-dia-16.md`.
 - [x] **Passo 4 - Evidencias visuais obrigatorias**
   - **Por que:** aumenta percepcao de produto real.
   - **Como validar:** screenshots atuais + GIF curto do fluxo principal.
@@ -291,8 +292,9 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
   - Critero: sem falhas antes de merge.
 - [x] **P0** Executar integracao com Testcontainers (quando Docker disponivel)
   - Vendas, estoque, dashboard, NFe, concorrencia e idempotencia.
-- [ ] **P1** Validar fluxos manuais principais
+- [x] **P1** Validar fluxos manuais principais
   - Login, CRUD base, venda, baixa de estoque, dashboard.
+  - **Feito (piloto Dia 12):** NFe → stock → venda + screenshots `docs/screenshots/piloto/`.
 
 ### 6.2 Confiabilidade
 
@@ -322,12 +324,16 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 - [x] **P0** README principal forte e atualizado
   - Problema, solucao, stack, arquitetura, como rodar, como testar, roadmap.
+  - **Atualizado (Dia 16):** secção Demo no topo + quickstart 5 linhas + `CONTRIBUTING.md`.
 - [x] **P0** Incluir evidencias visuais
   - Screenshots atuais e, se possivel, GIF curto do fluxo principal.
   - **Feito (A1):** PNG 01–06 + GIF em `docs/screenshots/`, README ativo.
 - [x] **P1** Documentar CI/qualidade
   - Quais gates existem e o que eles garantem.
   - Resumo incluido neste ficheiro (secao **Referencia rapida dos gates em `ci.yml`**); detalhe completo nos YAML em `.github/workflows/`.
+- [x] **P1** CONTRIBUTING na raiz
+  - Fluxo branch → PR → `Principal`, autor unico, gates HITL.
+  - **Feito (Dia 16):** `CONTRIBUTING.md`.
 
 ---
 
@@ -335,17 +341,21 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 ### 8.1 Preparacao de ambiente
 
-- [ ] **P0** Validar configuracao de producao por variaveis
+- [x] **P0** Validar configuracao de producao por variaveis
   - Sem dependencia de valores hardcoded.
-- [ ] **P1** Validar backend e frontend em ambiente semelhante ao alvo
+  - **Feito (Fase B):** Render/Vercel com env documentados; ver grill-logs Dias 7–9.
+- [x] **P1** Validar backend e frontend em ambiente semelhante ao alvo
   - Build, startup e healthcheck funcionando.
-- [ ] **P1** Confirmar banco online com migracoes aplicadas
+  - **Feito:** API `lojapp-api.onrender.com` + front Vercel (Dia 8–9). Nota: cold start free tier.
+- [x] **P1** Confirmar banco online com migracoes aplicadas
   - Sem passos manuais ocultos.
+  - **Feito:** Flyway no arranque `prod` (Dia 7). Residual: Postgres free Render suspende ~2026-08-16.
 
 ### 8.2 Operacao minima
 
-- [ ] **P1** HTTPS/SSL configurado no ambiente publico
+- [x] **P1** HTTPS/SSL configurado no ambiente publico
   - Obrigatorio para demo compartilhavel.
+  - **Feito:** HTTPS via Render + Vercel.
 - [ ] **P2** Revisar logs e monitoracao basica
   - Erros rastreaveis e endpoints de saude operacionais.
 

@@ -22,9 +22,20 @@ SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, v
 
 ---
 
-## Screenshots
+## Demo
 
-> Adicione capturas reais em [`docs/screenshots/`](docs/screenshots/) para dar credibilidade imediata ao portfólio.
+| Serviço | Link |
+|---------|------|
+| Frontend (Vercel) | [sistema-loja-psi.vercel.app](https://sistema-loja-psi.vercel.app) |
+| API (Render) | [lojapp-api.onrender.com](https://lojapp-api.onrender.com) |
+| Health | [GET /actuator/health](https://lojapp-api.onrender.com/actuator/health) |
+| Piloto (resultado) | [`docs/lojapp/piloto-demo-resultado.md`](docs/lojapp/piloto-demo-resultado.md) |
+
+Swagger / OpenAPI **não** públicos em `prod` (HTTP 401). Conta demo sob HITL — registo público desligado. Free tier Render: o primeiro request após idle pode demorar (cold start).
+
+---
+
+## Screenshots
 
 | Arquivo | Tela |
 |---------|------|
@@ -183,9 +194,18 @@ O proxy Vite encaminha `/api/*` → `http://localhost:8000`. Se a API não estiv
 
 ## Como rodar (local)
 
-**Requisitos:** Java 21, Maven 3.9+, Node 20+, Docker (recomendado para Postgres/Redis).
+**Quickstart (5 linhas):**
 
-Maven Wrapper na raiz: `./mvnw` (Linux/Mac) ou `.\mvnw.cmd` (Windows).
+```bash
+cp .env.example .env          # POSTGRES_PASSWORD + LOJAPP_JWT_SECRET (≥32 chars)
+docker compose up -d db redis
+./mvnw spring-boot:run        # API → http://localhost:8000
+cd frontend && npm install && npm run dev
+# SPA → http://localhost:3000 · health → http://localhost:8000/actuator/health
+```
+
+**Requisitos:** Java 21, Maven 3.9+, Node 20+, Docker (recomendado para Postgres/Redis).  
+Maven Wrapper: `./mvnw` (Linux/Mac) ou `.\mvnw.cmd` (Windows). Detalhe dos fluxos e variáveis abaixo.
 
 ### 0. Variáveis de ambiente (obrigatório)
 
@@ -391,17 +411,9 @@ powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.
 
 Guia detalhado: [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
 
-## Demo
+## Smoke demo (opcional)
 
-| Serviço | URL |
-|---------|-----|
-| Frontend | https://sistema-loja-psi.vercel.app |
-| API | https://lojapp-api.onrender.com |
-| Health | https://lojapp-api.onrender.com/actuator/health |
-
-Swagger / OpenAPI (`/swagger-ui.html`, `/v3/api-docs`) **não** estão públicos em `prod` (HTTP 401). Conta demo: pedido sob HITL — registo público desligado.
-
-Smoke JWT (local, sem versionar senha):
+Links públicos: secção [Demo](#demo) no topo.
 
 ```powershell
 $env:API_BASE = 'https://lojapp-api.onrender.com'
@@ -430,11 +442,14 @@ $env:LOJAPP_VERIFY_PASSWORD = '...'
 
 ## Documentação
 
+- [CONTRIBUTING.md](CONTRIBUTING.md) — branches, PR, autor único
+- [CHECKLIST_FINAL.md](CHECKLIST_FINAL.md) — auditoria pré-portfólio
 - [Escopo MVP](docs/lojapp/01-escopo-mvp.md)
 - [Resultado do piloto demo (Fase C)](docs/lojapp/piloto-demo-resultado.md)
 - [Plano piloto / implantação](docs/lojapp/03-implantacao-pilotos.md)
 - [Guia deploy e próximos passos](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
 - [Docker + WSL2 / Ubuntu](docs/docker-wsl-ubuntu.md)
+- [Trilha dia a dia](TRILHA-DIA-A-DIA.md)
 
 ## Licença
 
