@@ -267,11 +267,14 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ## Fase D — Polimento portfólio
 
-### Dia 16 — README final
+### Dia 16 — README final ✅ (2026-07-27)
 
-- [ ] Seção Demo com links clicáveis
-- [ ] Como rodar local (5 linhas)
-- [ ] Revisão CONTRIBUTING + CHECKLIST_FINAL
+- [x] Seção Demo com links clicáveis
+- [x] Como rodar local (5 linhas)
+- [x] Revisão CONTRIBUTING + CHECKLIST_FINAL
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-27-trilha-dia-16.md`  
+**Plano:** `docs/lojapp/plans/plan-2026-07-27-lojapp-dia-16-readme.md`
 
 ---
 
