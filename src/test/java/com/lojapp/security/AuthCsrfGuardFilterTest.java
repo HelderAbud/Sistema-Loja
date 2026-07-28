@@ -11,7 +11,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 class AuthCsrfGuardFilterTest {
 
-    private static final String ORIGINS = "http://localhost:3000,http://127.0.0.1:3000";
+    private static final String ORIGINS = "http://localhost:5173,http://127.0.0.1:5173";
 
     @Test
     void refresh_withRefreshCookieAndUntrustedOrigin_returns403() throws Exception {
@@ -36,7 +36,7 @@ class AuthCsrfGuardFilterTest {
         req.setMethod("POST");
         req.setRequestURI("/api/v1/auth/refresh");
         req.setCookies(new Cookie("lojapp_rt", "token"));
-        req.addHeader("Origin", "http://localhost:3000");
+        req.addHeader("Origin", "http://localhost:5173");
         MockHttpServletResponse res = new MockHttpServletResponse();
         FilterChain chain = new MockFilterChain();
 

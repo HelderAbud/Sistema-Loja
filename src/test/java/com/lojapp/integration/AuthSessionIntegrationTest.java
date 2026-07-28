@@ -69,7 +69,7 @@ class AuthSessionIntegrationTest {
                                 post("/api/v1/auth/refresh")
                                         .contentType(APPLICATION_JSON)
                                         .content("{}")
-                                        .header("Origin", "http://localhost:3000")
+                                        .header("Origin", "http://localhost:5173")
                                         .cookie(firstCookie))
                         .andExpect(status().isOk())
                         .andExpect(jsonPath("$.accessToken").isNotEmpty())
@@ -82,7 +82,7 @@ class AuthSessionIntegrationTest {
                         post("/api/v1/auth/refresh")
                                 .contentType(APPLICATION_JSON)
                                 .content("{}")
-                                .header("Origin", "http://localhost:3000")
+                                .header("Origin", "http://localhost:5173")
                                 .cookie(firstCookie))
                 .andExpect(status().isUnauthorized());
 
@@ -90,7 +90,7 @@ class AuthSessionIntegrationTest {
                         post("/api/v1/auth/refresh")
                                 .contentType(APPLICATION_JSON)
                                 .content("{}")
-                                .header("Origin", "http://localhost:3000")
+                                .header("Origin", "http://localhost:5173")
                                 .cookie(rotatedCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").isNotEmpty());
