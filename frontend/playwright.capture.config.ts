@@ -1,8 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
-/** Captura de screenshots do portfólio — requer `npm run dev` (ou preview) já a correr em :3000. */
+/** Captura de screenshots do portfólio — requer `npm run dev` (ou preview) já a correr em :5173. */
 const host = "127.0.0.1";
-const port = Number(process.env.LOJAPP_CAPTURE_PORT ?? "3000");
+const port = Number(process.env.LOJAPP_CAPTURE_PORT ?? "5173");
 const baseURL = `http://${host}:${port}`;
 
 export default defineConfig({

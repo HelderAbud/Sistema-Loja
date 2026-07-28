@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-24  
 **Triagem:** Helder Normal  
-**Ambiente:** local Ubuntu/WSL (API `127.0.0.1:8000`, Postgres `loja-postgres`) — **não** Render
+**Ambiente:** local Ubuntu/WSL (API `127.0.0.1:8081`, Postgres `loja-postgres`) — **não** Render
 
 ## Checklist Dia 12
 
@@ -30,7 +30,7 @@ Conta usada: `piloto-dia12@lojapp.demo` (demo local; password **não** versionad
 
 ## Screenshots — captura UI real ✅
 
-Captura Playwright com **Chrome do sistema** + proxy `LOJAPP_API_PROXY=http://<ip-wsl>:8000` (Windows não vê `localhost:8000` da API no WSL).
+Captura Playwright com **Chrome do sistema** + proxy `LOJAPP_API_PROXY=http://<ip-wsl>:8081` (Windows não vê `localhost:8081` da API no WSL).
 
 | Ficheiro | Conteúdo |
 |----------|----------|

@@ -3,7 +3,7 @@
 # Uso: LOJAPP_SEED_PASSWORD='...' ./scripts/seed-demo-roupas.sh
 set -euo pipefail
 
-BASE="${LOJAPP_BASE_URL:-http://localhost:8000}"
+BASE="${LOJAPP_BASE_URL:-http://localhost:8081}"
 EMAIL="${LOJAPP_SEED_EMAIL:-piloto@lojapp.demo}"
 PASS="${LOJAPP_SEED_PASSWORD:?Defina LOJAPP_SEED_PASSWORD}"
 

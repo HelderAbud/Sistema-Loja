@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-23  
 **Trilha Helder:** Normal (+ HITL local)  
-**Ambiente:** Ubuntu/WSL local (API `:8000` + front `:3000`) — **não** Render
+**Ambiente:** Ubuntu/WSL local (API `:8081` + front `:5173`) — **não** Render
 
 ## Objetivo Dia 11
 

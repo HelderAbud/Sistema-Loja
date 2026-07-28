@@ -21,8 +21,8 @@ Extras opcionais (portfólio): `08-marcas.png`, `09-nova-venda.png`.
 ### Opção A — script (PNG 01–06)
 
 1. Suba Postgres: `docker compose up -d`
-2. API: `mvn spring-boot:run` (porta 8000)
-3. Frontend: `cd frontend && npm run dev` (porta 3000)
+2. API: `mvn spring-boot:run` (porta 8081)
+3. Frontend: `cd frontend && npm run dev` (porta 5173)
 4. Conta demo com dados (ex.: registar `piloto@lojapp.demo` via Swagger)
 5. Na raiz do repo:
 
@@ -34,7 +34,7 @@ $env:LOJAPP_SCREENSHOT_PASSWORD = 'sua-password-demo'
 ### Opção B — manual
 
 1. Mesmo stack que acima.
-2. Abra `http://localhost:3000`, login, navegue por cada separador.
+2. Abra `http://localhost:5173`, login, navegue por cada separador.
 3. Capture (**Win+Shift+S**) com os nomes da tabela.
 
 ### GIF (sempre manual)

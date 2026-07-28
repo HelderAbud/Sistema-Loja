@@ -14,7 +14,7 @@ Backend em **Java 21 / Spring Boot** com API versionada em `/api/v1`, contratos 
 
 **Tags:** `Java 21` · `Spring Boot` · `Flyway` · `PostgreSQL` · `OpenAPI`
 
-**Evidência:** `GET /actuator/health` local; Swagger em `http://localhost:8000/swagger-ui.html`; migrations em `src/main/resources/db/migration/`.
+**Evidência:** `GET /actuator/health` local; Swagger em `http://localhost:8081/swagger-ui.html`; migrations em `src/main/resources/db/migration/`.
 
 ---
 

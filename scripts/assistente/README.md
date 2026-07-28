@@ -13,7 +13,7 @@ Objetivo: chamadas à API LojApp com credenciais **só em variáveis de ambiente
 
 ```powershell
 cd <raiz do LojApp>
-$env:LOJAPP_BASE_URL = "http://localhost:8000"
+$env:LOJAPP_BASE_URL = "http://localhost:8081"
 $env:LOJAPP_ACCESS_TOKEN = "<jwt após login>"
 # opcional: $env:LOJAPP_PRODUCT_ID = "12"
 . .\scripts\assistente\http-roteiro-leitura.ps1

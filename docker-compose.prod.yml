@@ -1,17 +1,18 @@
 # Exemplo produção: definir POSTGRES_PASSWORD e LOJAPP_JWT_SECRET antes de `docker compose -f docker-compose.prod.yml up -d`.
 # Perfis Spring: prod,jsonlogs (Swagger desligado; JWT validado).
+# DB canónico alinhado ao dev: loja_db / loja_user · API host 8081
 
 services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: lojapp
-      POSTGRES_USER: lojapp
+      POSTGRES_DB: loja_db
+      POSTGRES_USER: loja_user
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
     volumes:
       - lojapp_pgdata_prod:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lojapp -d lojapp"]
+      test: ["CMD-SHELL", "pg_isready -U loja_user -d loja_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,11 +30,12 @@ services:
   api:
     build: .
     ports:
-      - "8000:8000"
+      - "8081:8081"
     environment:
       SPRING_PROFILES_ACTIVE: prod,jsonlogs
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/lojapp
-      SPRING_DATASOURCE_USERNAME: lojapp
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/loja_db
+      SPRING_DATASOURCE_USERNAME: loja_user
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}
       SPRING_DATA_REDIS_HOST: redis
       LOJAPP_RATE_LIMIT_MODE: redis
@@ -46,7 +48,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8000/actuator/health >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:8081/actuator/health >/dev/null || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3

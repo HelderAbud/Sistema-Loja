@@ -24,10 +24,10 @@ fi
 
 docker compose up -d db redis
 
-echo "À espera de Postgres em 127.0.0.1:5432 ..."
+echo "À espera de Postgres em 127.0.0.1:5433 ..."
 ok=false
 for _ in $(seq 1 90); do
-  if timeout 1 bash -c "</dev/tcp/127.0.0.1/5432" 2>/dev/null; then
+  if timeout 1 bash -c "</dev/tcp/127.0.0.1/5433" 2>/dev/null; then
     ok=true
     break
   fi
@@ -35,11 +35,11 @@ for _ in $(seq 1 90); do
 done
 
 if [[ "$ok" != true ]]; then
-  echo "Timeout: porta 5432 não abriu. Verifique: docker compose ps" >&2
+  echo "Timeout: porta 5433 não abriu. Verifique: docker compose ps" >&2
   exit 1
 fi
 
-echo "Postgres acessível na porta 5432."
+echo "Postgres acessível na porta 5433."
 
 if [[ "$START_API" != true ]]; then
   echo ""

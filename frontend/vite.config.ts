@@ -6,8 +6,8 @@ import type { IndexHtmlTransformContext, Plugin } from "vite";
 import { defineConfig } from "vite";
 
 // Em WSL2, a API no Linux às vezes não aparece em Windows via localhost —
-// use LOJAPP_API_PROXY=http://<ip-wsl>:8000 na sessão (ex.: captura Playwright).
-const API_TARGET = (process.env.LOJAPP_API_PROXY ?? "http://localhost:8000").replace(/\/$/, "");
+// use LOJAPP_API_PROXY=http://<ip-wsl>:8081 na sessão (ex.: captura Playwright).
+const API_TARGET = (process.env.LOJAPP_API_PROXY ?? "http://localhost:8081").replace(/\/$/, "");
 
 /** Origens extra para connect-src (ex.: API absoluta em VITE_API_BASE), separadas por espaço. */
 function cspConnectExtra(): string {
@@ -41,8 +41,8 @@ function cspDevelopment(connectExtra: string): string {
     "'self'",
     "ws:",
     "wss:",
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
+    "http://127.0.0.1:8081",
+    "http://localhost:8081",
     "https://fonts.googleapis.com",
     "https://fonts.gstatic.com",
     connectExtra,
@@ -96,7 +96,7 @@ export default defineConfig({
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },
   server: {
-    port: 3000,
+    port: 5173,
     proxy: {
       "/api": {
         target: API_TARGET,
@@ -108,7 +108,7 @@ export default defineConfig({
             const msg =
               err instanceof Error
                 ? err.message
-                : "Falha no proxy — confirme que a API Spring Boot está a correr (ex.: mvn spring-boot:run na porta 8000).";
+                : "Falha no proxy — confirme que a API Spring Boot está a correr (ex.: mvn spring-boot:run na porta 8081).";
             const path = (req as IncomingMessage & { url?: string }).url ?? "/api";
             r.writeHead(502, { "Content-Type": "application/json; charset=utf-8" });
             r.end(

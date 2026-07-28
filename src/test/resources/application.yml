@@ -46,4 +46,4 @@ lojapp:
     expiration-ms: 900000
     refresh-expiration-ms: 86400000
   cors:
-    allowed-origins: http://localhost:3000
+    allowed-origins: http://localhost:5173

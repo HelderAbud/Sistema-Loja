@@ -50,11 +50,11 @@ if ($LASTEXITCODE -ne 0) {
     Write-Error "docker compose up falhou."
 }
 
-Write-Host "A aguardar Postgres em 127.0.0.1:5432 ..." -ForegroundColor Cyan
+Write-Host "A aguardar Postgres em 127.0.0.1:5433 ..." -ForegroundColor Cyan
 $deadline = (Get-Date).AddMinutes(3)
 $ok = $false
 while ((Get-Date) -lt $deadline) {
-    $t = Test-NetConnection -ComputerName 127.0.0.1 -Port 5432 -WarningAction SilentlyContinue
+    $t = Test-NetConnection -ComputerName 127.0.0.1 -Port 5433 -WarningAction SilentlyContinue
     if ($t.TcpTestSucceeded) {
         $ok = $true
         break
@@ -62,10 +62,10 @@ while ((Get-Date) -lt $deadline) {
     Start-Sleep -Seconds 2
 }
 if (-not $ok) {
-    Write-Error "Timeout: porta 5432 nao abriu. Verifique Docker Desktop e docker compose ps."
+    Write-Error "Timeout: porta 5433 nao abriu. Verifique Docker Desktop e docker compose ps."
 }
 
-Write-Host "Postgres acessivel na porta 5432." -ForegroundColor Green
+Write-Host "Postgres acessivel na porta 5433." -ForegroundColor Green
 
 if (-not $StartApi) {
     Write-Host ""

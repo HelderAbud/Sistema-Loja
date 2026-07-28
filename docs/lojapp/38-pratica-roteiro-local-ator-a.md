@@ -9,9 +9,9 @@
 ## 1. Pré-requisitos
 
 1. Postgres: `docker compose up -d` (na raiz do LojApp).
-2. API: `./mvnw spring-boot:run` (ou `mvn spring-boot:run`) — porta por defeito **8000** (ajusta `BASE` se mudares).
+2. API: `./mvnw spring-boot:run` (ou `mvn spring-boot:run`) — porta por defeito **8081** (ajusta `BASE` se mudares).
 3. Utilizador com papel **USER** / **ADMIN** / **REPRESENTATIVE** e dados reais (produto com stock suficiente para uma venda de teste).
-4. Ferramenta: **Swagger UI** opcional para validar contratos: `http://localhost:8000/swagger-ui.html`.
+4. Ferramenta: **Swagger UI** opcional para validar contratos: `http://localhost:8081/swagger-ui.html`.
 
 ---
 
@@ -36,7 +36,7 @@ Usa o **template da secção 8** — preenche só **status codes**, **ids**, **q
 Substitui email/password no terminal; **não** copies o JSON de resposta para o trace completo.
 
 ```powershell
-$BASE = "http://localhost:8000"
+$BASE = "http://localhost:8081"
 $loginBody = '{"email":"TEU_EMAIL","password":"TEU_PASSWORD"}'
 $r = Invoke-RestMethod -Uri "$BASE/api/v1/auth/login" -Method Post -Body $loginBody -ContentType "application/json; charset=utf-8"
 $env:LOJAPP_ACCESS_TOKEN = $r.accessToken
@@ -141,7 +141,7 @@ Preenche **`VerificationReport`** no trace: `pass: true/false`, evidência (quan
 - startedAt:
 - endedAt:
 - jwtRole: USER (ou o que usaste)
-- BASE: http://localhost:8000
+- BASE: http://localhost:8081
 
 ## Plano
 - [ ] Passo 1 login

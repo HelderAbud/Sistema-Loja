@@ -41,9 +41,11 @@ Se tiveres Maven instalado globalmente, podes usar `mvn spring-boot:run` em alte
 | Lint (frontend, ESLint + Prettier) | `cd frontend && npm run lint` |
 | E2E (frontend, Playwright) | `cd frontend && npx playwright install chromium && npm run e2e` |
 
-Swagger local: `http://localhost:8000/swagger-ui.html` (porta por defeito em `application.yml`).
+Swagger local: `http://localhost:8081/swagger-ui.html` (porta por defeito em `application.yml`).
 
-**Readiness:** antes de considerar o serviço “no ar”, validar `GET http://localhost:8000/actuator/health` (liveness/readiness quando `management.endpoint.health.probes.enabled` está ativo — ver `application.yml`).
+Portas canônicas (portfólio): API **8081**, FE **5173**, Postgres host **5433**, Redis host **6381**. Ver `../Agentes/PORTFOLIO-PORTS.md`.
+
+**Readiness:** antes de considerar o serviço “no ar”, validar `GET http://localhost:8081/actuator/health` (liveness/readiness quando `management.endpoint.health.probes.enabled` está ativo — ver `application.yml`).
 
 ## Regras de arquitetura
 

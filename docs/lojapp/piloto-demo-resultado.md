@@ -14,7 +14,7 @@
 
 ## Ambiente usado no piloto
 
-- **Local (WSL/Ubuntu + Windows):** API `:8000`, Postgres Docker `loja-postgres`, Vite `:3000`.  
+- **Local (WSL/Ubuntu + Windows):** API `:8081`, Postgres Docker `loja-postgres`, Vite `:5173`.  
 - **Produção (demo pública):** API [lojapp-api.onrender.com](https://lojapp-api.onrender.com) + front [sistema-loja-psi.vercel.app](https://sistema-loja-psi.vercel.app) — **sem seed do piloto** (HITL deliberado; ver Dia 11).
 
 Scripts úteis (só ambiente local / HITL):

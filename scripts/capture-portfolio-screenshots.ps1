@@ -1,8 +1,8 @@
 # A1 — Gera PNG 01–06 em docs/screenshots/ via Playwright (API + frontend reais).
 # Pré-requisitos:
 #   1. docker compose up -d  (Postgres)
-#   2. API em http://localhost:8000  (mvn spring-boot:run ou container loja-api)
-#   3. Frontend: cd frontend && npm run dev  (porta 3000)
+#   2. API em http://localhost:8081  (mvn spring-boot:run ou container loja-api)
+#   3. Frontend: cd frontend && npm run dev  (porta 5173)
 #   4. Conta demo registada com produtos/vendas (ex.: piloto@lojapp.demo)
 #
 # Uso:
@@ -17,17 +17,17 @@ if ([string]::IsNullOrWhiteSpace($env:LOJAPP_SCREENSHOT_PASSWORD)) {
     throw 'Defina LOJAPP_SCREENSHOT_PASSWORD (password da conta demo). Nao commitar.'
 }
 
-$base = if ($env:LOJAPP_BASE_URL) { $env:LOJAPP_BASE_URL.TrimEnd('/') } else { 'http://localhost:8000' }
+$base = if ($env:LOJAPP_BASE_URL) { $env:LOJAPP_BASE_URL.TrimEnd('/') } else { 'http://localhost:8081' }
 try {
     $null = Invoke-WebRequest -Uri "$base/actuator/health" -UseBasicParsing -TimeoutSec 5
 } catch {
     throw "API nao responde em $base/actuator/health — suba a API antes da captura."
 }
 
-# Frontend: Playwright sobe `npm run dev` se :3000 nao estiver acessivel (reuseExistingServer).
+# Frontend: Playwright sobe `npm run dev` se :5173 nao estiver acessivel (reuseExistingServer).
 try {
-    $null = Invoke-WebRequest -Uri 'http://127.0.0.1:3000/' -UseBasicParsing -TimeoutSec 3
-    Write-Host 'Frontend ja a correr em :3000'
+    $null = Invoke-WebRequest -Uri 'http://127.0.0.1:5173/' -UseBasicParsing -TimeoutSec 3
+    Write-Host 'Frontend ja a correr em :5173'
 } catch {
     Write-Host 'Frontend nao detetado — Playwright vai iniciar npm run dev...'
 }

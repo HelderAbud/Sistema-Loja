@@ -25,7 +25,7 @@
 2. Edita `LOJAPP_CORS_ORIGINS` para incluir a URL do Vercel **exacta**, ex.:
 
 ```text
-https://lojapp-xxxxx.vercel.app,http://localhost:3000
+https://lojapp-xxxxx.vercel.app,http://localhost:5173
 ```
 
 Sem barra no fim. `https` obrigatório.
