@@ -6,7 +6,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-BASE="${LOJAPP_BASE_URL:-http://127.0.0.1:8000}"
+BASE="${LOJAPP_BASE_URL:-http://127.0.0.1:8081}"
 EMAIL="${LOJAPP_SEED_EMAIL:-piloto@lojapp.demo}"
 PASS_FILE="${LOJAPP_DIA12_PASS_FILE:-/tmp/lojapp-dia12-pass}"
 EVIDENCE="/tmp/lojapp-dia12-evidence.txt"

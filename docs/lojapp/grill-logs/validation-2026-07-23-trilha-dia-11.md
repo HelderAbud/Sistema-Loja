@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-23  
 **Triagem:** Helder Normal (+ HITL)  
-**Ambiente:** local Ubuntu (API `localhost:8000`, front `localhost:3000`)
+**Ambiente:** local Ubuntu (API `localhost:8081`, front `localhost:5173`)
 
 ## Checklist Dia 11
 
@@ -16,7 +16,7 @@
 ## Notas
 
 - Produção (Render/Vercel) **não** foi usada para seed.  
-- Front local precisou de `npm run dev` na porta 3000; API já estava UP.  
+- Front local precisou de `npm run dev` na porta 5173; API já estava UP.  
 - Scripts bash (`export`, `chmod`, `./scripts/*.sh`) devem correr no **Ubuntu**, não no PowerShell.
 
 ## Residual

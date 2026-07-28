@@ -9,7 +9,7 @@ Referências: [12-contratos-autenticacao-e-sessao.md](./12-contratos-autenticaca
 |----------|-----|-----------|-------------------------|
 | `LOJAPP_JWT_SECRET` | Assinatura HS256 do access JWT | Obrigatório (≥ ~32 caracteres; validado ao arranque) | **Obrigatório**; valor aleatório forte; **nunca** commitar |
 | `SPRING_DATASOURCE_PASSWORD` / `POSTGRES_PASSWORD` | Ligação à BD | Definir mesmo valor em compose/prod | **Obrigatório**; distinto do default `lojapp_local_dev_only` |
-| `LOJAPP_CORS_ORIGINS` | Origens permitidas (browser → API) | Default inclui `localhost:3000` etc. | Lista **explícita** das URLs do frontend (CSV, sem espaços) |
+| `LOJAPP_CORS_ORIGINS` | Origens permitidas (browser → API) | Default inclui `localhost:5173` etc. | Lista **explícita** das URLs do frontend (CSV, sem espaços) |
 | `LOJAPP_NFE_STORAGE_S3_*` | XML em S3/MinIO | Opcional se `LOJAPP_NFE_STORAGE_BACKEND=database` | Preencher se `backend=s3`; credenciais só por env/secret manager |
 | `LOJAPP_REGISTRATION_INVITE_SECRET` | Registo público com convite | Vazio = sem convite forçado | Se registo aberto: definir e partilhar convite por canal seguro |
 | `LOJAPP_ACTUATOR_METRICS_ANONYMOUS` | Métricas sem JWT | `false` (default seguro) | Manter **`false`** salvo Prometheus autenticado atrás do proxy |

@@ -33,9 +33,9 @@ Vocabulário acordado no grill inicial (2026-05-24). Usar estes termos em PRs, A
 
 | Ambiente | API | PostgreSQL (dev compose) |
 |----------|-----|---------------------------|
-| `mvn spring-boot:run` | `localhost:8000` | `loja_db` / `loja_user` (via `.env`) |
-| `docker compose up` (dev) | `localhost:8000` | `loja_db` / `loja_user` |
-| `docker compose -f docker-compose.prod.yml` | `localhost:8000` | `lojapp` / `lojapp` |
+| `mvn spring-boot:run` | `localhost:8081` | `loja_db` / `loja_user` (via `.env`) |
+| `docker compose up` (dev) | `localhost:8081` | `loja_db` / `loja_user` |
+| `docker compose -f docker-compose.prod.yml` | `localhost:8081` | `loja_db` / `loja_user` |
 
 Segredos: apenas em `.env` (gitignored); compose dev exige `${POSTGRES_PASSWORD:?}` e `${LOJAPP_JWT_SECRET:?}`.
 

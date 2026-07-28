@@ -5,7 +5,7 @@ set -euo pipefail
 # health -> auth (register/login) -> brands -> products -> sale -> stock
 # Usa dados isolados por timestamp para evitar colisão.
 
-API_BASE="${API_BASE:-http://localhost:8000}"
+API_BASE="${API_BASE:-http://localhost:8081}"
 API_BASE="${API_BASE%/}"
 AUTO_REGISTER="${AUTO_REGISTER:-true}"
 PASSWORD="${SMOKE_PASSWORD:-}"

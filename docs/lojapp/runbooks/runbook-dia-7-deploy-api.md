@@ -11,9 +11,9 @@ Segue **um** provider. Não partilhes secrets no chat.
    - `SPRING_PROFILES_ACTIVE=prod`
    - `LOJAPP_JWT_SECRET` = valor do teu `.env`
    - `LOJAPP_RATE_LIMIT_MODE=memory`
-   - `LOJAPP_CORS_ORIGINS=http://localhost:3000`
+   - `LOJAPP_CORS_ORIGINS=http://localhost:5173`
    - `LOJAPP_TRUST_FORWARD_HEADERS=true`
-   - `SERVER_PORT=8000` (se o health falhar por porta, alinha com a `PORT` que o Railway mostrar)
+   - `SERVER_PORT=8081` (se o health falhar por porta, alinha com a `PORT` que o Railway mostrar)
 5. Ligar Postgres: em Variables, referência às vars do plugin Postgres **ou** monta:
    - `SPRING_DATASOURCE_URL=jdbc:postgresql://HOST:PORT/DB`
    - `SPRING_DATASOURCE_USERNAME` / `SPRING_DATASOURCE_PASSWORD`

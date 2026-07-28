@@ -174,21 +174,21 @@ sequenceDiagram
 
 | Serviço | Porta host | Onde está definido |
 |---------|------------|-------------------|
-| **API Spring Boot** | **8000** | `application.yml`, `docker-compose.yml`, `docker-compose.prod.yml`, `vite.config.ts` (proxy) |
-| **Frontend Vite (dev)** | **3000** | `frontend/vite.config.ts` |
-| **PostgreSQL** | **5432** | `docker-compose.yml` |
-| **Redis** | **6379** | `docker-compose.yml` |
+| **API Spring Boot** | **8081** | `application.yml`, `docker-compose.yml`, `docker-compose.prod.yml`, `vite.config.ts` (proxy) |
+| **Frontend Vite (dev)** | **5173** | `frontend/vite.config.ts` |
+| **PostgreSQL** | **5433** (host → 5432 no contentor) | `docker-compose.yml` |
+| **Redis** | **6381** (host → 6379 no contentor) | `docker-compose.yml` |
 
 **Links locais (dev):**
 
 | | URL |
 |---|-----|
-| Frontend | http://localhost:3000 |
-| Login | http://localhost:3000/login |
-| Swagger | http://localhost:8000/swagger-ui.html |
-| Health | http://localhost:8000/actuator/health |
+| Frontend | http://localhost:5173 |
+| Login | http://localhost:5173/login |
+| Swagger | http://localhost:8081/swagger-ui.html |
+| Health | http://localhost:8081/actuator/health |
 
-O proxy Vite encaminha `/api/*` → `http://localhost:8000`. Se a API não estiver na **8000**, o front devolve 502.
+O proxy Vite encaminha `/api/*` → `http://localhost:8081`. Se a API não estiver na **8081**, o front devolve 502.
 
 ---
 
@@ -199,9 +199,9 @@ O proxy Vite encaminha `/api/*` → `http://localhost:8000`. Se a API não estiv
 ```bash
 cp .env.example .env          # POSTGRES_PASSWORD + LOJAPP_JWT_SECRET (≥32 chars)
 docker compose up -d db redis
-./mvnw spring-boot:run        # API → http://localhost:8000
+./mvnw spring-boot:run        # API → http://localhost:8081
 cd frontend && npm install && npm run dev
-# SPA → http://localhost:3000 · health → http://localhost:8000/actuator/health
+# SPA → http://localhost:5173 · health → http://localhost:8081/actuator/health
 ```
 
 **Requisitos:** Java 21, Maven 3.9+, Node 20+, Docker (recomendado para Postgres/Redis).  
@@ -220,7 +220,7 @@ Preencha no `.env`:
 | `POSTGRES_PASSWORD` | Sim (Docker) | Password do Postgres no Compose |
 | `LOJAPP_JWT_SECRET` | Sim | Segredo JWT (≥ 32 caracteres) |
 | `SPRING_DATASOURCE_PASSWORD` | Sim (Maven + Docker) | Mesmo valor que `POSTGRES_PASSWORD` |
-| `SPRING_DATASOURCE_URL` | Recomendado | Com Postgres do Compose: `jdbc:postgresql://localhost:5432/loja_db` |
+| `SPRING_DATASOURCE_URL` | Recomendado | Com Postgres do Compose: `jdbc:postgresql://localhost:5433/loja_db` |
 | `SPRING_DATASOURCE_USERNAME` | Recomendado | `loja_user` (Compose dev) |
 | `LOJAPP_CORS_ORIGINS` | Produção | Origens do frontend |
 | `VITE_API_BASE` | Build prod | URL pública da API (sem barra final) |
@@ -248,25 +248,25 @@ Infra no Docker; API com Maven (hot reload, alinhado ao proxy Vite):
 
 ```bash
 docker compose up -d db redis
-./mvnw spring-boot:run          # API → http://localhost:8000
-cd frontend && npm install && npm run dev   # SPA → http://localhost:3000
+./mvnw spring-boot:run          # API → http://localhost:8081
+cd frontend && npm install && npm run dev   # SPA → http://localhost:5173
 ```
 
 ### Fluxo B — stack completa no Docker
 
 ```bash
 docker compose up -d
-# API → http://localhost:8000 (mesma porta que Maven e proxy Vite)
+# API → http://localhost:8081 (mesma porta que Maven e proxy Vite)
 cd frontend && npm install && npm run dev
 ```
 
-> **Não corra `mvn spring-boot:run` e o serviço `api` do Compose em simultâneo** — ambos usam a porta **8000** e o mesmo Postgres/Redis.
+> **Não corra `mvn spring-boot:run` e o serviço `api` do Compose em simultâneo** — ambos usam a porta **8081** e o mesmo Postgres/Redis.
 
 ### Fluxo C — produção local (exemplo)
 
 ```bash
 docker compose -f docker-compose.prod.yml up -d
-# API prod → http://localhost:8000 (Swagger desligado)
+# API prod → http://localhost:8081 (Swagger desligado)
 ```
 
 ### Backup e restore (Postgres no Docker)
@@ -339,13 +339,13 @@ docker run --rm python:3.12-alpine sh -c \
   "pip install -q bcrypt && python -c \"import bcrypt; print(bcrypt.hashpw(b'SUA_SENHA', bcrypt.gensalt(rounds=12)).decode())\""
 ```
 
-**4. Porta ao testar com `curl`:** API em **http://localhost:8000** (`http://localhost:8000/api/v1/auth/login`).
+**4. Porta ao testar com `curl`:** API em **http://localhost:8081** (`http://localhost:8081/api/v1/auth/login`).
 
 **5. `curl: (56) Connection reset by peer`:** veja `docker logs loja-api --tail 80`. Causas: JDBC com host errado (use **`db`** na rede Compose), Postgres a iniciar, `LOJAPP_JWT_SECRET` ausente, erro Flyway.
 
 ### Frontend 502 em `/api`
 
-A API não está em **http://localhost:8000**. Confirme com `curl http://localhost:8000/actuator/health`.
+A API não está em **http://localhost:8081**. Confirme com `curl http://localhost:8081/actuator/health`.
 
 ---
 
@@ -369,7 +369,7 @@ A API não está em **http://localhost:8000**. Confirme com `curl http://localho
 | `POST` | `/lojapp/pos/sales/finalize` | Finalizar venda PDV |
 | `POST/GET` | `/lojapp/pos/cash-sessions/*` | Turno de caixa (abrir/fechar) |
 
-Documentação completa: **http://localhost:8000/swagger-ui.html** (desligado em `prod`).
+Documentação completa: **http://localhost:8081/swagger-ui.html** (desligado em `prod`).
 
 **Actuator:** em dev expõe `metrics` e `prometheus`. Em `SPRING_PROFILES_ACTIVE=prod` apenas `health` e `info` por defeito. Override: `LOJAPP_MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE`.
 

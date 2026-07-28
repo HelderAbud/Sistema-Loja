@@ -15,8 +15,8 @@ spring:
       # Evita user/senha gerados em memória (Basic Auth) — autenticação é JWT + /api/v1/auth.
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/lojapp}
-    username: ${SPRING_DATASOURCE_USERNAME:lojapp}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/loja_db}
+    username: ${SPRING_DATASOURCE_USERNAME:loja_user}
     # Apenas desenvolvimento local sem Docker; em produção e em compose use variável explícita (ver `.env.example`).
     password: ${SPRING_DATASOURCE_PASSWORD:lojapp_local_dev_only}
   jpa:
@@ -31,7 +31,7 @@ spring:
     enabled: true
 
 server:
-  port: 8000
+  port: 8081
   tomcat:
     max-http-post-size: 15MB
   error:
@@ -135,7 +135,7 @@ lojapp:
     # Refresh em DB + cookie; override: LOJAPP_JWT_REFRESH_EXPIRATION_MS (ms). Default ~14 dias.
     refresh-expiration-ms: ${LOJAPP_JWT_REFRESH_EXPIRATION_MS:1209600000}
   cors:
-    allowed-origins: ${LOJAPP_CORS_ORIGINS:http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001}
+    allowed-origins: ${LOJAPP_CORS_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
 
 ---
 spring:
@@ -143,8 +143,8 @@ spring:
     activate:
       on-profile: docker
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/lojapp}
-    username: ${SPRING_DATASOURCE_USERNAME:lojapp}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/loja_db}
+    username: ${SPRING_DATASOURCE_USERNAME:loja_user}
     password: ${SPRING_DATASOURCE_PASSWORD:lojapp_local_dev_only}
   data:
     redis:

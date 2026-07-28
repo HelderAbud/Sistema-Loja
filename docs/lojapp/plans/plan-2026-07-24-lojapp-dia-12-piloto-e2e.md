@@ -2,7 +2,7 @@
 
 **Data:** 2026-07-24  
 **Trilha Helder:** Normal (Fase C)  
-**Ambiente:** local (`API :8000` + Vite) — **não** Render
+**Ambiente:** local (`API :8081` + Vite) — **não** Render
 
 ## Objetivo
 

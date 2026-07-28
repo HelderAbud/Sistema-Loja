@@ -1,7 +1,7 @@
 # Assistente / agentes — item 2: API da fatia C (Swagger + testes)
 
 **Status:** mapeamento no código (referência 2026-04-30).  
-**Swagger UI local:** `http://localhost:8000/swagger-ui.html` (ver `application.yml` se a porta mudar).
+**Swagger UI local:** `http://localhost:8081/swagger-ui.html` (ver `application.yml` se a porta mudar).
 
 ## Âmbito da fatia C (relembrar)
 

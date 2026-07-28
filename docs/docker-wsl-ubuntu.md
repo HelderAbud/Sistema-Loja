@@ -169,9 +169,9 @@ Para desenvolvimento local com Maven, suba só Postgres e Redis:
 docker compose up -d db redis
 ```
 
-**Motivo:** O `docker-compose.yml` define três serviços: `db`, `redis` e `api`. Com `docker compose up -d` (sem filtro), o contentor `loja-api` expõe a API na porta **8000** do host (alinhada a `application.yml` e ao proxy Vite).
+**Motivo:** O `docker-compose.yml` define três serviços: `db`, `redis` e `api`. Com `docker compose up -d` (sem filtro), o contentor `loja-api` expõe a API na porta **8081** do host (alinhada a `application.yml` e ao proxy Vite).
 
-Se correr `./mvnw spring-boot:run` em paralelo com o serviço `api`, **ambos disputam a porta 8000** e usam o mesmo Postgres/Redis — evite (dados inconsistentes, cache Redis desalinhado, logs duplicados).
+Se correr `./mvnw spring-boot:run` em paralelo com o serviço `api`, **ambos disputam a porta 8081** e usam o mesmo Postgres/Redis — evite (dados inconsistentes, cache Redis desalinhado, logs duplicados).
 
 **Regra:** ou sobe a API no Docker (`docker compose up -d`), ou corre a API só com `./mvnw`. Para o fluxo habitual de desenvolvimento neste repo, preferir **`db` + `redis` no Compose** e **API com Maven**.
 
@@ -207,12 +207,12 @@ docker compose stop api
 
 | Ambiente                 | Porta |
 |--------------------------|-------|
-| Maven local (`./mvnw`)   | 8000  |
-| Contentor `loja-api`     | 8000  |
-| Postgres                 | 5432  |
-| Redis                    | 6379  |
+| Maven local (`./mvnw`)   | 8081  |
+| Contentor `loja-api`     | 8081  |
+| Postgres (host)          | 5433  |
+| Redis (host)             | 6381  |
 
-Health check local (API em Maven): `curl -i http://localhost:8000/actuator/health`. Swagger: `http://localhost:8000/swagger-ui.html`.
+Health check local (API em Maven): `curl -i http://localhost:8081/actuator/health`. Swagger: `http://localhost:8081/swagger-ui.html`.
 
 ### 5. Backup e restore do Postgres (Windows / WSL)
 
@@ -221,7 +221,7 @@ Com o serviço `db` no ar (`docker compose up -d db`), use os scripts na raiz do
 | Ambiente | Compose | Credenciais (default) |
 |----------|---------|------------------------|
 | Dev | `docker-compose.yml` | `loja_user` / `loja_db` |
-| Prod-like | `docker-compose.prod.yml` | `lojapp` / `lojapp` |
+| Prod-like | `docker-compose.prod.yml` | `loja_user` / `loja_db` |
 
 ```powershell
 .\scripts\backup-postgres-docker.ps1 -ComposeFile docker-compose.yml

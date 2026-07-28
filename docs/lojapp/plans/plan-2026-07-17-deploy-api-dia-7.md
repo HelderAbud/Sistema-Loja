@@ -32,9 +32,9 @@ API LojApp no ar (Railway **ou** Render) com Postgres managed; `GET /actuator/he
 | `SPRING_DATASOURCE_URL` | JDBC do Postgres managed |
 | `SPRING_DATASOURCE_USERNAME` | user do provider |
 | `SPRING_DATASOURCE_PASSWORD` | senha do Postgres managed |
-| `LOJAPP_CORS_ORIGINS` | `http://localhost:3000` (placeholder até Dia 8) |
+| `LOJAPP_CORS_ORIGINS` | `http://localhost:5173` (placeholder até Dia 8) |
 | `LOJAPP_RATE_LIMIT_MODE` | `memory` (sem Redis no free tier) |
-| `SERVER_PORT` | `8000` (alinhar com Dockerfile; ou `${PORT}` do provider se exigir) |
+| `SERVER_PORT` | `8081` (alinhar com Dockerfile; ou `${PORT}` do provider se exigir) |
 | `LOJAPP_TRUST_FORWARD_HEADERS` | `true` atrás do proxy HTTPS do provider |
 
 ## Fatias
@@ -47,5 +47,5 @@ API LojApp no ar (Railway **ou** Render) com Postgres managed; `GET /actuator/he
 ## Riscos
 
 - Build Maven no Docker pode estourar tempo/RAM no free tier → aumentar timeout ou build local + image registry
-- Porta: provider injeta `PORT` ≠ 8000 → definir `SERVER_PORT` = porta esperada pelo proxy
+- Porta: provider injeta `PORT` ≠ 8081 → definir `SERVER_PORT` = porta esperada pelo proxy
 - Sem `memory` no rate limit, `prod` tenta Redis e pode falhar o arranque

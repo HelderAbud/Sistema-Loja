@@ -3,7 +3,7 @@
 # Requer: API a correr; Postgres com produtos da conta piloto. Password abaixo e credencial de demo — nunca usar em producao.
 
 $ErrorActionPreference = 'Stop'
-$BASE = if ($env:LOJAPP_BASE_URL) { $env:LOJAPP_BASE_URL.TrimEnd('/') } else { 'http://localhost:8000' }
+$BASE = if ($env:LOJAPP_BASE_URL) { $env:LOJAPP_BASE_URL.TrimEnd('/') } else { 'http://localhost:8081' }
 $EMAIL = if ($env:LOJAPP_SEED_EMAIL) { $env:LOJAPP_SEED_EMAIL } else { 'piloto@lojapp.demo' }
 $PASSWORD = $env:LOJAPP_SEED_PASSWORD
 if ([string]::IsNullOrWhiteSpace($PASSWORD)) {

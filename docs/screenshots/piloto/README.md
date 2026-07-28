@@ -2,7 +2,7 @@
 
 Evidência do fluxo vertical da trilha: **NFe → estoque → venda**.
 
-Ambiente típico: local (`API :8000` + Vite). Dados fictícios apenas.
+Ambiente típico: local (`API :8081` + Vite). Dados fictícios apenas.
 
 | Ficheiro | Conteúdo |
 |----------|----------|
@@ -21,7 +21,7 @@ API no WSL: no PowerShell, definir proxy antes da captura:
 
 ```powershell
 $wslIp = (wsl -e hostname -I).ToString().Trim().Split(' ')[0]
-$env:LOJAPP_API_PROXY = "http://${wslIp}:8000"
+$env:LOJAPP_API_PROXY = "http://${wslIp}:8081"
 cd frontend
 npx playwright test --config=playwright.piloto-dia12.config.ts
 ```

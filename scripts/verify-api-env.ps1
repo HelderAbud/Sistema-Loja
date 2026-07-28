@@ -3,13 +3,13 @@
 # Uso:
 #   $env:LOJAPP_VERIFY_EMAIL = 'piloto1+...@loja-exemplo.com'
 #   $env:LOJAPP_VERIFY_PASSWORD = '...'
-#   $env:API_BASE = 'http://localhost:8000'   # opcional
+#   $env:API_BASE = 'http://localhost:8081'   # opcional
 #   .\scripts\verify-api-env.ps1
 
 $ErrorActionPreference = "Stop"
 
 $base = $env:API_BASE
-if (-not $base) { $base = "http://localhost:8000" }
+if (-not $base) { $base = "http://localhost:8081" }
 $base = $base.TrimEnd("/")
 
 $email = $env:LOJAPP_VERIFY_EMAIL

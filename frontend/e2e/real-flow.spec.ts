@@ -13,7 +13,7 @@ type ProductResponse = {
 const ENABLED = process.env.E2E_REAL_FLOW === "1";
 const E2E_EMAIL = process.env.E2E_REAL_EMAIL ?? "";
 const E2E_PASSWORD = process.env.E2E_REAL_PASSWORD ?? "";
-const API_BASE = process.env.E2E_REAL_API_BASE ?? "http://localhost:8000";
+const API_BASE = process.env.E2E_REAL_API_BASE ?? "http://localhost:8081";
 
 async function apiLoginAccessToken(request: APIRequestContext): Promise<string> {
   const resp = await request.post(`${API_BASE}/api/v1/auth/login`, {

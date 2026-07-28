@@ -48,7 +48,7 @@ Rename-Item .env.bak .env
 
 # 3. Subir e validar
 docker compose up -d
-curl http://localhost:8000/actuator/health   # status UP
+curl http://localhost:8081/actuator/health   # status UP
 
 # 4. .env nao tracked
 git status --ignored | findstr .env

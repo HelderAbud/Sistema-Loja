@@ -33,7 +33,7 @@ Output: `dist`
 
 | Key | Value |
 |-----|--------|
-| `LOJAPP_CORS_ORIGINS` | `https://SEU-PROJETO.vercel.app` (exacto; pode manter `,http://localhost:3000` para dev) |
+| `LOJAPP_CORS_ORIGINS` | `https://SEU-PROJETO.vercel.app` (exacto; pode manter `,http://localhost:5173` para dev) |
 
 **Não** redeploy Docker só por docs; só **Save** nas vars da API (restart leve) ou Manual Deploy se necessário.
 
