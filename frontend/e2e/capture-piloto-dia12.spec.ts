@@ -48,7 +48,7 @@ test.describe("captura piloto Dia 12", () => {
 
     await page.goto("/piloto/inventory");
     await waitBootstrap();
-    await expect(page.getByRole("navigation", { name: "Secções do painel" })).toBeVisible({
+    await expect(page.getByRole("tablist", { name: "Secções do painel" })).toBeVisible({
       timeout: 30_000,
     });
     await page.waitForTimeout(800);

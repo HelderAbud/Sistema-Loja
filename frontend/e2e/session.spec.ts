@@ -152,8 +152,8 @@ test("login mockado abre o painel com separador Produtos", async ({ page }) => {
   await page.getByLabel("Palavra-passe").fill("senha1234");
   await page.getByRole("button", { name: /entrar na conta/i }).click();
   await expect(page).toHaveURL(/\/piloto\/products$/);
-  await expect(page.getByRole("navigation", { name: "Secções do painel" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Produtos" })).toBeVisible();
+  await expect(page.getByRole("tablist", { name: "Secções do painel" })).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Produtos" })).toBeVisible();
   await expect(page.getByText("piloto-e2e@lojapp.test")).toBeVisible();
 });
 
