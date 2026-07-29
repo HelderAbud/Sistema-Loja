@@ -5,7 +5,6 @@ import { useAuthStore } from "../../authStore";
 import { BRAND_NAME } from "../../brand";
 import { storefrontProducts, useCartStore } from "../../features/storefront";
 
-
 export function formatCurrency(value: number) {
   return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(value);
 }
@@ -105,4 +104,3 @@ export function StoreHeader() {
     </header>
   );
 }
-
