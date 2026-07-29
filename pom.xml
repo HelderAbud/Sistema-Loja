@@ -183,6 +183,8 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/*IntegrationTest.java</exclude>
+                                <!-- SpringBootTest + H2: não é unitário puro; corre no `mvn test` completo -->
+                                <exclude>**/LojappCoreServiceTest.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

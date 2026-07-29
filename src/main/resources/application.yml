@@ -17,8 +17,8 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/loja_db}
     username: ${SPRING_DATASOURCE_USERNAME:loja_user}
-    # Apenas desenvolvimento local sem Docker; em produção e em compose use variável explícita (ver `.env.example`).
-    password: ${SPRING_DATASOURCE_PASSWORD:lojapp_local_dev_only}
+    # Sem default de senha: obrigatório via env (ou profile `local`). Ver `.env.example`.
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate
@@ -141,11 +141,20 @@ lojapp:
 spring:
   config:
     activate:
+      on-profile: local
+  datasource:
+    # Fallback só com profile `local` explícito (dev sem Docker Compose).
+    password: ${SPRING_DATASOURCE_PASSWORD:lojapp_local_dev_only}
+
+---
+spring:
+  config:
+    activate:
       on-profile: docker
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://db:5432/loja_db}
     username: ${SPRING_DATASOURCE_USERNAME:loja_user}
-    password: ${SPRING_DATASOURCE_PASSWORD:lojapp_local_dev_only}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   data:
     redis:
       host: ${SPRING_DATA_REDIS_HOST:redis}

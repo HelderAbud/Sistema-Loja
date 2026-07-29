@@ -89,4 +89,5 @@ Dashboard com faturamento/lucro por marca, top produtos, **curva ABC (80/15/5 %)
 1. Problema (planilha frágil) → solução (NFe + stock + venda + KPI).  
 2. Apontar etapas **1–5 e 7** com screenshots.  
 3. Mostrar a **etapa 6** com a demo pública (Front Vercel + API Render + health).  
-4. Aprofundar com os 3 casos de [`pitch-portfolio.md`](../lojapp/pitch-portfolio.md).
+4. Aprofundar com os 3 casos de [`pitch-portfolio.md`](../lojapp/pitch-portfolio.md).  
+5. Opcional lab: HA local (2 APIs + nginx) em [`etapa-ha-local.md`](etapa-ha-local.md) — **não** é AWS ALB.

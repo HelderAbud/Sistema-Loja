@@ -79,9 +79,14 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
       </header>
 
       <div className="tab-nav-shell">
-        <nav className="tabs tabs-wrap tabs-rail" aria-label="Secções do painel">
+        <nav className="tabs tabs-wrap tabs-rail" role="tablist" aria-label="Secções do painel">
           <button
             type="button"
+            role="tab"
+            id="piloto-tab-products"
+            aria-selected={tab === "products"}
+            aria-controls="piloto-panel-products"
+            tabIndex={tab === "products" ? 0 : -1}
             className={tab === "products" ? "active" : ""}
             onClick={() => navigate("/piloto/products")}
           >
@@ -89,6 +94,11 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           </button>
           <button
             type="button"
+            role="tab"
+            id="piloto-tab-sales"
+            aria-selected={tab === "sales"}
+            aria-controls="piloto-panel-sales"
+            tabIndex={tab === "sales" ? 0 : -1}
             className={tab === "sales" ? "active" : ""}
             onClick={() => navigate("/piloto/sales")}
           >
@@ -96,6 +106,11 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           </button>
           <button
             type="button"
+            role="tab"
+            id="piloto-tab-brands"
+            aria-selected={tab === "brands"}
+            aria-controls="piloto-panel-brands"
+            tabIndex={tab === "brands" ? 0 : -1}
             className={tab === "brands" ? "active" : ""}
             onClick={() => navigate("/piloto/brands")}
           >
@@ -103,6 +118,11 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           </button>
           <button
             type="button"
+            role="tab"
+            id="piloto-tab-nfe"
+            aria-selected={tab === "nfe"}
+            aria-controls="piloto-panel-nfe"
+            tabIndex={tab === "nfe" ? 0 : -1}
             className={tab === "nfe" ? "active" : ""}
             onClick={() => navigate("/piloto/nfe")}
           >
@@ -110,6 +130,11 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           </button>
           <button
             type="button"
+            role="tab"
+            id="piloto-tab-inventory"
+            aria-selected={tab === "inventory"}
+            aria-controls="piloto-panel-inventory"
+            tabIndex={tab === "inventory" ? 0 : -1}
             className={tab === "inventory" ? "active" : ""}
             onClick={() => navigate("/piloto/inventory")}
           >
@@ -117,6 +142,11 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           </button>
           <button
             type="button"
+            role="tab"
+            id="piloto-tab-sale"
+            aria-selected={tab === "sale"}
+            aria-controls="piloto-panel-sale"
+            tabIndex={tab === "sale" ? 0 : -1}
             className={tab === "sale" ? "active" : ""}
             onClick={() => navigate("/piloto/sale")}
           >
@@ -124,6 +154,11 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           </button>
           <button
             type="button"
+            role="tab"
+            id="piloto-tab-dashboard"
+            aria-selected={tab === "dashboard"}
+            aria-controls="piloto-panel-dashboard"
+            tabIndex={tab === "dashboard" ? 0 : -1}
             className={tab === "dashboard" ? "active" : ""}
             onClick={() => navigate("/piloto/dashboard")}
           >
@@ -134,14 +169,42 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
 
       {error ? <p className="error banner">{error}</p> : null}
 
-      {tab === "products" ? <ProductsBrowseTab /> : null}
-      {tab === "sales" ? <SalesHistoryTab /> : null}
-      {tab === "nfe" ? <PilotoNfeTab /> : null}
-      {tab === "inventory" ? <PilotoInventoryTab /> : null}
-      {tab === "sale" ? <PilotoSaleTab /> : null}
-      {tab === "dashboard" ? <PilotoDashboardTab /> : null}
+      {tab === "products" ? (
+        <div role="tabpanel" id="piloto-panel-products" aria-labelledby="piloto-tab-products">
+          <ProductsBrowseTab />
+        </div>
+      ) : null}
+      {tab === "sales" ? (
+        <div role="tabpanel" id="piloto-panel-sales" aria-labelledby="piloto-tab-sales">
+          <SalesHistoryTab />
+        </div>
+      ) : null}
+      {tab === "nfe" ? (
+        <div role="tabpanel" id="piloto-panel-nfe" aria-labelledby="piloto-tab-nfe">
+          <PilotoNfeTab />
+        </div>
+      ) : null}
+      {tab === "inventory" ? (
+        <div role="tabpanel" id="piloto-panel-inventory" aria-labelledby="piloto-tab-inventory">
+          <PilotoInventoryTab />
+        </div>
+      ) : null}
+      {tab === "sale" ? (
+        <div role="tabpanel" id="piloto-panel-sale" aria-labelledby="piloto-tab-sale">
+          <PilotoSaleTab />
+        </div>
+      ) : null}
+      {tab === "dashboard" ? (
+        <div role="tabpanel" id="piloto-panel-dashboard" aria-labelledby="piloto-tab-dashboard">
+          <PilotoDashboardTab />
+        </div>
+      ) : null}
 
-      {tab === "brands" ? <BrandsTab /> : null}
+      {tab === "brands" ? (
+        <div role="tabpanel" id="piloto-panel-brands" aria-labelledby="piloto-tab-brands">
+          <BrandsTab />
+        </div>
+      ) : null}
     </div>
   );
 }

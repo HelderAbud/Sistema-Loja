@@ -151,6 +151,10 @@ export function PilotoSaleTab() {
           <div className="combobox">
             <input
               autoComplete="off"
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={listOpen && (suggestLoading || suggestions.length > 0)}
+              aria-controls="piloto-sale-product-listbox"
               placeholder="Ex.: camiseta (mín. 1 letra)"
               value={query}
               onChange={(ev) => {
@@ -170,9 +174,14 @@ export function PilotoSaleTab() {
               }}
             />
             {listOpen && (suggestLoading || suggestions.length > 0) ? (
-              <ul className="combobox-list" role="listbox">
+              <ul
+                id="piloto-sale-product-listbox"
+                className="combobox-list"
+                role="listbox"
+                aria-label="Sugestões de produto"
+              >
                 {suggestLoading ? (
-                  <li className="combobox-status muted small">
+                  <li className="combobox-status muted small" role="option" aria-disabled="true">
                     <span className="btn-inline-loading">
                       <span
                         className="ui-spinner"
@@ -183,7 +192,7 @@ export function PilotoSaleTab() {
                   </li>
                 ) : (
                   suggestions.map((p) => (
-                    <li key={p.id}>
+                    <li key={p.id} role="option">
                       <button
                         type="button"
                         className="combobox-item"

@@ -6,7 +6,7 @@ import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.dto.sale.SalesDailyPointResponse;
 import com.lojapp.dto.sale.SalesSummaryResponse;
 import com.lojapp.security.JwtUser;
-import com.lojapp.service.contract.SalesServiceContract;
+import com.lojapp.application.contract.SalesServiceContract;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/lojapp")
 @Tag(name = "LojApp - Vendas")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
+@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','CASHIER','SELLER','MANAGER')")
 public class SaleController {
 
     private final SalesServiceContract sales;

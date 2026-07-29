@@ -1,9 +1,6 @@
-# Dependabot — PRs de versão PAUSADOS (portfólio: autor humano no histórico recente)
-# Motivo: dependabot[bot] aparece como contributor quando abre/merge PRs.
-# Updates: manuais em branch chore/*, commit Helder Abud.
-# Reativar: subir open-pull-requests-limit (ex.: 3) e restaurar groups/ignores do histórico.
-#
-# Alertas de segurança no GitHub Security podem continuar ativos sem PRs de versão.
+# Dependabot — PRs de versão limitados (portfólio: revisão humana)
+# Updates: abrir PR mensal (limit 1) por ecossistema; merge só após revisão Helder.
+# Alertas de segurança no GitHub Security podem continuar ativos.
 
 version: 2
 updates:
@@ -11,7 +8,7 @@ updates:
     directory: /
     schedule:
       interval: monthly
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
     labels:
       - dependencies
       - maven
@@ -20,7 +17,7 @@ updates:
     directory: /frontend
     schedule:
       interval: monthly
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
     labels:
       - dependencies
       - frontend

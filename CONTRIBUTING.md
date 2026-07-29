@@ -25,6 +25,12 @@ Gatilho Cursor: `PR LojApp` (branch → push → PR, **sem** merge automático).
 
 CI (`repo-hygiene`) falha se `.env` estiver no índice.
 
+## Dependabot
+
+- PRs de versão: **limit 1** por ecossistema (Maven + npm), agenda mensal — ver [`.github/dependabot.yml`](.github/dependabot.yml).
+- Revisar e mergear manualmente (autor Helder); não merge automático.
+- Pipeline canónica: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) (`backend-ci.yml` legado desativado).
+
 ## Gates HITL
 
 Pedir aprovação explícita antes de:

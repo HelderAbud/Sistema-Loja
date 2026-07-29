@@ -80,6 +80,22 @@ class UserAuthorizationIntegrationTest {
     }
 
     @Test
+    void adminList_withManagerRole_returns403() throws Exception {
+        User manager = createUser("MANAGER");
+        String managerToken =
+                jwtService.createToken(manager.getId(), manager.getEmail(), manager.getAppRole());
+
+        mockMvc.perform(
+                        get("/api/v1/users/admin/list")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer " + managerToken))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.path").value("/api/v1/users/admin/list"))
+                .andExpect(jsonPath("$.message").value("Acesso negado"));
+    }
+
+    @Test
     void adminList_withAdminRole_returns200AndPagePayload() throws Exception {
         User admin = createUser("ADMIN");
         createUser("USER");

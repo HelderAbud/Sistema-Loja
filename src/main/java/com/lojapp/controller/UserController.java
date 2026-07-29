@@ -3,7 +3,7 @@ package com.lojapp.controller;
 import com.lojapp.dto.AuthDtos.UserMeResponse;
 import com.lojapp.dto.user.AdminUserPageResponse;
 import com.lojapp.security.JwtUser;
-import com.lojapp.service.contract.AuthServiceContract;
+import com.lojapp.application.contract.AuthServiceContract;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 @Tag(name = "Users")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
+@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','CASHIER','SELLER','MANAGER')")
 public class UserController {
 
     private final AuthServiceContract authService;

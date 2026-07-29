@@ -67,6 +67,19 @@ public class SecurityConfig {
                 // Sem isto, o Boot pode expor Basic Auth + utilizador gerado; o login JWT fica à sombra.
                 .httpBasic(b -> b.disable())
                 .formLogin(f -> f.disable())
+                .headers(
+                        headers ->
+                                headers
+                                        .frameOptions(frame -> frame.sameOrigin())
+                                        .contentTypeOptions(Customizer.withDefaults())
+                                        .referrerPolicy(
+                                                referrer ->
+                                                        referrer.policy(
+                                                                org.springframework.security.web
+                                                                        .header.writers
+                                                                        .ReferrerPolicyHeaderWriter
+                                                                        .ReferrerPolicy
+                                                                        .STRICT_ORIGIN_WHEN_CROSS_ORIGIN)))
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(

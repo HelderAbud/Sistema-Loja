@@ -5,7 +5,7 @@ import com.lojapp.dto.AuthDtos.LoginRequest;
 import com.lojapp.dto.AuthDtos.RegisterRequest;
 import com.lojapp.dto.AuthDtos.UserMeResponse;
 import com.lojapp.dto.user.AdminUserSummaryResponse;
-import com.lojapp.service.contract.AuthServiceContract;
+import com.lojapp.application.contract.AuthServiceContract;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
