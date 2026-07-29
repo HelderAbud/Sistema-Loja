@@ -59,4 +59,35 @@ class AuthCsrfGuardFilterTest {
 
         assertThat(res.getStatus()).isNotEqualTo(403);
     }
+
+    @Test
+    void login_withRefreshCookieAndUntrustedOrigin_returns403() throws Exception {
+        AuthCsrfGuardFilter filter = new AuthCsrfGuardFilter(ORIGINS, "lojapp_rt");
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        req.setMethod("POST");
+        req.setRequestURI("/api/v1/auth/login");
+        req.setCookies(new Cookie("lojapp_rt", "token"));
+        req.addHeader("Origin", "http://evil.local");
+        MockHttpServletResponse res = new MockHttpServletResponse();
+        FilterChain chain = new MockFilterChain();
+
+        filter.doFilter(req, res, chain);
+
+        assertThat(res.getStatus()).isEqualTo(403);
+    }
+
+    @Test
+    void login_withoutRefreshCookie_doesNotApplyCsrfBlock() throws Exception {
+        AuthCsrfGuardFilter filter = new AuthCsrfGuardFilter(ORIGINS, "lojapp_rt");
+        MockHttpServletRequest req = new MockHttpServletRequest();
+        req.setMethod("POST");
+        req.setRequestURI("/api/v1/auth/login");
+        req.addHeader("Origin", "http://evil.local");
+        MockHttpServletResponse res = new MockHttpServletResponse();
+        FilterChain chain = new MockFilterChain();
+
+        filter.doFilter(req, res, chain);
+
+        assertThat(res.getStatus()).isNotEqualTo(403);
+    }
 }

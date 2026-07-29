@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/lojapp/pos/cash-sessions")
 @Tag(name = "LojApp - PDV Caixa")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('CASHIER','MANAGER')")
+@PreAuthorize("hasAnyRole('CASHIER','MANAGER','USER','ADMIN')")
 public class CashSessionController {
 
     private final OpenCashSessionUseCaseContract openCashSessionUseCase;

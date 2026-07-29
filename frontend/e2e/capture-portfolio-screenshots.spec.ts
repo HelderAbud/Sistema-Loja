@@ -41,7 +41,7 @@ test.describe("captura portfólio A1", () => {
     async function openTab(tabPath: string) {
       await page.goto(tabPath);
       await waitBootstrap();
-      await expect(page.getByRole("navigation", { name: "Secções do painel" })).toBeVisible({
+      await expect(page.getByRole("tablist", { name: "Secções do painel" })).toBeVisible({
         timeout: 30_000,
       });
       await page.waitForTimeout(800);

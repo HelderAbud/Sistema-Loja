@@ -12,7 +12,7 @@ import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.entity.Sale;
 import com.lojapp.exception.domain.LojappDomainException;
 import com.lojapp.repository.SaleRepository;
-import com.lojapp.service.contract.SalesServiceContract;
+import com.lojapp.application.contract.SalesServiceContract;
 import com.lojapp.util.Pageables;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

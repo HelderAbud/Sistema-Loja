@@ -16,8 +16,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Guarda simples anti-CSRF para operações sensíveis de autenticação via cookie.
- * Rejeita refresh/logout quando a origem não é permitida.
+ * Guarda anti-CSRF (Origin/Referer) para mutações de autenticação quando o cookie de refresh
+ * está presente. Spring CSRF clássico está desligado (API JWT + cookie HttpOnly); esta guarda
+ * mitiga CSRF em refresh/logout (e outros POST {@code /api/v1/auth/**} com cookie).
+ *
+ * <p>Ameaça residual: pedidos same-site sem Origin/Referer (alguns clientes nativos) — preferir
+ * Bearer no header e cookie {@code SameSite=Strict/Lax} em produção.
  */
 @Component
 public class AuthCsrfGuardFilter extends OncePerRequestFilter implements Ordered {
@@ -73,8 +77,7 @@ public class AuthCsrfGuardFilter extends OncePerRequestFilter implements Ordered
             return false;
         }
         String uri = request.getRequestURI();
-        return uri != null
-                && (uri.endsWith("/api/v1/auth/refresh") || uri.endsWith("/api/v1/auth/logout"));
+        return uri != null && uri.contains("/api/v1/auth/");
     }
 
     private boolean hasRefreshCookie(HttpServletRequest request) {

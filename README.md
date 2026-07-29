@@ -306,6 +306,17 @@ npm run test
 npm run e2e
 ```
 
+### O que o CI prova (honestidade)
+
+| Job | O que cobre | Limite |
+|-----|-------------|--------|
+| `backend-unit` (`-Pci-unit-tests`) | JUnit/Mockito + ArchUnit; **exclui** `*IntegrationTest` | Não sobe Postgres |
+| `backend-integration` | `*IntegrationTest` com Testcontainers/Postgres | Requer Docker no runner |
+| `frontend` → Vitest | Componentes/hooks unitários | Sem API real |
+| `frontend` → Playwright (`npm run e2e`) | `session.spec.ts` e afins com **API auth mockada** (`page.route`) | **Não** é fluxo E2E contra API/DB reais |
+| Fluxo real | `e2e/real-flow.spec.ts` | **Ignorado** no Playwright default (`testIgnore`); opt-in local |
+
+Workflow canónico: [`.github/workflows/ci.yml`](.github/workflows/ci.yml). O ficheiro legado `backend-ci.yml` está desativado.
 ---
 
 ## Troubleshooting

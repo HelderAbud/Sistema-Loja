@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/lojapp")
 @Tag(name = "LojApp - Estoque")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")
+@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','CASHIER','SELLER','MANAGER')")
 public class InventoryController {
 
     private final InventoryServiceContract inventory;

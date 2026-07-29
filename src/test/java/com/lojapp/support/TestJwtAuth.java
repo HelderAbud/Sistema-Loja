@@ -11,28 +11,28 @@ public final class TestJwtAuth {
     private TestJwtAuth() {}
 
     public static UsernamePasswordAuthenticationToken userToken(long userId) {
-        JwtUser principal = new JwtUser(userId, userId + "@unit.test", "USER");
-        return new UsernamePasswordAuthenticationToken(
-                principal,
-                null,
-                List.of(
-                        new SimpleGrantedAuthority("ROLE_USER"),
-                        new SimpleGrantedAuthority("ROLE_CASHIER")));
+        return token(userId, userId + "@unit.test", "USER");
     }
 
     public static UsernamePasswordAuthenticationToken adminToken(long userId) {
-        JwtUser principal = new JwtUser(userId, userId + "@admin.unit.test", "ADMIN");
-        return new UsernamePasswordAuthenticationToken(
-                principal,
-                null,
-                List.of(
-                        new SimpleGrantedAuthority("ROLE_ADMIN"),
-                        new SimpleGrantedAuthority("ROLE_MANAGER")));
+        return token(userId, userId + "@admin.unit.test", "ADMIN");
     }
 
     public static UsernamePasswordAuthenticationToken sellerToken(long userId) {
-        JwtUser principal = new JwtUser(userId, userId + "@seller.unit.test", "SELLER");
+        return token(userId, userId + "@seller.unit.test", "SELLER");
+    }
+
+    public static UsernamePasswordAuthenticationToken managerToken(long userId) {
+        return token(userId, userId + "@manager.unit.test", "MANAGER");
+    }
+
+    public static UsernamePasswordAuthenticationToken cashierToken(long userId) {
+        return token(userId, userId + "@cashier.unit.test", "CASHIER");
+    }
+
+    private static UsernamePasswordAuthenticationToken token(long userId, String email, String role) {
+        JwtUser principal = new JwtUser(userId, email, role);
         return new UsernamePasswordAuthenticationToken(
-                principal, null, List.of(new SimpleGrantedAuthority("ROLE_SELLER")));
+                principal, null, List.of(new SimpleGrantedAuthority(principal.authority())));
     }
 }

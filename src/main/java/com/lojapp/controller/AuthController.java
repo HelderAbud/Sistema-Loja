@@ -5,7 +5,7 @@ import com.lojapp.dto.AuthDtos.AccessTokenResponse;
 import com.lojapp.dto.AuthDtos.LoginRequest;
 import com.lojapp.dto.AuthDtos.RefreshRequest;
 import com.lojapp.dto.AuthDtos.RegisterRequest;
-import com.lojapp.service.contract.AuthServiceContract;
+import com.lojapp.application.contract.AuthServiceContract;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

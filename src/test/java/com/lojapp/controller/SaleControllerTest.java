@@ -21,7 +21,7 @@ import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
 import com.lojapp.support.TestJwtAuth;
-import com.lojapp.service.contract.SalesServiceContract;
+import com.lojapp.application.contract.SalesServiceContract;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;

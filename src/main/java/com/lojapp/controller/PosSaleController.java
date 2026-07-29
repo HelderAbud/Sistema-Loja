@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/lojapp/pos/sales")
 @Tag(name = "LojApp - PDV Vendas")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('CASHIER','SELLER','MANAGER')")
+@PreAuthorize("hasAnyRole('CASHIER','SELLER','MANAGER','USER','ADMIN','REPRESENTATIVE')")
 public class PosSaleController {
 
     private final CreatePosSaleUseCaseContract createPosSaleUseCase;

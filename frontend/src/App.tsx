@@ -1,21 +1,39 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { useAuthSession, useLoginForm } from "@/features/auth";
-import { PilotoWorkspacePage } from "./pages";
-import {
-  CartPage,
-  CatalogPage,
-  HomePage,
-  LandingPage,
-  OrdersPage,
-  PitchPage,
-  ProductPage,
-  SellerAreaPage,
-} from "./pages/StorefrontPages";
 import { RouteDocumentHead } from "./routeDocumentMeta";
 import { AuthRoute } from "./routes/AuthRoute";
 import { ProtectedLayout } from "./routes/ProtectedLayout";
+
+const PilotoWorkspacePage = lazy(() =>
+  import("./pages").then((m) => ({ default: m.PilotoWorkspacePage })),
+);
+
+const LandingPage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.LandingPage })),
+);
+const HomePage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.HomePage })),
+);
+const CatalogPage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.CatalogPage })),
+);
+const OrdersPage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.OrdersPage })),
+);
+const ProductPage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.ProductPage })),
+);
+const CartPage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.CartPage })),
+);
+const SellerAreaPage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.SellerAreaPage })),
+);
+const PitchPage = lazy(() =>
+  import("./pages/StorefrontPages").then((m) => ({ default: m.PitchPage })),
+);
 
 function SessionBackdrop() {
   return (
@@ -23,6 +41,18 @@ function SessionBackdrop() {
       <p style={{ margin: 0, opacity: 0.85 }}>A carregar sessão…</p>
     </div>
   );
+}
+
+function RouteFallback() {
+  return (
+    <div className="app-backdrop" aria-busy="true" aria-live="polite">
+      <p style={{ margin: 0, opacity: 0.85 }}>A carregar página…</p>
+    </div>
+  );
+}
+
+function LazyRoute({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<RouteFallback />}>{children}</Suspense>;
 }
 
 function AppRoutes() {
@@ -70,14 +100,70 @@ function AppRoutes() {
     <>
       <RouteDocumentHead />
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/catalog" element={<CatalogPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/product/:slug" element={<ProductPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/seller" element={<SellerAreaPage />} />
-        <Route path="/pitch" element={<PitchPage />} />
+        <Route
+          path="/"
+          element={
+            <LazyRoute>
+              <LandingPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/home"
+          element={
+            <LazyRoute>
+              <HomePage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/catalog"
+          element={
+            <LazyRoute>
+              <CatalogPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <LazyRoute>
+              <OrdersPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/product/:slug"
+          element={
+            <LazyRoute>
+              <ProductPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <LazyRoute>
+              <CartPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/seller"
+          element={
+            <LazyRoute>
+              <SellerAreaPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/pitch"
+          element={
+            <LazyRoute>
+              <PitchPage />
+            </LazyRoute>
+          }
+        />
         <Route
           path="/login"
           element={
@@ -98,7 +184,11 @@ function AppRoutes() {
         <Route element={<ProtectedLayout authed={isAuthenticated} />}>
           <Route
             path="/piloto/:tab"
-            element={<PilotoWorkspacePage email={email} error={error} onLogout={logout} />}
+            element={
+              <LazyRoute>
+                <PilotoWorkspacePage email={email} error={error} onLogout={logout} />
+              </LazyRoute>
+            }
           />
           <Route path="/piloto" element={<Navigate to="/piloto/products" replace />} />
         </Route>

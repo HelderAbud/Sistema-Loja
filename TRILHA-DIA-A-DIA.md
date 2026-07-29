@@ -278,30 +278,41 @@ Cada etapa: parágrafo + tags (`JWT`, `Flyway`, etc.) + screenshot ou “evidên
 
 ---
 
-### Dia 17 — LinkedIn
+### Dia 17 — LinkedIn ✅ (2026-07-29)
 
-- [ ] Post com GIF dashboard + link GitHub + link demo
-- [ ] 3 bullets técnicos (NFe/transação, JWT, deploy)
+- [x] Post com GIF dashboard + link GitHub + link demo — rascunho [`docs/portfolio/linkedin-post-dia-17.md`](docs/portfolio/linkedin-post-dia-17.md) (publicar = HITL)
+- [x] 3 bullets técnicos (NFe/transação, JWT, deploy)
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-29-trilha-dia-17.md`  
+**Plano:** `.cursor/plans/plan-2026-07-29-lojapp-dia-17-linkedin.md`
 
 ---
 
-### Dia 18 — Revisão code-reviewer (simulada)
+### Dia 18 — Revisão code-reviewer (simulada) ✅ (2026-07-29)
 
-- [ ] Diff da trilha inteira vs main
-- [ ] Rubrica: segurança, secrets, aderência AGENTS.md
-- [ ] `validation-YYYY-MM-DD-trilha-completa.md`
+- [x] Diff da trilha inteira vs main — inventário PRs/commits em `Principal` (Fases A–D)
+- [x] Rubrica: segurança, secrets, aderência AGENTS.md
+- [x] `validation-2026-07-29-trilha-completa.md`
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-29-trilha-completa.md`  
+**Plano:** `.cursor/plans/plan-2026-07-29-lojapp-dia-18-revisao-trilha.md`
+
+**HITL residual (não bloqueia Dia 18):** publicar LinkedIn (Dia 17) — fazer depois com ajuda.
 
 ---
 
 ## Fase E — Opcional (sem AWS)
 
-### Dias 19–21 — HA local documentada
+### Dias 19–21 — HA local documentada ✅ (2026-07-29)
 
-| Trilha | Simple — só documentação |
+| Trilha | Simple — só documentação (+ exemplo Compose) |
 
-- [ ] `docs/portfolio/etapa-ha-local.md`: 2 réplicas API + nginx + script curl loop
-- [ ] Opcional: implementar compose override se sobrar tempo
-- [ ] **Não** claimar AWS ALB — ser honesto
+- [x] `docs/portfolio/etapa-ha-local.md`: 2 réplicas API + nginx + script curl loop
+- [x] Opcional: `docker-compose.ha.yml` + `deploy/ha/nginx.conf` + `scripts/ha-curl-loop.sh`
+- [x] **Não** claimar AWS ALB — secção de honestidade no doc
+
+**Evidência:** `docs/lojapp/grill-logs/validation-2026-07-29-fase-e-ha-local.md`  
+**Plano:** `.cursor/plans/plan-2026-07-29-lojapp-fase-e-ha-local.md`
 
 ---
 
