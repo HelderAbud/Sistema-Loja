@@ -34,7 +34,25 @@ public final class RequestFingerprint {
     }
 
     public static String posSaleFinalizeRequestHash(PosSaleFinalizeRequest r) {
-        String unitCost = r.unitCost() == null ? "" : r.unitCost().stripTrailingZeros().toPlainString();
+        String lines =
+                r.resolvedLines().stream()
+                        .map(
+                                line -> {
+                                    String unitCost =
+                                            line.unitCost() == null
+                                                    ? ""
+                                                    : line.unitCost().stripTrailingZeros().toPlainString();
+                                    return line.productId()
+                                            + ":"
+                                            + line.quantity().stripTrailingZeros().toPlainString()
+                                            + ":"
+                                            + line.unitPrice().stripTrailingZeros().toPlainString()
+                                            + ":"
+                                            + unitCost;
+                                })
+                        .sorted()
+                        .reduce((a, b) -> a + ";" + b)
+                        .orElse("");
         String payments =
                 r.payments().stream()
                         .map(
@@ -45,18 +63,7 @@ public final class RequestFingerprint {
                         .sorted()
                         .reduce((a, b) -> a + "|" + b)
                         .orElse("");
-        String raw =
-                r.cashSessionId()
-                        + "|"
-                        + r.productId()
-                        + "|"
-                        + r.quantity().stripTrailingZeros().toPlainString()
-                        + "|"
-                        + r.unitPrice().stripTrailingZeros().toPlainString()
-                        + "|"
-                        + unitCost
-                        + "|"
-                        + payments;
+        String raw = r.cashSessionId() + "|" + lines + "|" + payments;
         return TokenHashUtil.sha256Hex(raw);
     }
 }

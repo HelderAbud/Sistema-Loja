@@ -46,12 +46,20 @@ export type PosSalePaymentRequest = {
   amount: number;
 };
 
-export type PosSaleFinalizeRequest = {
-  cashSessionId: number;
+export type PosSaleLineRequest = {
   productId: number;
   quantity: number;
   unitPrice: number;
   unitCost?: number | null;
+};
+
+export type PosSaleFinalizeRequest = {
+  cashSessionId: number;
+  productId?: number;
+  quantity?: number;
+  unitPrice?: number;
+  unitCost?: number | null;
+  items?: PosSaleLineRequest[];
   payments: PosSalePaymentRequest[];
 };
 

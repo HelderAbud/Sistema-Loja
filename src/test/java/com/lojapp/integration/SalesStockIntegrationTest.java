@@ -7,6 +7,7 @@ import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
 import com.lojapp.dto.product.ProductRequest;
 import com.lojapp.dto.sale.PosSaleFinalizeRequest;
+import com.lojapp.dto.sale.PosSaleLineRequest;
 import com.lojapp.dto.sale.PosSalePaymentRequest;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.entity.CashSession;
@@ -22,6 +23,7 @@ import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.ApiIdempotencyRepository;
 import com.lojapp.repository.InventoryBalanceRepository;
 import com.lojapp.repository.InventoryMovementRepository;
+import com.lojapp.repository.SaleItemRepository;
 import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
@@ -32,6 +34,7 @@ import com.lojapp.service.LojappCatalogService;
 import com.lojapp.service.SalesService;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -72,6 +75,7 @@ class SalesStockIntegrationTest {
     @Autowired private InventoryService inventory;
     @Autowired private SalesService salesService;
     @Autowired private SaleRepository sales;
+    @Autowired private SaleItemRepository saleItems;
     @Autowired private InventoryBalanceRepository balances;
     @Autowired private InventoryMovementRepository movements;
     @Autowired private ApiIdempotencyRepository apiIdempotency;
@@ -366,7 +370,7 @@ class SalesStockIntegrationTest {
                         () ->
                                 createPosSaleUseCase.execute(
                                         userId,
-                                        new PosSaleFinalizeRequest(
+                                        PosSaleFinalizeRequest.singleItem(
                                                 closedSession.getId(),
                                                 product.id(),
                                                 new BigDecimal("1"),
@@ -406,7 +410,7 @@ class SalesStockIntegrationTest {
                         () ->
                                 createPosSaleUseCase.execute(
                                         userId,
-                                        new PosSaleFinalizeRequest(
+                                        PosSaleFinalizeRequest.singleItem(
                                                 openSession.getId(),
                                                 product.id(),
                                                 new BigDecimal("2"),
@@ -449,7 +453,7 @@ class SalesStockIntegrationTest {
         long paymentsBefore = salePayments.count();
         String key = "pos-idem-" + UUID.randomUUID();
         PosSaleFinalizeRequest req =
-                new PosSaleFinalizeRequest(
+                PosSaleFinalizeRequest.singleItem(
                         openSession.getId(),
                         product.id(),
                         new BigDecimal("2"),
@@ -465,6 +469,83 @@ class SalesStockIntegrationTest {
         assertThat(second.saleId()).isEqualTo(first.saleId());
         assertThat(sales.count()).isEqualTo(salesBefore + 1);
         assertThat(salePayments.count()).isEqualTo(paymentsBefore + 2);
+    }
+
+    @Test
+    void finalizePosSale_twoItems_oneTicketAndTicketAverage() {
+        User user = createUser("pos-multi");
+        long userId = user.getId();
+
+        var shirt =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "SKU POS SHIRT",
+                                null,
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("10.00"),
+                                new BigDecimal("20.00"),
+                                BigDecimal.ZERO));
+        var pants =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "SKU POS PANTS",
+                                null,
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("5.00"),
+                                new BigDecimal("12.00"),
+                                BigDecimal.ZERO));
+        inventory.adjustStock(
+                userId, new StockAdjustmentRequest(shirt.id(), new BigDecimal("10"), "SEED"));
+        inventory.adjustStock(
+                userId, new StockAdjustmentRequest(pants.id(), new BigDecimal("10"), "SEED"));
+        CashSession openSession = createCashSession(user, CashSessionStatus.OPEN, new BigDecimal("100.00"));
+
+        long salesBefore = sales.count();
+        long itemsBefore = saleItems.count();
+        PosSaleFinalizeRequest req =
+                new PosSaleFinalizeRequest(
+                        openSession.getId(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        List.of(
+                                new PosSaleLineRequest(
+                                        shirt.id(),
+                                        new BigDecimal("2"),
+                                        new BigDecimal("20.00"),
+                                        new BigDecimal("10.00")),
+                                new PosSaleLineRequest(
+                                        pants.id(),
+                                        new BigDecimal("1"),
+                                        new BigDecimal("12.00"),
+                                        new BigDecimal("5.00"))),
+                        List.of(
+                                new PosSalePaymentRequest(
+                                        PaymentMethod.CARD, new BigDecimal("52.00"))));
+
+        var created =
+                createPosSaleUseCase.execute(userId, req, Optional.of("pos-multi-" + UUID.randomUUID()));
+
+        assertThat(sales.count()).isEqualTo(salesBefore + 1);
+        assertThat(saleItems.count()).isEqualTo(itemsBefore + 2);
+        assertThat(
+                        balances.findByUser_IdAndProduct_Id(userId, shirt.id()).orElseThrow().getQuantity())
+                .isEqualByComparingTo(new BigDecimal("8"));
+        assertThat(
+                        balances.findByUser_IdAndProduct_Id(userId, pants.id()).orElseThrow().getQuantity())
+                .isEqualByComparingTo(new BigDecimal("9"));
+
+        var summary = salesService.summarizeSales(userId, null, null, null, null);
+        assertThat(summary.revenue()).isEqualByComparingTo(new BigDecimal("52.00"));
+        assertThat(summary.averageTicket()).isEqualByComparingTo(new BigDecimal("52.00"));
+        assertThat(created.saleId()).isNotNull();
     }
 
     private User createUser(String label) {

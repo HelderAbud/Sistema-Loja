@@ -203,7 +203,7 @@ class SalesConcurrencyIntegrationTest {
                     try {
                         createPosSaleUseCase.execute(
                                 userId,
-                                new PosSaleFinalizeRequest(
+                                PosSaleFinalizeRequest.singleItem(
                                         cashSessionId,
                                         product.id(),
                                         new BigDecimal("7"),

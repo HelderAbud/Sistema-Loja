@@ -23,6 +23,7 @@ import com.lojapp.exception.domain.InsufficientStockException;
 import com.lojapp.exception.domain.LojappDomainException;
 import com.lojapp.exception.domain.ProductNotFoundException;
 import com.lojapp.repository.ProductRepository;
+import com.lojapp.repository.SaleItemRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.observability.LojappBusinessMetrics;
@@ -46,6 +47,7 @@ class CreateSaleUseCaseTest {
     @Mock private UserRepository users;
     @Mock private ProductRepository products;
     @Mock private SaleRepository sales;
+    @Mock private SaleItemRepository saleItems;
     @Mock private InventoryServiceContract inventoryService;
     @Mock private AuditService auditService;
     @Mock private ApiIdempotencyService idempotencyService;
@@ -60,6 +62,7 @@ class CreateSaleUseCaseTest {
                         users,
                         products,
                         sales,
+                        saleItems,
                         inventoryService,
                         auditService,
                         idempotencyService,
@@ -164,7 +167,7 @@ class CreateSaleUseCaseTest {
                                 assertThat(((ProductNotFoundException) ex).getErrorCode())
                                         .isEqualTo(ApiErrorCode.NOT_FOUND));
 
-        verifyNoInteractions(sales, inventoryService, auditService);
+        verifyNoInteractions(sales, saleItems, inventoryService, auditService);
     }
 
     @Test

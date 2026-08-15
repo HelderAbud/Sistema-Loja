@@ -6,12 +6,14 @@ import com.lojapp.application.idempotency.RequestFingerprint;
 import com.lojapp.domain.sale.SaleRegistrationLine;
 import com.lojapp.dto.sale.PosSaleFinalizeRequest;
 import com.lojapp.dto.sale.PosSaleFinalizeResponse;
+import com.lojapp.dto.sale.PosSaleLineRequest;
 import com.lojapp.dto.sale.PosSalePaymentRequest;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.entity.CashSession;
 import com.lojapp.entity.CashSessionStatus;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
+import com.lojapp.entity.SaleItem;
 import com.lojapp.entity.SalePayment;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.CashSessionNotFoundException;
@@ -20,12 +22,15 @@ import com.lojapp.exception.domain.PosSalePaymentTotalMismatchException;
 import com.lojapp.exception.domain.ProductNotFoundException;
 import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.ProductRepository;
+import com.lojapp.repository.SaleItemRepository;
 import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.service.AuditService;
 import com.lojapp.service.contract.InventoryServiceContract;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +41,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
     private final UserRepository users;
     private final ProductRepository products;
     private final SaleRepository sales;
+    private final SaleItemRepository saleItems;
     private final SalePaymentRepository salePayments;
     private final CashSessionRepository cashSessions;
     private final InventoryServiceContract inventoryService;
@@ -46,6 +52,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             UserRepository users,
             ProductRepository products,
             SaleRepository sales,
+            SaleItemRepository saleItems,
             SalePaymentRepository salePayments,
             CashSessionRepository cashSessions,
             InventoryServiceContract inventoryService,
@@ -54,6 +61,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
         this.users = users;
         this.products = products;
         this.sales = sales;
+        this.saleItems = saleItems;
         this.salePayments = salePayments;
         this.cashSessions = cashSessions;
         this.inventoryService = inventoryService;
@@ -74,10 +82,6 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
 
     private PosSaleFinalizeResponse persistPosSale(long userId, PosSaleFinalizeRequest request) {
         User user = users.getReferenceById(userId);
-        Product product =
-                products
-                        .findByIdAndUser_Id(request.productId(), userId)
-                        .orElseThrow(ProductNotFoundException::new);
         CashSession cashSession =
                 cashSessions
                         .findByIdAndUser_Id(request.cashSessionId(), userId)
@@ -86,11 +90,28 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             throw new CashSessionNotOpenException();
         }
 
-        SaleRegistrationLine line = SaleRegistrationLine.fromRequest(
-                new SaleRequest(
-                        request.productId(), request.quantity(), request.unitPrice(), request.unitCost()),
-                product.getCostPrice());
-        BigDecimal saleTotal = line.unitPrice().multiply(line.quantity());
+        List<PosSaleLineRequest> lines = request.resolvedLines();
+        List<ResolvedPosLine> resolved = new ArrayList<>(lines.size());
+        for (PosSaleLineRequest lineRequest : lines) {
+            Product product =
+                    products
+                            .findByIdAndUser_Id(lineRequest.productId(), userId)
+                            .orElseThrow(ProductNotFoundException::new);
+            SaleRegistrationLine line =
+                    SaleRegistrationLine.fromRequest(
+                            new SaleRequest(
+                                    lineRequest.productId(),
+                                    lineRequest.quantity(),
+                                    lineRequest.unitPrice(),
+                                    lineRequest.unitCost()),
+                            product.getCostPrice());
+            resolved.add(new ResolvedPosLine(product, line));
+        }
+
+        BigDecimal saleTotal =
+                resolved.stream()
+                        .map(item -> item.line().unitPrice().multiply(item.line().quantity()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal paymentTotal =
                 request.payments().stream()
                         .map(PosSalePaymentRequest::amount)
@@ -99,15 +120,27 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             throw new PosSalePaymentTotalMismatchException();
         }
 
+        ResolvedPosLine headerLine = resolved.get(0);
         Sale sale = new Sale();
         sale.setUser(user);
-        sale.setProduct(product);
+        sale.setProduct(headerLine.product());
         sale.setCashSession(cashSession);
-        sale.setQuantity(line.quantity());
-        sale.setUnitPrice(line.unitPrice());
-        sale.setUnitCost(line.unitCost());
+        sale.setQuantity(headerLine.line().quantity());
+        sale.setUnitPrice(headerLine.line().unitPrice());
+        sale.setUnitCost(headerLine.line().unitCost());
         sales.save(sale);
-        inventoryService.decreaseForSale(user, product, line.quantity(), sale.getId());
+
+        for (ResolvedPosLine item : resolved) {
+            SaleItem saleItem = new SaleItem();
+            saleItem.setUser(user);
+            saleItem.setSale(sale);
+            saleItem.setProduct(item.product());
+            saleItem.setQuantity(item.line().quantity());
+            saleItem.setUnitPrice(item.line().unitPrice());
+            saleItem.setUnitCost(item.line().unitCost());
+            saleItems.save(saleItem);
+            inventoryService.decreaseForSale(user, item.product(), item.line().quantity(), sale.getId());
+        }
 
         for (PosSalePaymentRequest paymentRequest : request.payments()) {
             SalePayment payment = new SalePayment();
@@ -121,9 +154,16 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
         auditService.log(
                 userId,
                 "POS_SALE_FINALIZED",
-                "saleId=%d cashSessionId=%d total=%s payments=%d"
-                        .formatted(sale.getId(), cashSession.getId(), saleTotal, request.payments().size()));
+                "saleId=%d cashSessionId=%d total=%s lines=%d payments=%d"
+                        .formatted(
+                                sale.getId(),
+                                cashSession.getId(),
+                                saleTotal,
+                                resolved.size(),
+                                request.payments().size()));
 
         return new PosSaleFinalizeResponse(sale.getId(), cashSession.getId(), saleTotal, sale.getSoldAt());
     }
+
+    private record ResolvedPosLine(Product product, SaleRegistrationLine line) {}
 }

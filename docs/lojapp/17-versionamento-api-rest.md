@@ -9,6 +9,7 @@ Todos os endpoints públicos da aplicação usam o prefixo **`/api/v1`**. Exempl
 - Novos campos **opcionais** em JSON de resposta.
 - Novos endpoints sob o mesmo prefixo.
 - Novos valores em enums documentados no OpenAPI, desde que clientes ignorem valores desconhecidos.
+- `POST /api/v1/lojapp/pos/sales/finalize`: campo opcional `items[]` (cupom com N linhas). Payload antigo (`productId` + `quantity` + `unitPrice`) continua válido.
 
 ## Mudanças incompatíveis (breaking)
 

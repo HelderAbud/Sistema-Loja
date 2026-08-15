@@ -8,9 +8,11 @@ import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.domain.sale.SaleRegistrationLine;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
+import com.lojapp.entity.SaleItem;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.ProductNotFoundException;
 import com.lojapp.repository.ProductRepository;
+import com.lojapp.repository.SaleItemRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.service.AuditService;
@@ -32,6 +34,7 @@ public class CreateSaleUseCase {
     private final UserRepository users;
     private final ProductRepository products;
     private final SaleRepository sales;
+    private final SaleItemRepository saleItems;
     private final InventoryServiceContract inventoryService;
     private final AuditService auditService;
     private final ApiIdempotencyService idempotencyService;
@@ -41,6 +44,7 @@ public class CreateSaleUseCase {
             UserRepository users,
             ProductRepository products,
             SaleRepository sales,
+            SaleItemRepository saleItems,
             InventoryServiceContract inventoryService,
             AuditService auditService,
             ApiIdempotencyService idempotencyService,
@@ -48,6 +52,7 @@ public class CreateSaleUseCase {
         this.users = users;
         this.products = products;
         this.sales = sales;
+        this.saleItems = saleItems;
         this.inventoryService = inventoryService;
         this.auditService = auditService;
         this.idempotencyService = idempotencyService;
@@ -78,6 +83,14 @@ public class CreateSaleUseCase {
         sale.setUnitPrice(line.unitPrice());
         sale.setUnitCost(line.unitCost());
         sales.save(sale);
+        SaleItem saleItem = new SaleItem();
+        saleItem.setUser(user);
+        saleItem.setSale(sale);
+        saleItem.setProduct(product);
+        saleItem.setQuantity(line.quantity());
+        saleItem.setUnitPrice(line.unitPrice());
+        saleItem.setUnitCost(line.unitCost());
+        saleItems.save(saleItem);
         inventoryService.decreaseForSale(user, product, line.quantity(), sale.getId());
         log.info(
                 "Venda registada userId={} saleId={} productId={} qty={}",
