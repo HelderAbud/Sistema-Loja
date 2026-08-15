@@ -127,7 +127,7 @@ Visão em camadas (API):
 
 **Dashboard:** `/dashboard/inventory-kpis`, `/dashboard/brands`, `/dashboard/products-abc` (curva ABC).
 
-**PDV:** turnos de caixa (`/pos/cash-sessions/*`) e finalização de venda (`/pos/sales/finalize`).
+**PDV:** turnos de caixa (`/pos/cash-sessions/*`) e finalização de venda (`/pos/sales/finalize`, um cupom com N linhas via `items`).
 
 ### Formato de erro da API
 
@@ -377,7 +377,7 @@ A API não está em **http://localhost:8081**. Confirme com `curl http://localho
 | `POST` | `/lojapp/sales/{id}/cancel` | Cancelar venda |
 | `POST` | `/lojapp/nfe/import` | Importar XML NFe |
 | `POST` | `/lojapp/inventory/adjust` | Ajuste manual de stock |
-| `POST` | `/lojapp/pos/sales/finalize` | Finalizar venda PDV |
+| `POST` | `/lojapp/pos/sales/finalize` | Finalizar venda PDV (linha única ou `items[]`) |
 | `POST/GET` | `/lojapp/pos/cash-sessions/*` | Turno de caixa (abrir/fechar) |
 
 Documentação completa: **http://localhost:8081/swagger-ui.html** (desligado em `prod`).

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { finalizePosSale, getCurrentCashSession, type PosPaymentMethod } from "../../api";
-import { useCartStore, useCartSummary } from "../../features/storefront";
+import { calculateCartSubtotal, useCartStore, useCartSummary } from "../../features/storefront";
 import { StoreHeader, formatCurrency } from "./storefrontShared";
 
 export function CartPage() {
@@ -27,8 +27,8 @@ export function CartPage() {
 
   async function checkoutOrder() {
     setCheckoutMessage(null);
-    if (items.length !== 1) {
-      setCheckoutMessage("No MVP atual, cada venda PDV suporta 1 item por vez no carrinho.");
+    if (items.length === 0) {
+      setCheckoutMessage("Adicione pelo menos um item ao carrinho.");
       return;
     }
     const invalidProduct = items.find((item) => !Number.isFinite(Number(item.id)));
@@ -44,17 +44,22 @@ export function CartPage() {
     }
 
     try {
-      const item = items[0];
-      const totalAmount = Number(item.price) * Number(item.quantity);
-      const idempotencyKey = `pdv-checkout-${item.id}-${item.quantity}-${item.price}-${checkoutNonce}`;
+      const lineItems = items.map((item) => ({
+        productId: Number(item.id),
+        quantity: item.quantity,
+        unitPrice: item.price,
+      }));
+      const merchandiseTotal = calculateCartSubtotal(items);
+      const cartFingerprint = lineItems
+        .map((line) => `${line.productId}x${line.quantity}@${line.unitPrice}`)
+        .sort()
+        .join("|");
+      const idempotencyKey = `pdv-checkout-${cartFingerprint}-${checkoutNonce}`;
       await saleMut.mutateAsync({
         body: {
           cashSessionId: currentCashQ.data.cashSessionId,
-          productId: Number(item.id),
-          quantity: item.quantity,
-          unitPrice: item.price,
-          unitCost: null,
-          payments: [{ paymentMethod, amount: totalAmount }],
+          items: lineItems,
+          payments: [{ paymentMethod, amount: merchandiseTotal }],
         },
         idempotencyKey,
       });
@@ -108,15 +113,12 @@ export function CartPage() {
           {!currentCashQ.data?.open ? (
             <p className="store-muted">Sem turno aberto: checkout PDV bloqueado.</p>
           ) : null}
-          {items.length > 1 ? (
-            <p className="store-muted">Checkout PDV MVP: mantenha 1 item por venda.</p>
-          ) : null}
           {checkoutMessage ? <p className="muted">{checkoutMessage}</p> : null}
           <div className="store-cta-row">
             <button
               type="button"
               className="primary"
-              disabled={saleMut.isPending || items.length !== 1 || !currentCashQ.data?.open}
+              disabled={saleMut.isPending || items.length === 0 || !currentCashQ.data?.open}
               onClick={checkoutOrder}
             >
               Finalizar venda PDV

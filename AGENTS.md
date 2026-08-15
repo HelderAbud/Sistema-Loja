@@ -64,6 +64,7 @@ Portas canônicas (portfólio): API **8081**, FE **5173**, Postgres host **5433*
 - Nova regra de negócio: incluir teste que prove o comportamento.
 - Bugfix: teste de regressão quando viável.
 - Não concluir com `mvn test` a falhar; se não for possível correr testes, explicar o motivo.
+- **Docker não existe no Windows deste PC.** Unitários no PowerShell: `./mvnw -Pci-unit-tests test`. Compose, Testcontainers e `docker` só no **Ubuntu (WSL)** — ver `.cursor/rules/docker-ubuntu.mdc` e [`docs/docker-wsl-ubuntu.md`](docs/docker-wsl-ubuntu.md).
 
 ## Workflow (Cursor / Superpowers)
 

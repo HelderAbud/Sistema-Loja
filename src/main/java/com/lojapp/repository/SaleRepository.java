@@ -66,11 +66,12 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             select
                 b.id as brandId,
                 b.name as brandName,
-                sum(s.quantity) as quantity,
-                sum(s.unitPrice * s.quantity) as revenue,
-                sum((s.unitPrice - s.unitCost) * s.quantity) as profit
-            from Sale s
-            left join s.product p
+                sum(i.quantity) as quantity,
+                sum(i.unitPrice * i.quantity) as revenue,
+                sum((i.unitPrice - i.unitCost) * i.quantity) as profit
+            from SaleItem i
+            join i.sale s
+            join i.product p
             left join p.brand b
             where s.user.id = :userId
               and s.soldAt >= :from
@@ -87,11 +88,12 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             select
                 b.id as brandId,
                 b.name as brandName,
-                coalesce(sum(s.quantity), 0) as quantity,
-                coalesce(sum(s.unit_price * s.quantity), 0) as revenue,
-                coalesce(sum((s.unit_price - s.unit_cost) * s.quantity), 0) as profit
-            from sales s
-            left join products p on p.id = s.product_id
+                coalesce(sum(i.quantity), 0) as quantity,
+                coalesce(sum(i.unit_price * i.quantity), 0) as revenue,
+                coalesce(sum((i.unit_price - i.unit_cost) * i.quantity), 0) as profit
+            from sale_items i
+            join sales s on s.id = i.sale_id
+            join products p on p.id = i.product_id
             left join brands b on b.id = p.brand_id
             where s.user_id = :userId
               and s.sold_at >= :from
@@ -113,8 +115,9 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             select count(*)
             from (
                 select 1
-                from sales s
-                left join products p on p.id = s.product_id
+                from sale_items i
+                join sales s on s.id = i.sale_id
+                join products p on p.id = i.product_id
                 left join brands b on b.id = p.brand_id
                 where s.user_id = :userId
                   and s.sold_at >= :from
@@ -133,17 +136,18 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                 p.id as productId,
                 p.name as productName,
                 b.name as brandName,
-                sum(s.quantity) as quantitySold,
-                sum(s.unitPrice * s.quantity) as revenue
-            from Sale s
-            join s.product p
+                sum(i.quantity) as quantitySold,
+                sum(i.unitPrice * i.quantity) as revenue
+            from SaleItem i
+            join i.sale s
+            join i.product p
             left join p.brand b
             where s.user.id = :userId
               and s.soldAt >= :from
               and s.soldAt <= :to
               and s.cancelledAt is null
             group by p.id, p.name, b.id, b.name
-            order by sum(s.unitPrice * s.quantity) desc, p.id asc
+            order by sum(i.unitPrice * i.quantity) desc, p.id asc
             """)
     List<ProductAbcAggregateRow> aggregateProductAbc(
             @Param("userId") Long userId, @Param("from") Instant from, @Param("to") Instant to);
@@ -155,8 +159,12 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             where s.user.id = :userId
               and s.soldAt >= :from
               and s.soldAt <= :to
-              and (:productId is null or s.product.id = :productId)
-              and (:brandId is null or s.product.brand.id = :brandId)
+              and (:productId is null or exists (
+                    select 1 from SaleItem i
+                    where i.sale = s and i.product.id = :productId))
+              and (:brandId is null or exists (
+                    select 1 from SaleItem i join i.product p
+                    where i.sale = s and p.brand.id = :brandId))
             """)
     Page<Sale> searchForUser(
             @Param("userId") Long userId,
@@ -172,19 +180,30 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     }
 
     @Query(
-            """
+            value =
+                    """
             select
-                coalesce(sum(s.unitPrice * s.quantity), 0) as revenue,
-                coalesce(sum(s.quantity), 0) as unitsSold,
-                coalesce(avg(s.unitPrice * s.quantity), 0) as averageTicket
-            from Sale s
-            where s.user.id = :userId
-              and s.soldAt >= :from
-              and s.soldAt <= :to
-              and (:productId is null or s.product.id = :productId)
-              and (:brandId is null or s.product.brand.id = :brandId)
-              and s.cancelledAt is null
-            """)
+                coalesce(sum(ticket.revenue), 0) as revenue,
+                coalesce(sum(ticket.units), 0) as unitsSold,
+                coalesce(avg(ticket.revenue), 0) as averageTicket
+            from (
+                select
+                    s.id as sale_id,
+                    sum(i.unit_price * i.quantity) as revenue,
+                    sum(i.quantity) as units
+                from sales s
+                join sale_items i on i.sale_id = s.id
+                join products p on p.id = i.product_id
+                where s.user_id = :userId
+                  and s.sold_at >= :from
+                  and s.sold_at <= :to
+                  and s.cancelled_at is null
+                  and (:productId is null or i.product_id = :productId)
+                  and (:brandId is null or p.brand_id = :brandId)
+                group by s.id
+            ) ticket
+            """,
+            nativeQuery = true)
     SalesSummaryAggregateRow aggregateSalesSummary(
             @Param("userId") Long userId,
             @Param("from") Instant from,
@@ -197,15 +216,16 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
                     """
             select
                 date(s.sold_at) as soldDate,
-                coalesce(sum(s.unit_price * s.quantity), 0) as revenue,
-                coalesce(sum(s.quantity), 0) as unitsSold
+                coalesce(sum(i.unit_price * i.quantity), 0) as revenue,
+                coalesce(sum(i.quantity), 0) as unitsSold
             from sales s
-            join products p on p.id = s.product_id
+            join sale_items i on i.sale_id = s.id
+            join products p on p.id = i.product_id
             where s.user_id = :userId
               and s.sold_at >= :from
               and s.sold_at <= :to
               and s.cancelled_at is null
-              and (:productId is null or s.product_id = :productId)
+              and (:productId is null or i.product_id = :productId)
               and (:brandId is null or p.brand_id = :brandId)
             group by date(s.sold_at)
             order by date(s.sold_at) asc

@@ -90,4 +90,35 @@ class PosSaleControllerTest {
                 .andExpect(jsonPath("$.cashSessionId").value(7))
                 .andExpect(jsonPath("$.totalAmount").value(100.00));
     }
+
+    @Test
+    void finalizeSale_whenItemsPayload_returnsOk() throws Exception {
+        when(createPosSaleUseCase.execute(eq(USER_ID), any(), any()))
+                .thenReturn(
+                        new PosSaleFinalizeResponse(
+                                12L, 7L, new BigDecimal("40.00"), Instant.parse("2026-08-15T15:00:00Z")));
+
+        mockMvc.perform(
+                        post("/api/v1/lojapp/pos/sales/finalize")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .header("Idempotency-Key", "multi-1")
+                                .with(lojappUser(USER_ID))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "cashSessionId": 7,
+                                          "items": [
+                                            {"productId": 3, "quantity": 2.0, "unitPrice": 10.00},
+                                            {"productId": 4, "quantity": 1.0, "unitPrice": 20.00}
+                                          ],
+                                          "payments": [
+                                            {"paymentMethod": "PIX", "amount": 40.00}
+                                          ]
+                                        }
+                                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.saleId").value(12))
+                .andExpect(jsonPath("$.totalAmount").value(40.00));
+    }
 }
