@@ -28,7 +28,9 @@ Gerado em `JwtService.createToken`:
 
 - `sub`: id do utilizador (string numérica)
 - `email`: email
-- `role`: papel normalizado (`USER`, `ADMIN`, `REPRESENTATIVE`, …)
+- `role`: papel normalizado (`USER`, `ADMIN`, `REPRESENTATIVE`, `CASHIER`, `SELLER`, `MANAGER`)
+
+Matriz **as-is vs alvo** (o que cada papel pode chamar hoje, e o endurecimento proposto): [39-matriz-papeis-jwt.md](./39-matriz-papeis-jwt.md).
 
 ### Papel `REPRESENTATIVE` (B2B)
 

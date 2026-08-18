@@ -58,6 +58,8 @@ Tambem sinaliza lacunas de documentacao e ordem sugerida de leitura/execucao.
   - Deve ser usado em revisoes de seguranca, sem bloquear fluxo diario.
 - `12-contratos-autenticacao-e-sessao.md`
   - Complementa o threat model para sessão, cookies e CORS em piloto/demo.
+- `39-matriz-papeis-jwt.md`
+  - As-is vs alvo dos papéis JWT. Endurecer `@PreAuthorize` só com HITL.
 - `CHECKLIST_FINAL.md` (raiz)
   - Secções **4 (Segurança)** e **10 (anti-vazamento)** — segredos, `.env`, gate antes de partilhar o repo.
 - Deploy hardening (quando fores a demo pública): `docker-compose.prod.yml`, `src/main/resources/application-prod.yml`, health/readiness em `AGENTS.md`.
