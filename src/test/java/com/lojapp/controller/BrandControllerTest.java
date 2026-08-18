@@ -66,6 +66,13 @@ class BrandControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappCashier(long userId) {
+        return request -> {
+            SecurityContextHolder.getContext().setAuthentication(TestJwtAuth.cashierToken(userId));
+            return request;
+        };
+    }
+
     @Test
     void createBrand_blankName_returnsStructuredApiError() throws Exception {
         mockMvc.perform(
@@ -123,6 +130,12 @@ class BrandControllerTest {
     @Test
     void deleteBrand_returns204() throws Exception {
         mockMvc.perform(delete("/api/v1/lojapp/brands/2").with(lojappUser(USER_ID)))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteBrand_withCashierRole_returns204() throws Exception {
+        mockMvc.perform(delete("/api/v1/lojapp/brands/2").with(lojappCashier(USER_ID)))
                 .andExpect(status().isNoContent());
     }
 
