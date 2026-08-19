@@ -1,6 +1,7 @@
-# Dependabot — PRs de versão limitados (portfólio: revisão humana)
-# Updates: abrir PR mensal (limit 1) por ecossistema; merge só após revisão Helder.
+# Dependabot — version updates PAUSADOS (portfólio: autor único Helder Abud).
+# PRs automáticos do bot não devem aparecer na lista de ramos.
 # Alertas de segurança no GitHub Security podem continuar ativos.
+# Updates de dependência: manuais, em branch feat/fix, PR para main.
 
 version: 2
 updates:
@@ -8,16 +9,10 @@ updates:
     directory: /
     schedule:
       interval: monthly
-    open-pull-requests-limit: 1
-    labels:
-      - dependencies
-      - maven
+    open-pull-requests-limit: 0
 
   - package-ecosystem: npm
     directory: /frontend
     schedule:
       interval: monthly
-    open-pull-requests-limit: 1
-    labels:
-      - dependencies
-      - frontend
+    open-pull-requests-limit: 0
