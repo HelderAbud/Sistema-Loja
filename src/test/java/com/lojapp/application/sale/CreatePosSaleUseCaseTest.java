@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.lojapp.application.contract.PosSaleCommissionServiceContract;
 import com.lojapp.application.idempotency.ApiIdempotencyService;
 import com.lojapp.dto.sale.PosSaleFinalizeRequest;
 import com.lojapp.dto.sale.PosSaleFinalizeResponse;
@@ -57,6 +58,7 @@ class CreatePosSaleUseCaseTest {
     @Mock private InventoryServiceContract inventoryService;
     @Mock private AuditService auditService;
     @Mock private ApiIdempotencyService idempotencyService;
+    @Mock private PosSaleCommissionServiceContract posSaleCommissionService;
 
     private CreatePosSaleUseCase useCase;
 
@@ -72,7 +74,8 @@ class CreatePosSaleUseCaseTest {
                         cashSessions,
                         inventoryService,
                         auditService,
-                        idempotencyService);
+                        idempotencyService,
+                        posSaleCommissionService);
         lenient()
                 .when(idempotencyService.runPosSaleFinalize(any(Long.class), any(), any(), any()))
                 .thenAnswer(
@@ -178,13 +181,13 @@ class CreatePosSaleUseCaseTest {
                                         11L, new BigDecimal("1"), new BigDecimal("20.00"), new BigDecimal("8.00"))),
                         List.of(
                                 new PosSalePaymentRequest(
-                                        PaymentMethod.CARD, new BigDecimal("40.00"))));
+                                        PaymentMethod.CARD, new BigDecimal("40.00"))),
+                        9L);
 
         PosSaleFinalizeResponse response = useCase.execute(1L, request, Optional.empty());
 
         assertThat(response.saleId()).isEqualTo(88L);
         assertThat(response.totalAmount()).isEqualByComparingTo(new BigDecimal("40.00"));
-        verify(sales, times(1)).save(any(Sale.class));
         verify(saleItems, times(2)).save(any(SaleItem.class));
         verify(inventoryService)
                 .decreaseForSale(
@@ -199,9 +202,12 @@ class CreatePosSaleUseCaseTest {
                         org.mockito.ArgumentMatchers.argThat(q -> q.compareTo(new BigDecimal("1")) == 0),
                         eq(88L));
         ArgumentCaptor<Sale> saleCaptor = ArgumentCaptor.forClass(Sale.class);
-        verify(sales).save(saleCaptor.capture());
-        assertThat(saleCaptor.getValue().getProduct()).isEqualTo(shirt);
-        assertThat(saleCaptor.getValue().getQuantity()).isEqualByComparingTo(new BigDecimal("2"));
+        verify(sales, times(2)).save(saleCaptor.capture());
+        assertThat(saleCaptor.getAllValues().get(0).getProduct()).isEqualTo(shirt);
+        assertThat(saleCaptor.getAllValues().get(0).getQuantity())
+                .isEqualByComparingTo(new BigDecimal("2"));
+        verify(posSaleCommissionService)
+                .assignSellerAndAccrue(eq(1L), eq(user), eq(session), any(Sale.class), any(), eq(9L));
     }
 
     @Test
@@ -220,7 +226,8 @@ class CreatePosSaleUseCaseTest {
                                         10L, new BigDecimal("2"), new BigDecimal("10.00"), null)),
                         List.of(
                                 new PosSalePaymentRequest(
-                                        PaymentMethod.CASH, new BigDecimal("30.00"))));
+                                        PaymentMethod.CASH, new BigDecimal("30.00"))),
+                        null);
 
         assertThatThrownBy(() -> useCase.execute(1L, request, Optional.empty()))
                 .isInstanceOf(PosSaleDuplicateProductException.class);
@@ -257,7 +264,8 @@ class CreatePosSaleUseCaseTest {
                                         11L, new BigDecimal("1"), new BigDecimal("20.00"), new BigDecimal("8.00"))),
                         List.of(
                                 new PosSalePaymentRequest(
-                                        PaymentMethod.CASH, new BigDecimal("25.00"))));
+                                        PaymentMethod.CASH, new BigDecimal("25.00"))),
+                        null);
 
         assertThatThrownBy(() -> useCase.execute(1L, request, Optional.empty()))
                 .isInstanceOf(PosSalePaymentTotalMismatchException.class);

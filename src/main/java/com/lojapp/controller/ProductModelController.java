@@ -53,6 +53,7 @@ public class ProductModelController {
 
     @PostMapping("/product-models")
     @Operation(summary = "Criar modelo")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public ProductModelResponse createModel(
             @Valid @RequestBody ProductModelRequest request,
             @AuthenticationPrincipal JwtUser principal) {

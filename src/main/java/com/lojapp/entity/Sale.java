@@ -40,6 +40,10 @@ public class Sale {
     @JoinColumn(name = "cash_session_id")
     private CashSession cashSession;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seller_id")
+    private Seller seller;
+
     @Column(nullable = false, precision = 19, scale = 3)
     private BigDecimal quantity;
 

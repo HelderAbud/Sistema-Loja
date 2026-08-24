@@ -59,12 +59,24 @@ class PosSaleControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappRepresentative(long userId) {
+        return request -> {
+            SecurityContextHolder.getContext()
+                    .setAuthentication(TestJwtAuth.representativeToken(userId));
+            return request;
+        };
+    }
+
     @Test
     void finalizeSale_whenValid_returnsOk() throws Exception {
         when(createPosSaleUseCase.execute(eq(USER_ID), any(), any()))
                 .thenReturn(
                         new PosSaleFinalizeResponse(
-                                11L, 7L, new BigDecimal("100.00"), Instant.parse("2026-04-28T15:00:00Z")));
+                                11L,
+                                7L,
+                                new BigDecimal("100.00"),
+                                Instant.parse("2026-04-28T15:00:00Z"),
+                                null));
 
         mockMvc.perform(
                         post("/api/v1/lojapp/pos/sales/finalize")
@@ -96,7 +108,11 @@ class PosSaleControllerTest {
         when(createPosSaleUseCase.execute(eq(USER_ID), any(), any()))
                 .thenReturn(
                         new PosSaleFinalizeResponse(
-                                12L, 7L, new BigDecimal("40.00"), Instant.parse("2026-08-15T15:00:00Z")));
+                                12L,
+                                7L,
+                                new BigDecimal("40.00"),
+                                Instant.parse("2026-08-15T15:00:00Z"),
+                                null));
 
         mockMvc.perform(
                         post("/api/v1/lojapp/pos/sales/finalize")
@@ -120,5 +136,27 @@ class PosSaleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.saleId").value(12))
                 .andExpect(jsonPath("$.totalAmount").value(40.00));
+    }
+
+    @Test
+    void finalizeSale_withRepresentativeRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/pos/sales/finalize")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {
+                                          "cashSessionId": 7,
+                                          "productId": 3,
+                                          "quantity": 1.0,
+                                          "unitPrice": 10.00,
+                                          "payments": [
+                                            {"paymentMethod": "CARD", "amount": 10.00}
+                                          ]
+                                        }
+                                        """)
+                                .with(lojappRepresentative(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 }

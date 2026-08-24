@@ -2,11 +2,15 @@ import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createBrand, listBrands } from "@/api";
+import { canManageBackofficeCatalog } from "@/features/auth";
+import { useCurrentUser } from "@/hooks";
 import { TableSkeleton } from "@/components/ui/TableSkeleton";
 import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 
 export function BrandsTab() {
   const queryClient = useQueryClient();
+  const meQ = useCurrentUser();
+  const canCreateBrand = canManageBackofficeCatalog(meQ.data?.appRole);
   const [newBrandName, setNewBrandName] = useState("");
 
   const brandsQuery = useQuery({
@@ -62,27 +66,29 @@ export function BrandsTab() {
       <p className="muted small section-lead">
         Organize o catálogo por fabricante ou linha comercial.
       </p>
-      <form onSubmit={onCreateBrand} className="form inline">
-        <input
-          placeholder="Nova marca"
-          value={newBrandName}
-          onChange={(ev) => setNewBrandName(ev.target.value)}
-          maxLength={200}
-        />
-        <button type="submit" className="primary" disabled={busyBrands}>
-          {busyBrands ? (
-            <span className="btn-inline-loading">
-              <span
-                className="ui-spinner"
-                style={{ width: "0.95rem", height: "0.95rem", color: "#fff" }}
-              />
-              A gravar…
-            </span>
-          ) : (
-            "Adicionar"
-          )}
-        </button>
-      </form>
+      {canCreateBrand ? (
+        <form onSubmit={onCreateBrand} className="form inline">
+          <input
+            placeholder="Nova marca"
+            value={newBrandName}
+            onChange={(ev) => setNewBrandName(ev.target.value)}
+            maxLength={200}
+          />
+          <button type="submit" className="primary" disabled={busyBrands}>
+            {busyBrands ? (
+              <span className="btn-inline-loading">
+                <span
+                  className="ui-spinner"
+                  style={{ width: "0.95rem", height: "0.95rem", color: "#fff" }}
+                />
+                A gravar…
+              </span>
+            ) : (
+              "Adicionar"
+            )}
+          </button>
+        </form>
+      ) : null}
       <ul className="list">
         {brands.map((b) => (
           <li key={b.id}>{b.name}</li>

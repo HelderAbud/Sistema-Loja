@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.dto.nfe.NfeApplySuggestionsResponse;
-import com.lojapp.dto.nfe.NfeImportResponse;
 import com.lojapp.exception.GlobalExceptionHandler;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
@@ -68,6 +67,13 @@ class NfeControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappSeller(long userId) {
+        return request -> {
+            SecurityContextHolder.getContext().setAuthentication(TestJwtAuth.sellerToken(userId));
+            return request;
+        };
+    }
+
     private static RequestPostProcessor anonymousUser() {
         return request -> {
             SecurityContextHolder.getContext()
@@ -81,18 +87,25 @@ class NfeControllerTest {
     }
 
     @Test
-    void importNfe_withCashierRole_isAllowed() throws Exception {
-        when(importNfeUseCase.execute(eq(USER_ID), eq("<nfe/>")))
-                .thenReturn(new NfeImportResponse(1L, "1", 0, null, null, null, 0));
-
+    void importNfe_withCashierRole_returnsForbidden() throws Exception {
         mockMvc.perform(
                         post("/api/v1/lojapp/nfe/import")
                                 .contentType(APPLICATION_JSON)
                                 .content("{\"rawXml\":\"<nfe/>\"}")
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer x")
                                 .with(lojappCashier(USER_ID)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nfeEntryId").value(1));
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void importNfe_withSellerRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/nfe/import")
+                                .contentType(APPLICATION_JSON)
+                                .content("{\"rawXml\":\"<nfe/>\"}")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer x")
+                                .with(lojappSeller(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 
     @Test

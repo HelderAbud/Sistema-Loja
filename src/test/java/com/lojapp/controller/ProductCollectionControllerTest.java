@@ -57,6 +57,13 @@ class ProductCollectionControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappCashier(long userId) {
+        return request -> {
+            SecurityContextHolder.getContext().setAuthentication(TestJwtAuth.cashierToken(userId));
+            return request;
+        };
+    }
+
     @Test
     void listCollections_returnsJson() throws Exception {
         Instant t = Instant.parse("2026-02-01T10:00:00Z");
@@ -97,5 +104,15 @@ class ProductCollectionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(7))
                 .andExpect(jsonPath("$.name").value("Col"));
+    }
+
+    @Test
+    void createCollection_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/product-collections")
+                                .contentType(APPLICATION_JSON)
+                                .content("{\"brandId\":1,\"name\":\"Verao\"}")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 }

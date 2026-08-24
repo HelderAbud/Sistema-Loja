@@ -63,7 +63,7 @@ public final class RequestFingerprint {
                         .sorted()
                         .reduce((a, b) -> a + "|" + b)
                         .orElse("");
-        String raw = r.cashSessionId() + "|" + lines + "|" + payments;
+        String raw = r.cashSessionId() + "|" + lines + "|" + payments + "|" + r.sellerId();
         return TokenHashUtil.sha256Hex(raw);
     }
 }

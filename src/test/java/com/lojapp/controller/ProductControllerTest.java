@@ -214,4 +214,48 @@ class ProductControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value(ApiErrorCode.NOT_FOUND.code()));
     }
+
+    @Test
+    void listProducts_withCashierRole_returnsPagedEnvelope() throws Exception {
+        Instant now = Instant.parse("2026-01-01T12:00:00Z");
+        ProductResponse item =
+                new ProductResponse(
+                        1L,
+                        "P1",
+                        "Marca",
+                        null,
+                        null,
+                        null,
+                        BigDecimal.ONE,
+                        BigDecimal.TEN,
+                        BigDecimal.ZERO,
+                        now,
+                        now,
+                        null,
+                        null,
+                        null,
+                        null);
+        var page = new PageImpl<>(List.of(item), PageRequest.of(0, 20), 1);
+        when(catalog.searchProducts(eq(USER_ID), isNull(), isNull(), eq(false), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/products")
+                                .with(authentication(TestJwtAuth.cashierToken(USER_ID))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].name").value("P1"));
+    }
+
+    @Test
+    void createProduct_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/products")
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {"name":"P","brandId":null,"ean":null,"ncm":null,"sku":null,"costPrice":1,"salePrice":2,"minimumStock":0}
+                                        """)
+                                .with(authentication(TestJwtAuth.cashierToken(USER_ID))))
+                .andExpect(status().isForbidden());
+    }
 }

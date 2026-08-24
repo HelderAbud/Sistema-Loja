@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCurrentUser } from "@/hooks";
+import { canFinalizePosSale, canManageBackofficeCatalog } from "@/features/auth";
 import { BRAND_NAME, BRAND_TAGLINE } from "../brand";
 import { BrandsTab } from "../features/brands/presentation/BrandsTab";
 import { PilotoDashboardTab } from "../features/dashboard";
@@ -38,12 +39,21 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
   const tab: PilotoTab = isPilotoTab(segment) ? segment : DEFAULT_PILOTO_TAB;
   const displayEmail = meQ.data?.email ?? email;
   const appRole = meQ.data?.appRole;
+  const showBackofficeTabs = canManageBackofficeCatalog(appRole);
+  const showPosTab = canFinalizePosSale(appRole);
 
   useEffect(() => {
     if (!isPilotoTab(segment)) {
       navigate(`/piloto/${DEFAULT_PILOTO_TAB}`, { replace: true });
+      return;
     }
-  }, [segment, navigate]);
+    if (segment === "nfe" && meQ.isSuccess && !showBackofficeTabs) {
+      navigate("/piloto/products", { replace: true });
+    }
+    if (segment === "sale" && meQ.isSuccess && !showPosTab) {
+      navigate("/piloto/products", { replace: true });
+    }
+  }, [segment, navigate, meQ.isSuccess, showBackofficeTabs, showPosTab]);
 
   return (
     <div className="shell shell-wide">
@@ -116,18 +126,20 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           >
             Marcas
           </button>
-          <button
-            type="button"
-            role="tab"
-            id="piloto-tab-nfe"
-            aria-selected={tab === "nfe"}
-            aria-controls="piloto-panel-nfe"
-            tabIndex={tab === "nfe" ? 0 : -1}
-            className={tab === "nfe" ? "active" : ""}
-            onClick={() => navigate("/piloto/nfe")}
-          >
-            NFe
-          </button>
+          {showBackofficeTabs ? (
+            <button
+              type="button"
+              role="tab"
+              id="piloto-tab-nfe"
+              aria-selected={tab === "nfe"}
+              aria-controls="piloto-panel-nfe"
+              tabIndex={tab === "nfe" ? 0 : -1}
+              className={tab === "nfe" ? "active" : ""}
+              onClick={() => navigate("/piloto/nfe")}
+            >
+              NFe
+            </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -140,18 +152,20 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           >
             Stock
           </button>
-          <button
-            type="button"
-            role="tab"
-            id="piloto-tab-sale"
-            aria-selected={tab === "sale"}
-            aria-controls="piloto-panel-sale"
-            tabIndex={tab === "sale" ? 0 : -1}
-            className={tab === "sale" ? "active" : ""}
-            onClick={() => navigate("/piloto/sale")}
-          >
-            Nova venda
-          </button>
+          {showPosTab ? (
+            <button
+              type="button"
+              role="tab"
+              id="piloto-tab-sale"
+              aria-selected={tab === "sale"}
+              aria-controls="piloto-panel-sale"
+              tabIndex={tab === "sale" ? 0 : -1}
+              className={tab === "sale" ? "active" : ""}
+              onClick={() => navigate("/piloto/sale")}
+            >
+              Nova venda
+            </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -179,7 +193,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           <SalesHistoryTab />
         </div>
       ) : null}
-      {tab === "nfe" ? (
+      {tab === "nfe" && showBackofficeTabs ? (
         <div role="tabpanel" id="piloto-panel-nfe" aria-labelledby="piloto-tab-nfe">
           <PilotoNfeTab />
         </div>
@@ -189,7 +203,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           <PilotoInventoryTab />
         </div>
       ) : null}
-      {tab === "sale" ? (
+      {tab === "sale" && showPosTab ? (
         <div role="tabpanel" id="piloto-panel-sale" aria-labelledby="piloto-tab-sale">
           <PilotoSaleTab />
         </div>

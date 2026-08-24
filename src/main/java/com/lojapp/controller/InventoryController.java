@@ -57,6 +57,7 @@ public class InventoryController {
         @ApiResponse(responseCode = "404", description = "Produto inexistente ou de outro utilizador")
     })
     @PostMapping("/inventory/adjust")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public void adjustStock(
             @Valid @RequestBody StockAdjustmentRequest request,
             @Parameter(

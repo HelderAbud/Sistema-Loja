@@ -30,6 +30,10 @@ public final class TestJwtAuth {
         return token(userId, userId + "@cashier.unit.test", "CASHIER");
     }
 
+    public static UsernamePasswordAuthenticationToken representativeToken(long userId) {
+        return token(userId, userId + "@rep.unit.test", "REPRESENTATIVE");
+    }
+
     private static UsernamePasswordAuthenticationToken token(long userId, String email, String role) {
         JwtUser principal = new JwtUser(userId, email, role);
         return new UsernamePasswordAuthenticationToken(

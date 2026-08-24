@@ -61,6 +61,7 @@ export type PosSaleFinalizeRequest = {
   unitCost?: number | null;
   items?: PosSaleLineRequest[];
   payments: PosSalePaymentRequest[];
+  sellerId?: number | null;
 };
 
 export type PosSaleFinalizeResponse = {
@@ -68,6 +69,7 @@ export type PosSaleFinalizeResponse = {
   cashSessionId: number;
   totalAmount: number;
   soldAt: string;
+  sellerId?: number | null;
 };
 
 export async function openCashSession(body: {

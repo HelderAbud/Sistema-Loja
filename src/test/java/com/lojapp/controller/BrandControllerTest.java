@@ -134,9 +134,31 @@ class BrandControllerTest {
     }
 
     @Test
-    void deleteBrand_withCashierRole_returns204() throws Exception {
+    void listBrands_withCashierRole_returnsJson() throws Exception {
+        when(catalog.listBrands(USER_ID)).thenReturn(List.of(new BrandResponse(1L, "Marca A")));
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/brands")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].name").value("Marca A"));
+    }
+
+    @Test
+    void deleteBrand_withCashierRole_returnsForbidden() throws Exception {
         mockMvc.perform(delete("/api/v1/lojapp/brands/2").with(lojappCashier(USER_ID)))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void createBrand_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/brands")
+                                .contentType(APPLICATION_JSON)
+                                .content("{\"name\":\"Nova\"}")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 
     @Test

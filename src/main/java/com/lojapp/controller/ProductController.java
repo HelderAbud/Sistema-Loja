@@ -90,6 +90,7 @@ public class ProductController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ProductResponse.class)))
     @PostMapping("/products")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public ProductResponse createProduct(
             @Valid @RequestBody ProductRequest request, @AuthenticationPrincipal JwtUser principal) {
         return catalog.createProduct(principal.userId(), request);
@@ -108,6 +109,7 @@ public class ProductController {
                 description = "Produto inexistente ou de outro utilizador")
     })
     @PutMapping("/products/{id}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public ProductResponse updateProduct(
             @Parameter(description = "Id do produto", example = "10") @PathVariable long id,
             @Valid @RequestBody ProductRequest request,

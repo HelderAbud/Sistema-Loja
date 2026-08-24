@@ -1,6 +1,7 @@
 package com.lojapp.application.sale;
 
 import com.lojapp.application.contract.CreatePosSaleUseCaseContract;
+import com.lojapp.application.contract.PosSaleCommissionServiceContract;
 import com.lojapp.application.idempotency.ApiIdempotencyService;
 import com.lojapp.application.idempotency.RequestFingerprint;
 import com.lojapp.domain.sale.SaleRegistrationLine;
@@ -47,6 +48,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
     private final InventoryServiceContract inventoryService;
     private final AuditService auditService;
     private final ApiIdempotencyService idempotencyService;
+    private final PosSaleCommissionServiceContract posSaleCommissionService;
 
     public CreatePosSaleUseCase(
             UserRepository users,
@@ -57,7 +59,8 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             CashSessionRepository cashSessions,
             InventoryServiceContract inventoryService,
             AuditService auditService,
-            ApiIdempotencyService idempotencyService) {
+            ApiIdempotencyService idempotencyService,
+            PosSaleCommissionServiceContract posSaleCommissionService) {
         this.users = users;
         this.products = products;
         this.sales = sales;
@@ -67,6 +70,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
         this.inventoryService = inventoryService;
         this.auditService = auditService;
         this.idempotencyService = idempotencyService;
+        this.posSaleCommissionService = posSaleCommissionService;
     }
 
     @Transactional
@@ -130,6 +134,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
         sale.setUnitCost(headerLine.line().unitCost());
         sales.save(sale);
 
+        List<SaleItem> persistedItems = new ArrayList<>();
         for (ResolvedPosLine item : resolved) {
             SaleItem saleItem = new SaleItem();
             saleItem.setUser(user);
@@ -139,6 +144,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             saleItem.setUnitPrice(item.line().unitPrice());
             saleItem.setUnitCost(item.line().unitCost());
             saleItems.save(saleItem);
+            persistedItems.add(saleItem);
             inventoryService.decreaseForSale(user, item.product(), item.line().quantity(), sale.getId());
         }
 
@@ -151,6 +157,10 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             salePayments.save(payment);
         }
 
+        posSaleCommissionService.assignSellerAndAccrue(
+                userId, user, cashSession, sale, persistedItems, request.sellerId());
+        sales.save(sale);
+
         auditService.log(
                 userId,
                 "POS_SALE_FINALIZED",
@@ -162,7 +172,9 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
                                 resolved.size(),
                                 request.payments().size()));
 
-        return new PosSaleFinalizeResponse(sale.getId(), cashSession.getId(), saleTotal, sale.getSoldAt());
+        Long sellerId = sale.getSeller() == null ? null : sale.getSeller().getId();
+        return new PosSaleFinalizeResponse(
+                sale.getId(), cashSession.getId(), saleTotal, sale.getSoldAt(), sellerId);
     }
 
     private record ResolvedPosLine(Product product, SaleRegistrationLine line) {}
