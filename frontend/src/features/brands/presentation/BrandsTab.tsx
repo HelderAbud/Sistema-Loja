@@ -67,27 +67,27 @@ export function BrandsTab() {
         Organize o catálogo por fabricante ou linha comercial.
       </p>
       {canCreateBrand ? (
-      <form onSubmit={onCreateBrand} className="form inline">
-        <input
-          placeholder="Nova marca"
-          value={newBrandName}
-          onChange={(ev) => setNewBrandName(ev.target.value)}
-          maxLength={200}
-        />
-        <button type="submit" className="primary" disabled={busyBrands}>
-          {busyBrands ? (
-            <span className="btn-inline-loading">
-              <span
-                className="ui-spinner"
-                style={{ width: "0.95rem", height: "0.95rem", color: "#fff" }}
-              />
-              A gravar…
-            </span>
-          ) : (
-            "Adicionar"
-          )}
-        </button>
-      </form>
+        <form onSubmit={onCreateBrand} className="form inline">
+          <input
+            placeholder="Nova marca"
+            value={newBrandName}
+            onChange={(ev) => setNewBrandName(ev.target.value)}
+            maxLength={200}
+          />
+          <button type="submit" className="primary" disabled={busyBrands}>
+            {busyBrands ? (
+              <span className="btn-inline-loading">
+                <span
+                  className="ui-spinner"
+                  style={{ width: "0.95rem", height: "0.95rem", color: "#fff" }}
+                />
+                A gravar…
+              </span>
+            ) : (
+              "Adicionar"
+            )}
+          </button>
+        </form>
       ) : null}
       <ul className="list">
         {brands.map((b) => (

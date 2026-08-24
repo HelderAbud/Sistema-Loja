@@ -101,52 +101,52 @@ export function PilotoInventoryTab() {
       </section>
 
       {canAdjust ? (
-      <section className="card">
-        <div className="section-head">
-          <h2>Ajustar stock</h2>
-        </div>
-        <p className="muted small section-lead">
-          Quantidade positiva aumenta o saldo; negativa reduz.
-        </p>
-        <form onSubmit={onAdjust} className="form">
-          <label>
-            Id do produto
-            <input
-              inputMode="numeric"
-              value={productId}
-              onChange={(ev) => setProductId(ev.target.value)}
-              placeholder="ex.: 1"
-            />
-          </label>
-          <label>
-            Quantidade (use ponto decimal)
-            <input
-              value={quantity}
-              onChange={(ev) => setQuantity(ev.target.value)}
-              placeholder="ex.: 10 ou -2"
-            />
-          </label>
-          <label>
-            Motivo
-            <input value={reason} onChange={(ev) => setReason(ev.target.value)} maxLength={500} />
-          </label>
-          {error ? <p className="error">{error}</p> : null}
-          {done ? <p className="success small">{done}</p> : null}
-          <button type="submit" className="primary" disabled={busy}>
-            {busy ? (
-              <span className="btn-inline-loading">
-                <span
-                  className="ui-spinner"
-                  style={{ width: "0.95rem", height: "0.95rem", color: "#fff" }}
-                />
-                A registar…
-              </span>
-            ) : (
-              "Registar ajuste"
-            )}
-          </button>
-        </form>
-      </section>
+        <section className="card">
+          <div className="section-head">
+            <h2>Ajustar stock</h2>
+          </div>
+          <p className="muted small section-lead">
+            Quantidade positiva aumenta o saldo; negativa reduz.
+          </p>
+          <form onSubmit={onAdjust} className="form">
+            <label>
+              Id do produto
+              <input
+                inputMode="numeric"
+                value={productId}
+                onChange={(ev) => setProductId(ev.target.value)}
+                placeholder="ex.: 1"
+              />
+            </label>
+            <label>
+              Quantidade (use ponto decimal)
+              <input
+                value={quantity}
+                onChange={(ev) => setQuantity(ev.target.value)}
+                placeholder="ex.: 10 ou -2"
+              />
+            </label>
+            <label>
+              Motivo
+              <input value={reason} onChange={(ev) => setReason(ev.target.value)} maxLength={500} />
+            </label>
+            {error ? <p className="error">{error}</p> : null}
+            {done ? <p className="success small">{done}</p> : null}
+            <button type="submit" className="primary" disabled={busy}>
+              {busy ? (
+                <span className="btn-inline-loading">
+                  <span
+                    className="ui-spinner"
+                    style={{ width: "0.95rem", height: "0.95rem", color: "#fff" }}
+                  />
+                  A registar…
+                </span>
+              ) : (
+                "Registar ajuste"
+              )}
+            </button>
+          </form>
+        </section>
       ) : null}
     </div>
   );

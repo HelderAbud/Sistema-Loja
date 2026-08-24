@@ -127,18 +127,18 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
             Marcas
           </button>
           {showBackofficeTabs ? (
-          <button
-            type="button"
-            role="tab"
-            id="piloto-tab-nfe"
-            aria-selected={tab === "nfe"}
-            aria-controls="piloto-panel-nfe"
-            tabIndex={tab === "nfe" ? 0 : -1}
-            className={tab === "nfe" ? "active" : ""}
-            onClick={() => navigate("/piloto/nfe")}
-          >
-            NFe
-          </button>
+            <button
+              type="button"
+              role="tab"
+              id="piloto-tab-nfe"
+              aria-selected={tab === "nfe"}
+              aria-controls="piloto-panel-nfe"
+              tabIndex={tab === "nfe" ? 0 : -1}
+              className={tab === "nfe" ? "active" : ""}
+              onClick={() => navigate("/piloto/nfe")}
+            >
+              NFe
+            </button>
           ) : null}
           <button
             type="button"
@@ -153,18 +153,18 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
             Stock
           </button>
           {showPosTab ? (
-          <button
-            type="button"
-            role="tab"
-            id="piloto-tab-sale"
-            aria-selected={tab === "sale"}
-            aria-controls="piloto-panel-sale"
-            tabIndex={tab === "sale" ? 0 : -1}
-            className={tab === "sale" ? "active" : ""}
-            onClick={() => navigate("/piloto/sale")}
-          >
-            Nova venda
-          </button>
+            <button
+              type="button"
+              role="tab"
+              id="piloto-tab-sale"
+              aria-selected={tab === "sale"}
+              aria-controls="piloto-panel-sale"
+              tabIndex={tab === "sale" ? 0 : -1}
+              className={tab === "sale" ? "active" : ""}
+              onClick={() => navigate("/piloto/sale")}
+            >
+              Nova venda
+            </button>
           ) : null}
           <button
             type="button"
