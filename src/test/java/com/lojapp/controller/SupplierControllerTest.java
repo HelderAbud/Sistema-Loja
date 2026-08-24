@@ -57,6 +57,13 @@ class SupplierControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappCashier(long userId) {
+        return request -> {
+            SecurityContextHolder.getContext().setAuthentication(TestJwtAuth.cashierToken(userId));
+            return request;
+        };
+    }
+
     @Test
     void listSuppliers_returnsJson() throws Exception {
         Instant t = Instant.parse("2026-02-01T10:00:00Z");
@@ -100,5 +107,15 @@ class SupplierControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(5))
                 .andExpect(jsonPath("$.legalName").value("X"));
+    }
+
+    @Test
+    void createSupplier_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/suppliers")
+                                .contentType(APPLICATION_JSON)
+                                .content("{\"legalName\":\"Forn\",\"taxId\":null}")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 }

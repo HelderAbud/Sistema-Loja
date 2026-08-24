@@ -57,6 +57,13 @@ class ProductModelControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappCashier(long userId) {
+        return request -> {
+            SecurityContextHolder.getContext().setAuthentication(TestJwtAuth.cashierToken(userId));
+            return request;
+        };
+    }
+
     @Test
     void listModels_withoutCollectionFilter_delegatesToService() throws Exception {
         Instant t = Instant.parse("2026-02-01T10:00:00Z");
@@ -117,5 +124,15 @@ class ProductModelControllerTest {
                                 .with(lojappUser(USER_ID)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(12));
+    }
+
+    @Test
+    void createModel_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/product-models")
+                                .contentType(APPLICATION_JSON)
+                                .content("{\"brandId\":1,\"name\":\"Mod\"}")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 }

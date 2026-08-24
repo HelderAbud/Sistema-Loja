@@ -67,6 +67,13 @@ class InventoryControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappCashier(long userId) {
+        return request -> {
+            SecurityContextHolder.getContext().setAuthentication(TestJwtAuth.cashierToken(userId));
+            return request;
+        };
+    }
+
     @Test
     void productStock_returnsQuantity() throws Exception {
         when(inventory.getStockForOwnedProduct(eq(USER_ID), eq(7L)))
@@ -146,5 +153,33 @@ class InventoryControllerTest {
                         eq(USER_ID),
                         eq(new com.lojapp.dto.inventory.StockAdjustmentRequest(2L, new BigDecimal("3"), "entrada")),
                         eq(Optional.empty()));
+    }
+
+    @Test
+    void productStock_withCashierRole_returnsQuantity() throws Exception {
+        when(inventory.getStockForOwnedProduct(eq(USER_ID), eq(7L)))
+                .thenReturn(new BigDecimal("15.25"));
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/inventory/products/7/stock")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.quantity").value(15.25));
+    }
+
+    @Test
+    void adjustStock_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        post("/api/v1/lojapp/inventory/adjust")
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {"productId":1,"quantity":1,"reason":"ajuste"}
+                                        """)
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
+
+        verifyNoInteractions(adjustInventory);
     }
 }

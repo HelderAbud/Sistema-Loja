@@ -2,11 +2,15 @@ import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createBrand, listBrands } from "@/api";
+import { canManageBackofficeCatalog } from "@/features/auth";
+import { useCurrentUser } from "@/hooks";
 import { TableSkeleton } from "@/components/ui/TableSkeleton";
 import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 
 export function BrandsTab() {
   const queryClient = useQueryClient();
+  const meQ = useCurrentUser();
+  const canCreateBrand = canManageBackofficeCatalog(meQ.data?.appRole);
   const [newBrandName, setNewBrandName] = useState("");
 
   const brandsQuery = useQuery({
@@ -62,6 +66,7 @@ export function BrandsTab() {
       <p className="muted small section-lead">
         Organize o catálogo por fabricante ou linha comercial.
       </p>
+      {canCreateBrand ? (
       <form onSubmit={onCreateBrand} className="form inline">
         <input
           placeholder="Nova marca"
@@ -83,6 +88,7 @@ export function BrandsTab() {
           )}
         </button>
       </form>
+      ) : null}
       <ul className="list">
         {brands.map((b) => (
           <li key={b.id}>{b.name}</li>

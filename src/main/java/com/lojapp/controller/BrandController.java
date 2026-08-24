@@ -44,6 +44,7 @@ public class BrandController {
     }
 
     @PostMapping("/brands")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public BrandResponse createBrand(
             @Valid @RequestBody BrandRequest request, @AuthenticationPrincipal JwtUser principal) {
         return catalog.createBrand(principal.userId(), request);
@@ -56,6 +57,7 @@ public class BrandController {
         @ApiResponse(responseCode = "409", description = "Ja existe outra marca com o mesmo nome")
     })
     @PutMapping("/brands/{id}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public BrandResponse updateBrand(
             @Parameter(description = "Id da marca") @PathVariable long id,
             @Valid @RequestBody BrandRequest request,
@@ -73,6 +75,7 @@ public class BrandController {
     })
     @DeleteMapping("/brands/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public void deleteBrand(
             @Parameter(description = "Id da marca") @PathVariable long id,
             @AuthenticationPrincipal JwtUser principal) {

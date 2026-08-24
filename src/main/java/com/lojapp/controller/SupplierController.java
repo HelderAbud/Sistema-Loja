@@ -47,7 +47,8 @@ public class SupplierController {
     }
 
     @PostMapping("/suppliers")
-    @Operation(summary = "Criar fornecedor", description = "CNPJ/CPF opcional; ºnico por loja quando informado.")
+    @Operation(summary = "Criar fornecedor", description = "CNPJ/CPF opcional; único por loja quando informado.")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public SupplierResponse createSupplier(
             @Valid @RequestBody SupplierRequest request, @AuthenticationPrincipal JwtUser principal) {
         return hierarchy.createSupplier(principal.userId(), request);

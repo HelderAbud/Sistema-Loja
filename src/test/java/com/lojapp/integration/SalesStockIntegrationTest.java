@@ -528,7 +528,8 @@ class SalesStockIntegrationTest {
                                         new BigDecimal("5.00"))),
                         List.of(
                                 new PosSalePaymentRequest(
-                                        PaymentMethod.CARD, new BigDecimal("52.00"))));
+                                        PaymentMethod.CARD, new BigDecimal("52.00"))),
+                        null);
 
         var created =
                 createPosSaleUseCase.execute(userId, req, Optional.of("pos-multi-" + UUID.randomUUID()));

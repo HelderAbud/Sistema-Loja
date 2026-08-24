@@ -30,11 +30,11 @@ Gerado em `JwtService.createToken`:
 - `email`: email
 - `role`: papel normalizado (`USER`, `ADMIN`, `REPRESENTATIVE`, `CASHIER`, `SELLER`, `MANAGER`)
 
-Matriz **as-is vs alvo** (o que cada papel pode chamar hoje, e o endurecimento proposto): [39-matriz-papeis-jwt.md](./39-matriz-papeis-jwt.md).
+Matriz de papéis por superfície (NFe, marcas, stock, PDV, caixa): [39-matriz-papeis-jwt.md](./39-matriz-papeis-jwt.md).
 
 ### Papel `REPRESENTATIVE` (B2B)
 
-Utilizadores com `app_role` representante (ou alias aceite em `AppRole`) obtêm as mesmas capacidades operacionais **LojApp** que `USER` nos endpoints sob `@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE')")` — dados continuam isolados por `user_id`. Não existe portal separado; o painel piloto pode mostrar o papel via `GET /api/v1/users/me` (`appRole` no JSON). Atribuição do papel: atualizar coluna `app_role` na tabela de utilizadores (ex.: migração ou consola SQL em ambientes controlados).
+Utilizadores com `app_role` representante (ou alias aceite em `AppRole`) partilham o backoffice com `USER`/`ADMIN`/`MANAGER` (NFe, catálogo destrutivo, ajuste de stock). **Não** finalizam venda PDV nem abrem caixa — ver [39](./39-matriz-papeis-jwt.md). Dados continuam isolados por `user_id`. Não existe portal separado; o painel piloto pode mostrar o papel via `GET /api/v1/users/me` (`appRole` no JSON). Atribuição do papel: atualizar coluna `app_role` na tabela de utilizadores (ex.: migração ou consola SQL em ambientes controlados).
 - `iat` / `exp`: emissão e expiração conforme `expiration-ms`
 
 ## Cookie do refresh

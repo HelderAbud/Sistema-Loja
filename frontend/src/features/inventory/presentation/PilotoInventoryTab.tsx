@@ -1,12 +1,16 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adjustStock, listLowStock } from "@/api";
+import { canManageBackofficeCatalog } from "@/features/auth";
+import { useCurrentUser } from "@/hooks";
 import { TableSkeleton } from "@/components/ui/TableSkeleton";
 import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 import { validateManualStockAdjust } from "../domain/manualAdjust";
 
 export function PilotoInventoryTab() {
   const queryClient = useQueryClient();
+  const meQ = useCurrentUser();
+  const canAdjust = canManageBackofficeCatalog(meQ.data?.appRole);
   const [productId, setProductId] = useState("");
   const [quantity, setQuantity] = useState("");
   const [reason, setReason] = useState("AJUSTE_MANUAL");
@@ -96,6 +100,7 @@ export function PilotoInventoryTab() {
         {!low && lowQ.isPending ? <TableSkeleton rows={5} label="A carregar stock baixo" /> : null}
       </section>
 
+      {canAdjust ? (
       <section className="card">
         <div className="section-head">
           <h2>Ajustar stock</h2>
@@ -142,6 +147,7 @@ export function PilotoInventoryTab() {
           </button>
         </form>
       </section>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCurrentUser } from "@/hooks";
+import { canFinalizePosSale, canManageBackofficeCatalog } from "@/features/auth";
 import { BRAND_NAME, BRAND_TAGLINE } from "../brand";
 import { BrandsTab } from "../features/brands/presentation/BrandsTab";
 import { PilotoDashboardTab } from "../features/dashboard";
@@ -38,12 +39,21 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
   const tab: PilotoTab = isPilotoTab(segment) ? segment : DEFAULT_PILOTO_TAB;
   const displayEmail = meQ.data?.email ?? email;
   const appRole = meQ.data?.appRole;
+  const showBackofficeTabs = canManageBackofficeCatalog(appRole);
+  const showPosTab = canFinalizePosSale(appRole);
 
   useEffect(() => {
     if (!isPilotoTab(segment)) {
       navigate(`/piloto/${DEFAULT_PILOTO_TAB}`, { replace: true });
+      return;
     }
-  }, [segment, navigate]);
+    if (segment === "nfe" && meQ.isSuccess && !showBackofficeTabs) {
+      navigate("/piloto/products", { replace: true });
+    }
+    if (segment === "sale" && meQ.isSuccess && !showPosTab) {
+      navigate("/piloto/products", { replace: true });
+    }
+  }, [segment, navigate, meQ.isSuccess, showBackofficeTabs, showPosTab]);
 
   return (
     <div className="shell shell-wide">
@@ -116,6 +126,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           >
             Marcas
           </button>
+          {showBackofficeTabs ? (
           <button
             type="button"
             role="tab"
@@ -128,6 +139,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           >
             NFe
           </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -140,6 +152,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           >
             Stock
           </button>
+          {showPosTab ? (
           <button
             type="button"
             role="tab"
@@ -152,6 +165,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           >
             Nova venda
           </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -179,7 +193,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           <SalesHistoryTab />
         </div>
       ) : null}
-      {tab === "nfe" ? (
+      {tab === "nfe" && showBackofficeTabs ? (
         <div role="tabpanel" id="piloto-panel-nfe" aria-labelledby="piloto-tab-nfe">
           <PilotoNfeTab />
         </div>
@@ -189,7 +203,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           <PilotoInventoryTab />
         </div>
       ) : null}
-      {tab === "sale" ? (
+      {tab === "sale" && showPosTab ? (
         <div role="tabpanel" id="piloto-panel-sale" aria-labelledby="piloto-tab-sale">
           <PilotoSaleTab />
         </div>

@@ -20,7 +20,8 @@ public record PosSaleFinalizeRequest(
         @DecimalMin("0.00") BigDecimal unitPrice,
         BigDecimal unitCost,
         @Size(max = 50) List<@Valid PosSaleLineRequest> items,
-        @NotEmpty List<@Valid PosSalePaymentRequest> payments) {
+        @NotEmpty List<@Valid PosSalePaymentRequest> payments,
+        Long sellerId) {
 
     public static final int MAX_LINES = 50;
 
@@ -55,6 +56,6 @@ public record PosSaleFinalizeRequest(
             BigDecimal unitCost,
             List<PosSalePaymentRequest> payments) {
         return new PosSaleFinalizeRequest(
-                cashSessionId, productId, quantity, unitPrice, unitCost, null, payments);
+                cashSessionId, productId, quantity, unitPrice, unitCost, null, payments, null);
     }
 }

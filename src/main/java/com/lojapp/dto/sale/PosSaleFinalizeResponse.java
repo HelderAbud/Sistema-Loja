@@ -4,4 +4,4 @@ import java.math.BigDecimal;
 import java.time.Instant;
 
 public record PosSaleFinalizeResponse(
-        Long saleId, Long cashSessionId, BigDecimal totalAmount, Instant soldAt) {}
+        Long saleId, Long cashSessionId, BigDecimal totalAmount, Instant soldAt, Long sellerId) {}

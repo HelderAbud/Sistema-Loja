@@ -51,6 +51,7 @@ public class ProductCollectionController {
 
     @PostMapping("/product-collections")
     @Operation(summary = "Criar colecao")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','MANAGER','REPRESENTATIVE')")
     public ProductCollectionResponse createCollection(
             @Valid @RequestBody ProductCollectionRequest request,
             @AuthenticationPrincipal JwtUser principal) {
