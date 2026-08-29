@@ -9,9 +9,16 @@ import java.math.BigDecimal;
 /**
  * @param unitCost custo unitário na venda; se omitido (null), usa o {@code costPrice} atual do
  *     produto.
+ * @param sellerId vendedora manual; se omitido e houver caixa aberto, usa a fila.
  */
 public record SaleRequest(
         @NotNull @Positive Long productId,
         @NotNull @DecimalMin("0.001") @Digits(integer = 16, fraction = 3) BigDecimal quantity,
         @NotNull @DecimalMin("0.00") @Digits(integer = 17, fraction = 2) BigDecimal unitPrice,
-        @DecimalMin("0.01") @Digits(integer = 17, fraction = 2) BigDecimal unitCost) {}
+        @DecimalMin("0.01") @Digits(integer = 17, fraction = 2) BigDecimal unitCost,
+        @Positive Long sellerId) {
+
+    public SaleRequest(Long productId, BigDecimal quantity, BigDecimal unitPrice, BigDecimal unitCost) {
+        this(productId, quantity, unitPrice, unitCost, null);
+    }
+}

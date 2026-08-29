@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { canFinalizePosSale, canManageBackofficeCatalog } from "./backofficeAccess";
+import {
+  canFinalizePosSale,
+  canManageBackofficeCatalog,
+  canViewCommissionReport,
+} from "./backofficeAccess";
 
 describe("canManageBackofficeCatalog", () => {
   it("permite USER e recusa CASHIER", () => {
@@ -15,5 +19,15 @@ describe("canFinalizePosSale", () => {
     expect(canFinalizePosSale("CASHIER")).toBe(true);
     expect(canFinalizePosSale("REPRESENTATIVE")).toBe(false);
     expect(canFinalizePosSale(undefined)).toBe(false);
+  });
+});
+
+describe("canViewCommissionReport", () => {
+  it("permite USER e recusa CASHIER e REPRESENTATIVE", () => {
+    expect(canViewCommissionReport("USER")).toBe(true);
+    expect(canViewCommissionReport("MANAGER")).toBe(true);
+    expect(canViewCommissionReport("CASHIER")).toBe(false);
+    expect(canViewCommissionReport("REPRESENTATIVE")).toBe(false);
+    expect(canViewCommissionReport(undefined)).toBe(false);
   });
 });

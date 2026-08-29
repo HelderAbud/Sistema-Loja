@@ -125,7 +125,8 @@ public class SaleController {
 
     @Operation(
             summary = "Registar venda",
-            description = "Regista uma linha de venda e movimenta stock. Ver `SaleRequest` para custo opcional.")
+            description =
+                    "Regista uma linha de venda e movimenta stock. Ver `SaleRequest` para custo e sellerId opcionais.")
     @ApiResponses({
         @ApiResponse(
                 responseCode = "200",

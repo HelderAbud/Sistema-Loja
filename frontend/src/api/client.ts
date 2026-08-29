@@ -117,3 +117,48 @@ export async function apiJson<T>(
   if (!bodyText) return undefined as T;
   return JSON.parse(bodyText) as T;
 }
+
+/** Resposta de texto (CSV) com o mesmo refresh JWT de {@link apiJson}. */
+export async function apiText(
+  path: string,
+  options: RequestInit = {},
+  skipAuth = false,
+  allowRefresh = true,
+): Promise<string> {
+  const token = skipAuth ? null : getAccessToken();
+  const headers: Record<string, string> = {
+    Accept: "text/csv, text/plain, */*",
+    ...(options.headers as Record<string, string> | undefined),
+  };
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  const res = await fetch(url(path), {
+    ...options,
+    credentials: options.credentials ?? "include",
+    headers,
+  });
+  if (res.status === 401 && !skipAuth && allowRefresh) {
+    const renewed = await refreshSession();
+    if (renewed) return apiText(path, options, skipAuth, false);
+    useAuthStore.getState().setAccessToken(null);
+    throw new Error("Sessão expirada ou inválida. Inicie sessão novamente.");
+  }
+  if (!res.ok) {
+    let msg = mapUserFacingApiError(res.status, undefined, undefined);
+    try {
+      const text = await res.text();
+      if (text) {
+        try {
+          const j = JSON.parse(text) as { message?: string; code?: string; error?: string };
+          msg = mapUserFacingApiError(res.status, j.code ?? j.error, j.message);
+        } catch {
+          msg = text.length > 400 ? `${text.slice(0, 400)}…` : text;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    throw new Error(msg);
+  }
+  return res.text();
+}

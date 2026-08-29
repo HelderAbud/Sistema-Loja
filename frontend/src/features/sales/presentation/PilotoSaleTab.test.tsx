@@ -6,11 +6,13 @@ import { PilotoSaleTab } from "./PilotoSaleTab";
 const listProducts = vi.fn();
 const getProductStock = vi.fn();
 const registerSale = vi.fn();
+const listSellers = vi.fn();
 
 vi.mock("@/api", () => ({
   listProducts: (...args: unknown[]) => listProducts(...args),
   getProductStock: (...args: unknown[]) => getProductStock(...args),
   registerSale: (...args: unknown[]) => registerSale(...args),
+  listSellers: (...args: unknown[]) => listSellers(...args),
 }));
 
 const mockProduct = {
@@ -37,6 +39,9 @@ describe("PilotoSaleTab", () => {
       first: true,
       last: true,
     });
+    listSellers.mockResolvedValue([
+      { id: 11, displayName: "Ana", active: true, sortOrder: 0, createdAt: "2026-01-01T00:00:00Z" },
+    ]);
     getProductStock.mockResolvedValue({ quantity: 2 });
     registerSale.mockResolvedValue({
       id: 99,
@@ -92,5 +97,31 @@ describe("PilotoSaleTab", () => {
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /registar venda/i })).not.toBeDisabled();
+  });
+
+  it("envia sellerId quando uma vendedora é escolhida", async () => {
+    getProductStock.mockResolvedValue({ quantity: 10 });
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
+    const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
+    fireEvent.mouseDown(option);
+    fireEvent.click(option);
+    await waitFor(() => expect(getProductStock).toHaveBeenCalledWith(42));
+    fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
+      target: { value: "18" },
+    });
+    fireEvent.change(await screen.findByLabelText(/^vendedora$/i), { target: { value: "11" } });
+    fireEvent.click(screen.getByRole("button", { name: /registar venda/i }));
+    await waitFor(() =>
+      expect(registerSale).toHaveBeenCalledWith(
+        expect.objectContaining({ productId: 42, sellerId: 11 }),
+        expect.anything(),
+      ),
+    );
   });
 });

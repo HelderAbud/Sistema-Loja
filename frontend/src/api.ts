@@ -3,7 +3,7 @@
  * evita regressão para um único ficheiro monolítico. Imports estáveis: `from "./api"`, `from "../api"`.
  */
 export type { AccessTokenResponse, ApiErrorBody } from "./api/client";
-export { apiJson, bootstrapSessionFromCookie } from "./api/client";
+export { apiJson, apiText, bootstrapSessionFromCookie } from "./api/client";
 export * from "./api/auth";
 export type { CurrentUser } from "./api/users";
 export { fetchCurrentUser } from "./api/users";
@@ -15,5 +15,7 @@ export * from "./api/inventory";
 export * from "./api/sales";
 export * from "./api/dashboard";
 export * from "./api/pos";
+export * from "./api/sellers";
+export * from "./api/commissions";
 export type { NfeApplySuggestionsResponse, NfeImportResponse } from "./api/nfe";
 export { applyNfeImportSuggestions, importNfe } from "./api/nfe";

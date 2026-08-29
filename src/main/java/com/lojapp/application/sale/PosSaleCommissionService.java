@@ -108,12 +108,19 @@ public class PosSaleCommissionService implements PosSaleCommissionServiceContrac
             if (!chosen.isActive()) {
                 throw new SellerInactiveException();
             }
-            rememberAssignment(owner, cashSession, chosen);
-            auditService.log(
-                    userId,
-                    "SALE_SELLER_CHANGED",
-                    "cashSessionId=%d sellerId=%d manual=true".formatted(cashSession.getId(), chosen.getId()));
+            if (cashSession != null) {
+                rememberAssignment(owner, cashSession, chosen);
+            }
+            String details =
+                    cashSession == null
+                            ? "cashSessionId= sellerId=%d manual=true".formatted(chosen.getId())
+                            : "cashSessionId=%d sellerId=%d manual=true"
+                                    .formatted(cashSession.getId(), chosen.getId());
+            auditService.log(userId, "SALE_SELLER_CHANGED", details);
             return chosen;
+        }
+        if (cashSession == null) {
+            return null;
         }
         List<Seller> active = sellers.findByUser_IdAndActiveTrueOrderBySortOrderAscIdAsc(userId);
         List<Long> ids = active.stream().map(Seller::getId).toList();
