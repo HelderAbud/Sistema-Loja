@@ -18,7 +18,9 @@ public final class RequestFingerprint {
                         + "|"
                         + r.unitPrice().stripTrailingZeros().toPlainString()
                         + "|"
-                        + uc;
+                        + uc
+                        + "|"
+                        + r.sellerId();
         return TokenHashUtil.sha256Hex(raw);
     }
 

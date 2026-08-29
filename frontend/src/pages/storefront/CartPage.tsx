@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { finalizePosSale, getCurrentCashSession, type PosPaymentMethod } from "../../api";
+import {
+  finalizePosSale,
+  getCurrentCashSession,
+  listSellers,
+  type PosPaymentMethod,
+} from "../../api";
+import { SellerPicker } from "../../features/sales/presentation/SellerPicker";
 import { calculateCartSubtotal, useCartStore, useCartSummary } from "../../features/storefront";
 import { StoreHeader, formatCurrency } from "./storefrontShared";
 
@@ -11,9 +17,14 @@ export function CartPage() {
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PosPaymentMethod>("CARD");
   const [checkoutNonce, setCheckoutNonce] = useState(0);
+  const [sellerId, setSellerId] = useState("");
   const currentCashQ = useQuery({
     queryKey: ["storefront", "pos", "cash-session", "current"],
     queryFn: getCurrentCashSession,
+  });
+  const sellersQ = useQuery({
+    queryKey: ["storefront", "sellers"],
+    queryFn: listSellers,
   });
   const saleMut = useMutation({
     mutationFn: ({
@@ -60,6 +71,7 @@ export function CartPage() {
           cashSessionId: currentCashQ.data.cashSessionId,
           items: lineItems,
           payments: [{ paymentMethod, amount: merchandiseTotal }],
+          sellerId: sellerId === "" ? null : Number(sellerId),
         },
         idempotencyKey,
       });
@@ -98,6 +110,12 @@ export function CartPage() {
           <p>Envio: {formatCurrency(totals.shipping)}</p>
           <p className="store-price-xl">Total: {formatCurrency(totals.total)}</p>
           <div className="field-row">
+            <SellerPicker
+              sellers={sellersQ.data ?? []}
+              value={sellerId}
+              onChange={setSellerId}
+              disabled={saleMut.isPending}
+            />
             <label>
               Método de pagamento
               <select

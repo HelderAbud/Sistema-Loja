@@ -1,5 +1,5 @@
 export type PilotoTab =
-  "products" | "sales" | "brands" | "nfe" | "inventory" | "sale" | "dashboard";
+  "products" | "sales" | "brands" | "nfe" | "inventory" | "sale" | "dashboard" | "commissions";
 
 export const PILOTO_TABS = [
   "products",
@@ -9,6 +9,7 @@ export const PILOTO_TABS = [
   "inventory",
   "sale",
   "dashboard",
+  "commissions",
 ] as const satisfies readonly PilotoTab[];
 
 export function isPilotoTab(s: string | undefined): s is PilotoTab {

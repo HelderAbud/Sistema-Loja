@@ -1,22 +1,27 @@
 package com.lojapp.application.sale;
 
+import com.lojapp.application.contract.PosSaleCommissionServiceContract;
 import com.lojapp.application.idempotency.ApiIdempotencyService;
 import com.lojapp.application.idempotency.RequestFingerprint;
 import com.lojapp.observability.LojappBusinessMetrics;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.domain.sale.SaleRegistrationLine;
+import com.lojapp.entity.CashSession;
+import com.lojapp.entity.CashSessionStatus;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
 import com.lojapp.entity.SaleItem;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.ProductNotFoundException;
+import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.SaleItemRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.service.AuditService;
 import com.lojapp.service.contract.InventoryServiceContract;
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +44,8 @@ public class CreateSaleUseCase {
     private final AuditService auditService;
     private final ApiIdempotencyService idempotencyService;
     private final LojappBusinessMetrics businessMetrics;
+    private final PosSaleCommissionServiceContract posSaleCommissionService;
+    private final CashSessionRepository cashSessions;
 
     public CreateSaleUseCase(
             UserRepository users,
@@ -48,7 +55,9 @@ public class CreateSaleUseCase {
             InventoryServiceContract inventoryService,
             AuditService auditService,
             ApiIdempotencyService idempotencyService,
-            LojappBusinessMetrics businessMetrics) {
+            LojappBusinessMetrics businessMetrics,
+            PosSaleCommissionServiceContract posSaleCommissionService,
+            CashSessionRepository cashSessions) {
         this.users = users;
         this.products = products;
         this.sales = sales;
@@ -57,6 +66,8 @@ public class CreateSaleUseCase {
         this.auditService = auditService;
         this.idempotencyService = idempotencyService;
         this.businessMetrics = businessMetrics;
+        this.posSaleCommissionService = posSaleCommissionService;
+        this.cashSessions = cashSessions;
     }
 
     @Transactional
@@ -91,6 +102,10 @@ public class CreateSaleUseCase {
         saleItem.setUnitPrice(line.unitPrice());
         saleItem.setUnitCost(line.unitCost());
         saleItems.save(saleItem);
+        CashSession openSession =
+                cashSessions.findByUser_IdAndStatus(userId, CashSessionStatus.OPEN).orElse(null);
+        posSaleCommissionService.assignSellerAndAccrue(
+                userId, user, openSession, sale, List.of(saleItem), request.sellerId());
         inventoryService.decreaseForSale(user, product, line.quantity(), sale.getId());
         log.info(
                 "Venda registada userId={} saleId={} productId={} qty={}",

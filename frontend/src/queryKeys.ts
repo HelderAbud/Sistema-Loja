@@ -18,6 +18,11 @@ export const queryKeys = {
   sales: (p: { page: number; size: number; from?: string; to?: string; productId?: number }) =>
     ["sales", p.page, p.size, p.from ?? "", p.to ?? "", p.productId ?? ""] as const,
 
+  sellers: () => ["sellers"] as const,
+
+  commissionAccruals: (p: { from?: string; to?: string }) =>
+    ["commissionAccruals", p.from ?? "", p.to ?? ""] as const,
+
   dashboard: {
     root: () => ["dashboard"] as const,
     brands: (rangeKey: string) => ["dashboard", "brands", rangeKey] as const,
@@ -34,4 +39,5 @@ export function invalidateLojappDataQueries(queryClient: QueryClient): void {
   void queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.root() });
   void queryClient.invalidateQueries({ queryKey: ["inventory"] });
   void queryClient.invalidateQueries({ queryKey: ["productStock"] });
+  void queryClient.invalidateQueries({ queryKey: ["commissionAccruals"] });
 }

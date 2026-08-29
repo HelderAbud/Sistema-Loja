@@ -1,7 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCurrentUser } from "@/hooks";
-import { canFinalizePosSale, canManageBackofficeCatalog } from "@/features/auth";
+import {
+  canFinalizePosSale,
+  canManageBackofficeCatalog,
+  canViewCommissionReport,
+} from "@/features/auth";
+import { PilotoCommissionTab } from "../features/commissions";
 import { BRAND_NAME, BRAND_TAGLINE } from "../brand";
 import { BrandsTab } from "../features/brands/presentation/BrandsTab";
 import { PilotoDashboardTab } from "../features/dashboard";
@@ -41,6 +46,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
   const appRole = meQ.data?.appRole;
   const showBackofficeTabs = canManageBackofficeCatalog(appRole);
   const showPosTab = canFinalizePosSale(appRole);
+  const showCommissionTab = canViewCommissionReport(appRole);
 
   useEffect(() => {
     if (!isPilotoTab(segment)) {
@@ -53,7 +59,10 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
     if (segment === "sale" && meQ.isSuccess && !showPosTab) {
       navigate("/piloto/products", { replace: true });
     }
-  }, [segment, navigate, meQ.isSuccess, showBackofficeTabs, showPosTab]);
+    if (segment === "commissions" && meQ.isSuccess && !showCommissionTab) {
+      navigate("/piloto/products", { replace: true });
+    }
+  }, [segment, navigate, meQ.isSuccess, showBackofficeTabs, showPosTab, showCommissionTab]);
 
   return (
     <div className="shell shell-wide">
@@ -166,6 +175,20 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
               Nova venda
             </button>
           ) : null}
+          {showCommissionTab ? (
+            <button
+              type="button"
+              role="tab"
+              id="piloto-tab-commissions"
+              aria-selected={tab === "commissions"}
+              aria-controls="piloto-panel-commissions"
+              tabIndex={tab === "commissions" ? 0 : -1}
+              className={tab === "commissions" ? "active" : ""}
+              onClick={() => navigate("/piloto/commissions")}
+            >
+              Comissões
+            </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -206,6 +229,11 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
       {tab === "sale" && showPosTab ? (
         <div role="tabpanel" id="piloto-panel-sale" aria-labelledby="piloto-tab-sale">
           <PilotoSaleTab />
+        </div>
+      ) : null}
+      {tab === "commissions" && showCommissionTab ? (
+        <div role="tabpanel" id="piloto-panel-commissions" aria-labelledby="piloto-tab-commissions">
+          <PilotoCommissionTab />
         </div>
       ) : null}
       {tab === "dashboard" ? (

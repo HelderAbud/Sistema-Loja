@@ -1,6 +1,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProductStock, listProducts, registerSale, type Product } from "@/api";
+import { getProductStock, listProducts, listSellers, registerSale, type Product } from "@/api";
+import { SellerPicker } from "./SellerPicker";
 import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 import {
   isInsufficientStock,
@@ -25,11 +26,17 @@ export function PilotoSaleTab() {
   const [useUnitCost, setUseUnitCost] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saleId, setSaleId] = useState<number | null>(null);
+  const [sellerId, setSellerId] = useState("");
 
   const stockQ = useQuery({
     queryKey: selected != null ? queryKeys.productStock(selected.id) : ["productStock", -1],
     queryFn: () => getProductStock(selected!.id),
     enabled: selected != null,
+  });
+
+  const sellersQ = useQuery({
+    queryKey: queryKeys.sellers(),
+    queryFn: listSellers,
   });
 
   const saleMut = useMutation({
@@ -121,6 +128,7 @@ export function PilotoSaleTab() {
         quantity: qtyNum,
         unitPrice: price,
         unitCost: uc,
+        sellerId: sellerId === "" ? null : Number(sellerId),
       });
       setSaleId(created.id);
       await queryClient.invalidateQueries({ queryKey: queryKeys.productStock(productId) });
@@ -255,6 +263,12 @@ export function PilotoSaleTab() {
             <input value={unitCost} onChange={(ev) => setUnitCost(ev.target.value)} />
           </label>
         ) : null}
+        <SellerPicker
+          sellers={sellersQ.data ?? []}
+          value={sellerId}
+          onChange={setSellerId}
+          disabled={busy}
+        />
         {error ? <p className="error">{error}</p> : null}
         {saleId != null ? (
           <p className="success small">

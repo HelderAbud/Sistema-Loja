@@ -24,6 +24,7 @@ Plano da fatia de documentação: `.cursor/plans/plan-2026-08-18-lojapp-papeis.m
 | Listar vendedoras | `USER`, `ADMIN`, `CASHIER`, `SELLER`, `MANAGER` — **não** `REPRESENTATIVE` | `SellerControllerTest.listSellers_withCashierRole_returnsJson` |
 | Criar vendedora | `USER`, `ADMIN`, `MANAGER` | `SellerControllerTest.createSeller_withCashierRole_returnsForbidden` |
 | Listar / criar regras de comissão | `USER`, `ADMIN`, `MANAGER` | `CommissionRuleControllerTest.listRules_withCashierRole_returnsForbidden` |
+| Relatório / CSV de comissões | `USER`, `ADMIN`, `MANAGER` | `CommissionAccrualControllerTest.list_withCashierRole_returnsForbidden` |
 | Anónimo (sem papel LojApp) | 403 em NFe import | `NfeControllerTest.importNfe_withAnonymousRole_returnsForbidden` |
 
 `USER` no piloto é dono da loja demo: mantém caixa e backoffice.

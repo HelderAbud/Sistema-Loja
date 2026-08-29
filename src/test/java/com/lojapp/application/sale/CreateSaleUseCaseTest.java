@@ -12,16 +12,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.lojapp.application.contract.PosSaleCommissionServiceContract;
 import com.lojapp.application.idempotency.ApiIdempotencyService;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SaleRequest;
+import com.lojapp.entity.CashSessionStatus;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.InsufficientStockException;
 import com.lojapp.exception.domain.LojappDomainException;
 import com.lojapp.exception.domain.ProductNotFoundException;
+import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.SaleItemRepository;
 import com.lojapp.repository.SaleRepository;
@@ -52,6 +55,8 @@ class CreateSaleUseCaseTest {
     @Mock private AuditService auditService;
     @Mock private ApiIdempotencyService idempotencyService;
     @Mock private LojappBusinessMetrics businessMetrics;
+    @Mock private PosSaleCommissionServiceContract posSaleCommissionService;
+    @Mock private CashSessionRepository cashSessions;
 
     private CreateSaleUseCase useCase;
 
@@ -66,7 +71,12 @@ class CreateSaleUseCaseTest {
                         inventoryService,
                         auditService,
                         idempotencyService,
-                        businessMetrics);
+                        businessMetrics,
+                        posSaleCommissionService,
+                        cashSessions);
+        lenient()
+                .when(cashSessions.findByUser_IdAndStatus(anyLong(), eq(CashSessionStatus.OPEN)))
+                .thenReturn(Optional.empty());
         lenient().when(idempotencyService.runSaleCreate(anyLong(), any(), anyString(), any()))
                 .thenAnswer(
                         inv -> {
@@ -167,7 +177,7 @@ class CreateSaleUseCaseTest {
                                 assertThat(((ProductNotFoundException) ex).getErrorCode())
                                         .isEqualTo(ApiErrorCode.NOT_FOUND));
 
-        verifyNoInteractions(sales, saleItems, inventoryService, auditService);
+        verifyNoInteractions(sales, saleItems, inventoryService, auditService, posSaleCommissionService);
     }
 
     @Test
@@ -236,5 +246,40 @@ class CreateSaleUseCaseTest {
 
         assertThatThrownBy(() -> useCase.execute(userId, request, Optional.empty()))
                 .isInstanceOf(InsufficientStockException.class);
+    }
+
+    @Test
+    void persistSale_assignsCommissionWithOptionalOpenCashSession() {
+        long userId = 6L;
+        User userRef = new User();
+        userRef.setId(userId);
+        when(users.getReferenceById(userId)).thenReturn(userRef);
+
+        Product product = new Product();
+        product.setId(60L);
+        product.setCostPrice(new BigDecimal("2.00"));
+        when(products.findByIdAndUser_Id(60L, userId)).thenReturn(Optional.of(product));
+        when(sales.save(any(Sale.class)))
+                .thenAnswer(
+                        inv -> {
+                            Sale s = inv.getArgument(0);
+                            s.setId(600L);
+                            s.setSoldAt(Instant.parse("2026-08-20T10:00:00Z"));
+                            return s;
+                        });
+
+        useCase.execute(
+                userId,
+                new SaleRequest(60L, new BigDecimal("1"), new BigDecimal("15.00"), null, 11L),
+                Optional.empty());
+
+        verify(posSaleCommissionService)
+                .assignSellerAndAccrue(
+                        eq(userId),
+                        eq(userRef),
+                        eq(null),
+                        any(Sale.class),
+                        org.mockito.ArgumentMatchers.anyList(),
+                        eq(11L));
     }
 }

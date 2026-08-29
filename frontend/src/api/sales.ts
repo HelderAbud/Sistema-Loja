@@ -14,6 +14,7 @@ export async function registerSale(body: {
   quantity: number;
   unitPrice: number;
   unitCost?: number | null;
+  sellerId?: number | null;
 }): Promise<SaleCreatedResponse> {
   const payload: Record<string, unknown> = {
     productId: body.productId,
@@ -22,6 +23,9 @@ export async function registerSale(body: {
   };
   if (body.unitCost != null) {
     payload.unitCost = body.unitCost;
+  }
+  if (body.sellerId != null) {
+    payload.sellerId = body.sellerId;
   }
   return apiJson<SaleCreatedResponse>("/api/v1/lojapp/sales", {
     method: "POST",

@@ -96,6 +96,32 @@ class PosSaleCommissionServiceTest {
     }
 
     @Test
+    void assign_manualWithoutCashSession_accruesAndSkipsQueue() {
+        Seller ana = seller(11L, "Ana");
+        when(sellers.findByIdAndUser_Id(11L, 1L)).thenReturn(Optional.of(ana));
+        when(rules.findByUser_Id(1L)).thenReturn(List.of());
+
+        service.assignSellerAndAccrue(1L, owner, null, sale, List.of(), 11L);
+
+        assertThat(sale.getSeller()).isEqualTo(ana);
+        verify(queueStates, never()).save(any());
+        verify(auditService)
+                .log(
+                        org.mockito.ArgumentMatchers.eq(1L),
+                        org.mockito.ArgumentMatchers.eq("SALE_SELLER_CHANGED"),
+                        org.mockito.ArgumentMatchers.contains("sellerId=11"));
+    }
+
+    @Test
+    void assign_withoutCashSessionAndWithoutSeller_doesNothing() {
+        service.assignSellerAndAccrue(1L, owner, null, sale, List.of(), null);
+
+        assertThat(sale.getSeller()).isNull();
+        verify(sellers, never()).findByUser_IdAndActiveTrueOrderBySortOrderAscIdAsc(1L);
+        verify(accruals, never()).save(any());
+    }
+
+    @Test
     void assign_manualInactive_throws() {
         Seller ana = seller(11L, "Ana");
         ana.setActive(false);
