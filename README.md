@@ -7,7 +7,7 @@
 [![Docker](https://img.shields.io/badge/Docker-WSL2%20%26%20Ubuntu-2496ED?logo=docker&logoColor=white)](docs/docker-wsl-ubuntu.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, vendas, importação de **NFe (XML)**, **PDV/caixa**, dashboard com KPIs, gráficos e **curva ABC**.
+SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, vendas, importação de **NFe (XML)**, **PDV/caixa**, **comissões**, dashboard com KPIs, gráficos e **curva ABC**.
 
 ---
 
@@ -27,11 +27,45 @@ SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, v
 | Serviço | Link |
 |---------|------|
 | Frontend (Vercel) | [sistema-loja-psi.vercel.app](https://sistema-loja-psi.vercel.app) |
-| API (Render) | [lojapp-api.onrender.com](https://lojapp-api.onrender.com) |
-| Health | [GET /actuator/health](https://lojapp-api.onrender.com/actuator/health) |
+| API (Railway) | [sistema-loja-production-7608.up.railway.app](https://sistema-loja-production-7608.up.railway.app) |
+| Health | [GET /actuator/health](https://sistema-loja-production-7608.up.railway.app/actuator/health) (`status: UP`, Postgres UP) |
 | Piloto (resultado) | [`docs/lojapp/piloto-demo-resultado.md`](docs/lojapp/piloto-demo-resultado.md) |
 
-Swagger / OpenAPI **não** públicos em `prod` (HTTP 401). Conta demo sob HITL — registo público desligado. Free tier Render: o primeiro request após idle pode demorar (cold start).
+Swagger / OpenAPI **não** públicos em `prod` (401). **Não há email/senha no Git** — a conta da demo pública é a registada no ambiente (HITL). Rate limit em memória (`LOJAPP_RATE_LIMIT_MODE=memory`); Redis **não** é obrigatório neste deploy.
+
+**Navegação na Vercel:** clicar nos links da app funciona (React Router). `frontend/vercel.json` reescreve `/(.*)` → `index.html` para F5 / URL directa (`/login`, `/piloto/products`, …). A home `/` já respondia 200.
+
+### Rotas do SPA (front)
+
+| Rota | O quê | Auth |
+|------|--------|------|
+| `/` | Landing | público |
+| `/home` `/catalog` `/product/:slug` `/cart` `/orders` `/seller` `/pitch` | Vitrine / pitch | público |
+| `/login` | Login / registo (registo só se a API tiver `LOJAPP_REGISTRATION_ENABLED=true`) | público |
+| `/app` | Redirect → `/piloto/products` ou `/login` | — |
+| `/piloto` | Redirect → `/piloto/products` | JWT |
+| `/piloto/products` | Catálogo | JWT |
+| `/piloto/brands` | Marcas | JWT |
+| `/piloto/sales` | Histórico de vendas | JWT |
+| `/piloto/sale` | Nova venda (vendedora opcional) | JWT (papel) |
+| `/piloto/nfe` | Importação XML | JWT (papel) |
+| `/piloto/inventory` | Stock | JWT |
+| `/piloto/dashboard` | KPIs + curva ABC | JWT |
+| `/piloto/commissions` | Relatório + CSV | JWT (`USER` / `ADMIN` / `MANAGER`) |
+
+### API (prefixo `/api/v1`)
+
+| Área | Caminhos |
+|------|----------|
+| Auth | `POST /auth/register` `login` `refresh` `logout` |
+| Catálogo | `/lojapp/brands` `/products` `/suppliers` `/product-collections` `/product-models` `/sellers` |
+| Stock / NFe | `/lojapp/inventory/*` `POST /lojapp/nfe/import` |
+| Vendas / PDV | `/lojapp/sales` `/lojapp/pos/cash-sessions/*` `POST /lojapp/pos/sales/finalize` |
+| Dashboard | `/lojapp/dashboard/brands` `/products-abc` `/inventory-kpis` |
+| Comissões | `/lojapp/commission-rules` `/commission-accruals` `/commission-accruals.csv` |
+| Utilizador | `GET /users/me` |
+
+Catálogo de teste (36 SKUs Ogochi / Malwee / Hering): `scripts/fixtures/seed-demo-catalog.json` + `scripts/seed-demo-roupas.sh` (Ubuntu; **não** corre sozinho no deploy).
 
 ---
 
@@ -65,7 +99,7 @@ Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md). Tri
 2. **Solução** — LojApp: XML da NFe entra → stock atualiza → venda baixa saldo → dashboard (KPIs + curva ABC), dados isolados por loja.
 3. **Stack** — Java 21, Spring Boot, PostgreSQL/Flyway, JWT + rate limit, React 19, CI no GitHub.
 4. **Prova** — testes de concorrência de stock, isolamento multi-loja, Testcontainers + ArchUnit — não é só CRUD.
-5. **Estado** — demo pública no ar (API Render + front Vercel); screenshots e pitch completo no repo.
+5. **Estado** — demo pública no ar (API **Railway** + front **Vercel**); screenshots e pitch completo no repo.
 
 Texto falado, 3 casos técnicos e roteiro de ensaio: [`docs/lojapp/pitch-portfolio.md`](docs/lojapp/pitch-portfolio.md).
 
@@ -101,8 +135,10 @@ flowchart LR
   Browser[Browser] --> SPA[React SPA]
   SPA -->|JWT + refresh /api/v1| API[Spring Boot API]
   API --> PG[(PostgreSQL)]
-  API --> Redis[(Redis)]
+  API -.-> Redis[(Redis opcional)]
 ```
+
+Na demo Railway o rate limit usa memória; Redis é para o Compose local / perfil com filas.
 
 Visão em camadas (API):
 
@@ -118,7 +154,7 @@ Visão em camadas (API):
               AuthService                  Services                      │
                    │                           │                      │
              refresh_tokens              Repositories
-             audit_logs                  PostgreSQL (Flyway V1…V20)
+             audit_logs                  PostgreSQL (Flyway V1…V22)
 ```
 
 **Camadas:** controllers finos → `application` (use cases) + `service` → `repository`. DTOs para contratos HTTP; entidades em `entity`. ArchUnit valida dependências entre camadas.
@@ -128,6 +164,8 @@ Visão em camadas (API):
 **Dashboard:** `/dashboard/inventory-kpis`, `/dashboard/brands`, `/dashboard/products-abc` (curva ABC).
 
 **PDV:** turnos de caixa (`/pos/cash-sessions/*`) e finalização de venda (`/pos/sales/finalize`, um cupom com N linhas via `items`).
+
+**Comissões:** regras + lançamentos (`/commission-accruals`, export CSV); vendedora opcional na venda.
 
 ### Formato de erro da API
 
@@ -151,7 +189,7 @@ O campo `code` usa valores do enum `ApiErrorCode` (`BAD_REQUEST`, `FORBIDDEN`, `
 
 1. **Auth** — registro/login devolve `accessToken` (memória do browser); refresh opaco em cookie HttpOnly (`lojapp_rt`, path `/api/v1/auth`). Ao abrir a app, renova o access a partir dessa cookie.
 2. **Catálogo** — marcas, fornecedores, coleções, modelos e produtos; ajuste de stock ou entrada via importação NFe.
-3. **Vendas** — registam movimento `SALE` e reduzem saldo; PDV com pagamentos e turno de caixa.
+3. **Vendas** — registam movimento `SALE` e reduzem saldo; PDV com pagamentos e turno de caixa; comissão se houver vendedora/regra.
 4. **Dashboard** — faturamento/lucro por marca, top produtos, curva ABC (80/15/5 %) e alertas de stock baixo.
 
 ### Importação NFe → stock
@@ -296,8 +334,11 @@ Se aparecer `permission denied` ao conectar ao Docker daemon, siga [docs/docker-
 ### Executar testes
 
 ```bash
-# Backend
+# Backend (Linux/Mac) — suíte completa, integração precisa de Docker
 ./mvnw test
+
+# Backend (Windows deste PC) — unitários, sem Docker
+./mvnw.cmd -Pci-unit-tests test
 
 # Frontend
 cd frontend
@@ -414,20 +455,22 @@ powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.
 
 ---
 
-## Deploy
+## Deploy (demo actual)
 
-- **Backend:** imagem Docker (JAR + perfil `prod`), Postgres gerenciado. Defina `SPRING_PROFILES_ACTIVE=prod`, `LOJAPP_JWT_SECRET` forte, `LOJAPP_CORS_ORIGINS`.
-- **Frontend:** `npm run build` em Vercel, Netlify ou CDN; `VITE_API_BASE` apontando para a API.
-- **All-in-one:** Railway, Render, Fly.io ou VPS — ver `docker-compose.prod.yml`.
+| Peça | Onde | Notas |
+|------|------|--------|
+| Front | Vercel, Root Directory `frontend` | `VITE_API_BASE` + `VITE_CSP_CONNECT_SRC` = URL da API (tipo **Configuração**, não Secret) |
+| API | Railway (serviço Java + Postgres interno) | `SPRING_DATASOURCE_*`, `LOJAPP_JWT_SECRET`, `LOJAPP_CORS_ORIGINS=https://sistema-loja-psi.vercel.app`, `LOJAPP_RATE_LIMIT_MODE=memory`, `MANAGEMENT_HEALTH_REDIS_ENABLED=false` |
+| SPA F5 | `frontend/vercel.json` | Rewrite para `index.html` (entra no ar no deploy Vercel deste PR) |
 
-Guia detalhado: [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
+Compose local / VPS: `docker-compose.prod.yml`. Guia: [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md).
 
 ## Smoke demo (opcional)
 
 Links públicos: secção [Demo](#demo) no topo.
 
 ```powershell
-$env:API_BASE = 'https://lojapp-api.onrender.com'
+$env:API_BASE = 'https://sistema-loja-production-7608.up.railway.app'
 $env:LOJAPP_VERIFY_EMAIL = 'sua-conta-demo@exemplo.com'
 $env:LOJAPP_VERIFY_PASSWORD = '...'
 .\scripts\verify-api-env.ps1
@@ -437,17 +480,16 @@ $env:LOJAPP_VERIFY_PASSWORD = '...'
 
 ## Resultados do MVP
 
-- Fluxo ponta a ponta: registro/login, catálogo, stock, venda, NFe, dashboard e PDV.
+- Fluxo ponta a ponta: login, catálogo, stock, venda (vendedora opcional), NFe, dashboard, PDV e relatório de comissões.
 - Segurança: JWT com refresh, `@PreAuthorize`, auditoria e isolamento por `user_id`.
 - Qualidade: testes unitários, ArchUnit, Testcontainers, CI (GitHub Actions).
-- Schema versionado com Flyway (V1…V20).
+- Schema versionado com Flyway (V1…V22).
 
 ## Próximos passos
 
 - PWA / modo offline leve; code-split do bundle do dashboard.
 - Expandir `@PreAuthorize` e políticas por role (admin multi-loja).
 - Soft delete em produtos; cache (Caffeine) em leituras frequentes.
-- Export CSV/PDF do dashboard; integração fiscal adicional.
 
 ---
 
