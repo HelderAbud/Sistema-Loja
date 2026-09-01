@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
-# Seed local: marcas Ogochi/Hering, produtos masculinos e 2 vendas (conta piloto).
-# Uso: LOJAPP_SEED_PASSWORD='...' ./scripts/seed-demo-roupas.sh
+# Seed: marcas Ogochi/Malwee/Hering, 36 SKUs masculinos (catálogo demo) e 2 vendas.
+# Uso (Ubuntu/Git Bash):
+#   LOJAPP_SEED_PASSWORD='...' ./scripts/seed-demo-roupas.sh
+# Produção (Railway), com a conta que já criaste:
+#   LOJAPP_BASE_URL='https://sistema-loja-production-7608.up.railway.app' \
+#   LOJAPP_SEED_EMAIL='teu-email' LOJAPP_SEED_PASSWORD='...' ./scripts/seed-demo-roupas.sh
 set -euo pipefail
 
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CATALOG="${LOJAPP_SEED_CATALOG:-$ROOT/scripts/fixtures/seed-demo-catalog.json}"
 BASE="${LOJAPP_BASE_URL:-http://localhost:8081}"
 EMAIL="${LOJAPP_SEED_EMAIL:-piloto@lojapp.demo}"
 PASS="${LOJAPP_SEED_PASSWORD:?Defina LOJAPP_SEED_PASSWORD}"
+STOCK_QTY="${LOJAPP_SEED_STOCK:-10}"
 
 api() {
   local method="$1" path="$2" body="${3:-}"
@@ -25,7 +32,7 @@ json_field() {
   python3 -c "import sys,json; d=json.load(sys.stdin); print(d$1)"
 }
 
-echo ">> Login $EMAIL"
+echo ">> Login $EMAIL @ $BASE"
 TOKEN=$(curl -sf -X POST "$BASE/api/v1/auth/login" \
   -H "Content-Type: application/json" \
   -d "{\"email\":\"$EMAIL\",\"password\":\"$PASS\"}" | json_field "['accessToken']")
@@ -65,6 +72,18 @@ for p in data.get('content',[]):
   api POST "/api/v1/lojapp/products" "$payload" | json_field "['id']"
 }
 
+find_product_id() {
+  local sku="$1"
+  api GET "/api/v1/lojapp/products?size=200" | python3 -c "
+import sys,json
+sku=sys.argv[1]
+data=json.load(sys.stdin)
+for p in data.get('content',[]):
+    if (p.get('sku') or '').upper()==sku.upper():
+        print(p['id']); break
+" "$sku" || true
+}
+
 ensure_stock() {
   local pid="$1" qty="$2"
   local stock need delta
@@ -79,43 +98,39 @@ ensure_stock() {
 
 echo ">> Marcas"
 OGO=$(find_or_create_brand "Ogochi")
+MLW=$(find_or_create_brand "Malwee")
 HER=$(find_or_create_brand "Hering")
-echo "   Ogochi id=$OGO | Hering id=$HER"
+echo "   Ogochi id=$OGO | Malwee id=$MLW | Hering id=$HER"
 
-echo ">> Produtos"
-P1=$(find_or_create_product "OGO-CAM-001" "{
-  \"name\": \"Camisa Social Slim\",
-  \"brandId\": $OGO,
-  \"sku\": \"OGO-CAM-001\",
-  \"costPrice\": 89.90,
-  \"salePrice\": 189.90,
-  \"minimumStock\": 2,
-  \"variantColor\": \"Azul marinho\",
-  \"variantSize\": \"M\"
-}")
-P2=$(find_or_create_product "HER-CAM-001" "{
-  \"name\": \"Camiseta Basica Preta\",
-  \"brandId\": $HER,
-  \"sku\": \"HER-CAM-001\",
-  \"costPrice\": 39.90,
-  \"salePrice\": 79.90,
-  \"minimumStock\": 3,
-  \"variantColor\": \"Preto\",
-  \"variantSize\": \"G\"
-}")
-P3=$(find_or_create_product "OGO-CAL-042" "{
-  \"name\": \"Calca Chino Bege\",
-  \"brandId\": $OGO,
-  \"sku\": \"OGO-CAL-042\",
-  \"costPrice\": 119.90,
-  \"salePrice\": 249.90,
-  \"minimumStock\": 2,
-  \"variantColor\": \"Bege\",
-  \"variantSize\": \"42\"
-}")
-echo "   P1 Camisa Ogochi id=$P1"
-echo "   P2 Camiseta Hering id=$P2"
-echo "   P3 Calca Ogochi id=$P3"
+if [[ ! -f "$CATALOG" ]]; then
+  echo "Catálogo em falta: $CATALOG" >&2
+  exit 1
+fi
+
+echo ">> Produtos ($CATALOG)"
+while IFS=$'\t' read -r sku payload; do
+  pid=$(find_or_create_product "$sku" "$payload")
+  echo "   $sku id=$pid"
+  ensure_stock "$pid" "$STOCK_QTY"
+done < <(python3 -c "
+import json, sys
+brands = {'ogochi': int(sys.argv[1]), 'malwee': int(sys.argv[2]), 'hering': int(sys.argv[3])}
+with open(sys.argv[4], encoding='utf-8') as f:
+    rows = json.load(f)
+for row in rows:
+    brand = brands[row['brandName'].strip().lower()]
+    payload = {
+        'name': row['name'],
+        'brandId': brand,
+        'sku': row['sku'],
+        'costPrice': row['costPrice'],
+        'salePrice': row['salePrice'],
+        'minimumStock': row['minimumStock'],
+        'variantColor': row.get('variantColor'),
+        'variantSize': row.get('variantSize'),
+    }
+    print(row['sku'] + '\t' + json.dumps(payload, ensure_ascii=False, separators=(',', ':')))
+" "$OGO" "$MLW" "$HER" "$CATALOG")
 
 sale() {
   local key="$1" body="$2"
@@ -126,15 +141,17 @@ sale() {
     -d "$body"
 }
 
-echo ">> Stock (10 un. cada)"
-ensure_stock "$P1" 10
-ensure_stock "$P2" 10
-ensure_stock "$P3" 10
+P_CAMISA=$(find_product_id "OGC-CMS-002")
+P_CAMISETA=$(find_product_id "HRG-CTS-025")
 
 echo ">> Vendas"
-S1=$(sale "seed-demo-sale-1" "{\"productId\":$P1,\"quantity\":1,\"unitPrice\":189.90}" | json_field "['id']")
-S2=$(sale "seed-demo-sale-2" "{\"productId\":$P2,\"quantity\":2,\"unitPrice\":79.90}" | json_field "['id']")
-echo "   Venda 1 id=$S1 (1x Camisa Ogochi)"
-echo "   Venda 2 id=$S2 (2x Camiseta Hering)"
+if [[ -n "$P_CAMISA" && -n "$P_CAMISETA" ]]; then
+  S1=$(sale "seed-demo-sale-ogc-cms-002" "{\"productId\":$P_CAMISA,\"quantity\":1,\"unitPrice\":229.90}" | json_field "['id']")
+  S2=$(sale "seed-demo-sale-hrg-cts-025" "{\"productId\":$P_CAMISETA,\"quantity\":2,\"unitPrice\":89.90}" | json_field "['id']")
+  echo "   Venda 1 id=$S1 (1x Camisa Linho Ogochi)"
+  echo "   Venda 2 id=$S2 (2x Camiseta Hering)"
+else
+  echo "   (omitidas — SKUs de venda não encontrados)"
+fi
 
 echo "OK — recarrega o dashboard no browser (F5)."
