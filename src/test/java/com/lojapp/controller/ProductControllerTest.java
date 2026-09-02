@@ -1,5 +1,6 @@
 package com.lojapp.controller;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -130,6 +131,7 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content[0].name").value("P1"))
+                .andExpect(jsonPath("$.content[0].costPrice").value(1))
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.totalPages").value(1))
                 .andExpect(jsonPath("$.size").value(20))
@@ -243,7 +245,40 @@ class ProductControllerTest {
                         get("/api/v1/lojapp/products")
                                 .with(authentication(TestJwtAuth.cashierToken(USER_ID))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].name").value("P1"));
+                .andExpect(jsonPath("$.content[0].name").value("P1"))
+                .andExpect(jsonPath("$.content[0].salePrice").value(10))
+                .andExpect(jsonPath("$.content[0].costPrice").value(nullValue()));
+    }
+
+    @Test
+    void listProducts_withSellerRole_omitsCostPrice() throws Exception {
+        Instant now = Instant.parse("2026-01-01T12:00:00Z");
+        ProductResponse item =
+                new ProductResponse(
+                        1L,
+                        "P1",
+                        "Marca",
+                        null,
+                        null,
+                        null,
+                        BigDecimal.ONE,
+                        BigDecimal.TEN,
+                        BigDecimal.ZERO,
+                        now,
+                        now,
+                        null,
+                        null,
+                        null,
+                        null);
+        var page = new PageImpl<>(List.of(item), PageRequest.of(0, 20), 1);
+        when(catalog.searchProducts(eq(USER_ID), isNull(), isNull(), eq(false), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/products")
+                                .with(authentication(TestJwtAuth.sellerToken(USER_ID))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].costPrice").value(nullValue()));
     }
 
     @Test

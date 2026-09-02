@@ -62,6 +62,17 @@ class DashboardControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappCashier(long userId) {
+        return new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                SecurityContextHolder.getContext()
+                        .setAuthentication(TestJwtAuth.cashierToken(userId));
+                return request;
+            }
+        };
+    }
+
     @Test
     void dashboardByBrand_delegatesWithDefaultWindow() throws Exception {
         when(dashboard.brandDashboard(eq(USER_ID), any(), any(), eq(50), eq(0)))
@@ -86,5 +97,37 @@ class DashboardControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value(ApiErrorCode.VALIDATION_ERROR.code()))
                 .andExpect(jsonPath("$.message").value(containsString("brandOffset")));
+    }
+
+    @Test
+    void dashboardByBrand_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(get("/api/v1/lojapp/dashboard/brands").with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void dashboardProductAbc_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(get("/api/v1/lojapp/dashboard/products-abc").with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void dashboardInventoryKpis_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(get("/api/v1/lojapp/dashboard/inventory-kpis").with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void dashboardByBrand_withSellerRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/dashboard/brands")
+                                .with(
+                                        request -> {
+                                            SecurityContextHolder.getContext()
+                                                    .setAuthentication(
+                                                            TestJwtAuth.sellerToken(USER_ID));
+                                            return request;
+                                        }))
+                .andExpect(status().isForbidden());
     }
 }

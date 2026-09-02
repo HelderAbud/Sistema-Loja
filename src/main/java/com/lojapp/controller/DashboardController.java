@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/lojapp")
 @Tag(name = "LojApp - Dashboard")
 @SecurityRequirement(name = "bearerAuth")
-@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','CASHIER','SELLER','MANAGER')")
+@PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','MANAGER')")
 public class DashboardController {
 
     private final DashboardServiceContract dashboard;

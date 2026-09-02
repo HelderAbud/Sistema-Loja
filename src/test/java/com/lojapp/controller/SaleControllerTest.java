@@ -72,6 +72,17 @@ class SaleControllerTest {
         };
     }
 
+    private static RequestPostProcessor lojappCashier(long userId) {
+        return new RequestPostProcessor() {
+            @Override
+            public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                SecurityContextHolder.getContext()
+                        .setAuthentication(TestJwtAuth.cashierToken(userId));
+                return request;
+            }
+        };
+    }
+
     @Test
     void listSales_withAuthentication_returnsPagedEnvelope() throws Exception {
         Instant soldAt = Instant.parse("2026-04-01T12:00:00Z");
@@ -101,6 +112,30 @@ class SaleControllerTest {
     }
 
     @Test
+    void listSales_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void listSales_withSellerRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(
+                                        request -> {
+                                            SecurityContextHolder.getContext()
+                                                    .setAuthentication(
+                                                            TestJwtAuth.sellerToken(USER_ID));
+                                            return request;
+                                        }))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void summarizeSales_withAuthentication_returnsSummary() throws Exception {
         when(sales.summarizeSales(eq(USER_ID), isNull(), isNull(), isNull(), isNull()))
                 .thenReturn(
@@ -117,6 +152,15 @@ class SaleControllerTest {
                 .andExpect(jsonPath("$.revenue").value(150.0))
                 .andExpect(jsonPath("$.unitsSold").value(10.0))
                 .andExpect(jsonPath("$.averageTicket").value(15.0));
+    }
+
+    @Test
+    void summarizeSales_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales/summary")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -137,6 +181,15 @@ class SaleControllerTest {
                 .andExpect(jsonPath("$[0].date").value("2026-04-01"))
                 .andExpect(jsonPath("$[0].revenue").value(50.0))
                 .andExpect(jsonPath("$[0].unitsSold").value(3.0));
+    }
+
+    @Test
+    void summarizeSalesDaily_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales/daily")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -167,6 +220,32 @@ class SaleControllerTest {
                 .andExpect(jsonPath("$.productId").value(3));
 
         verify(sales).registerSale(eq(USER_ID), any(), eq(Optional.of("idem-key-1")));
+    }
+
+    @Test
+    void registerSale_withCashierRole_returnsOk() throws Exception {
+        Instant soldAt = Instant.parse("2026-04-01T12:00:00Z");
+        when(sales.registerSale(eq(USER_ID), any(), eq(Optional.empty())))
+                .thenReturn(
+                        new SaleCreatedResponse(
+                                101L,
+                                3L,
+                                new BigDecimal("1.000"),
+                                new BigDecimal("9.90"),
+                                new BigDecimal("5.00"),
+                                soldAt));
+
+        mockMvc.perform(
+                        post("/api/v1/lojapp/sales")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        """
+                                        {"productId":3,"quantity":"1.000","unitPrice":"9.90","unitCost":"5.00"}\
+                                        """)
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(101));
     }
 
     @Test
