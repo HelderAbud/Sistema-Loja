@@ -3,6 +3,7 @@ import {
   canFinalizePosSale,
   canManageBackofficeCatalog,
   canViewCommissionReport,
+  canViewFinancialBackoffice,
 } from "./backofficeAccess";
 
 describe("canManageBackofficeCatalog", () => {
@@ -29,5 +30,15 @@ describe("canViewCommissionReport", () => {
     expect(canViewCommissionReport("CASHIER")).toBe(false);
     expect(canViewCommissionReport("REPRESENTATIVE")).toBe(false);
     expect(canViewCommissionReport(undefined)).toBe(false);
+  });
+});
+
+describe("canViewFinancialBackoffice", () => {
+  it("permite USER e recusa CASHIER e SELLER", () => {
+    expect(canViewFinancialBackoffice("USER")).toBe(true);
+    expect(canViewFinancialBackoffice("REPRESENTATIVE")).toBe(true);
+    expect(canViewFinancialBackoffice("CASHIER")).toBe(false);
+    expect(canViewFinancialBackoffice("SELLER")).toBe(false);
+    expect(canViewFinancialBackoffice(undefined)).toBe(false);
   });
 });

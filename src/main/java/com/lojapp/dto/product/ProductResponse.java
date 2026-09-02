@@ -23,6 +23,26 @@ public record ProductResponse(
         @Schema(description = "Modelo de catálogo (id)", example = "1") Long productModelId,
         String variantColor,
         String variantSize) {
+
+    public ProductResponse withoutCost() {
+        return new ProductResponse(
+                id,
+                name,
+                brandName,
+                ean,
+                ncm,
+                sku,
+                null,
+                salePrice,
+                minimumStock,
+                createdAt,
+                updatedAt,
+                supplierId,
+                productModelId,
+                variantColor,
+                variantSize);
+    }
+
     public static ProductResponse from(Product product) {
         String brandName =
                 product.getBrand() == null ? "Nao informada" : product.getBrand().getName();

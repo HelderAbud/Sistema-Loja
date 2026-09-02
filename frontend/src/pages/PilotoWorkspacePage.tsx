@@ -5,6 +5,7 @@ import {
   canFinalizePosSale,
   canManageBackofficeCatalog,
   canViewCommissionReport,
+  canViewFinancialBackoffice,
 } from "@/features/auth";
 import { PilotoCommissionTab } from "../features/commissions";
 import { BRAND_NAME, BRAND_TAGLINE } from "../brand";
@@ -47,6 +48,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
   const showBackofficeTabs = canManageBackofficeCatalog(appRole);
   const showPosTab = canFinalizePosSale(appRole);
   const showCommissionTab = canViewCommissionReport(appRole);
+  const showFinancialTabs = canViewFinancialBackoffice(appRole);
 
   useEffect(() => {
     if (!isPilotoTab(segment)) {
@@ -62,7 +64,18 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
     if (segment === "commissions" && meQ.isSuccess && !showCommissionTab) {
       navigate("/piloto/products", { replace: true });
     }
-  }, [segment, navigate, meQ.isSuccess, showBackofficeTabs, showPosTab, showCommissionTab]);
+    if ((segment === "sales" || segment === "dashboard") && meQ.isSuccess && !showFinancialTabs) {
+      navigate("/piloto/products", { replace: true });
+    }
+  }, [
+    segment,
+    navigate,
+    meQ.isSuccess,
+    showBackofficeTabs,
+    showPosTab,
+    showCommissionTab,
+    showFinancialTabs,
+  ]);
 
   return (
     <div className="shell shell-wide">
@@ -111,18 +124,20 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           >
             Produtos
           </button>
-          <button
-            type="button"
-            role="tab"
-            id="piloto-tab-sales"
-            aria-selected={tab === "sales"}
-            aria-controls="piloto-panel-sales"
-            tabIndex={tab === "sales" ? 0 : -1}
-            className={tab === "sales" ? "active" : ""}
-            onClick={() => navigate("/piloto/sales")}
-          >
-            Vendas
-          </button>
+          {showFinancialTabs ? (
+            <button
+              type="button"
+              role="tab"
+              id="piloto-tab-sales"
+              aria-selected={tab === "sales"}
+              aria-controls="piloto-panel-sales"
+              tabIndex={tab === "sales" ? 0 : -1}
+              className={tab === "sales" ? "active" : ""}
+              onClick={() => navigate("/piloto/sales")}
+            >
+              Vendas
+            </button>
+          ) : null}
           <button
             type="button"
             role="tab"
@@ -189,18 +204,20 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
               Comissões
             </button>
           ) : null}
-          <button
-            type="button"
-            role="tab"
-            id="piloto-tab-dashboard"
-            aria-selected={tab === "dashboard"}
-            aria-controls="piloto-panel-dashboard"
-            tabIndex={tab === "dashboard" ? 0 : -1}
-            className={tab === "dashboard" ? "active" : ""}
-            onClick={() => navigate("/piloto/dashboard")}
-          >
-            Dashboard
-          </button>
+          {showFinancialTabs ? (
+            <button
+              type="button"
+              role="tab"
+              id="piloto-tab-dashboard"
+              aria-selected={tab === "dashboard"}
+              aria-controls="piloto-panel-dashboard"
+              tabIndex={tab === "dashboard" ? 0 : -1}
+              className={tab === "dashboard" ? "active" : ""}
+              onClick={() => navigate("/piloto/dashboard")}
+            >
+              Dashboard
+            </button>
+          ) : null}
         </nav>
       </div>
 
@@ -211,7 +228,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           <ProductsBrowseTab />
         </div>
       ) : null}
-      {tab === "sales" ? (
+      {tab === "sales" && showFinancialTabs ? (
         <div role="tabpanel" id="piloto-panel-sales" aria-labelledby="piloto-tab-sales">
           <SalesHistoryTab />
         </div>
@@ -236,7 +253,7 @@ export function PilotoWorkspacePage({ email, error, onLogout }: Props) {
           <PilotoCommissionTab />
         </div>
       ) : null}
-      {tab === "dashboard" ? (
+      {tab === "dashboard" && showFinancialTabs ? (
         <div role="tabpanel" id="piloto-panel-dashboard" aria-labelledby="piloto-tab-dashboard">
           <PilotoDashboardTab />
         </div>

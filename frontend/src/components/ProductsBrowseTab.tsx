@@ -2,9 +2,8 @@ import { FormEvent, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { listBrands, listProducts } from "../api";
 import { queryKeys } from "../queryKeys";
+import { formatMoneyBrl } from "./formatMoney";
 import { PageHeader } from "./ui/PageHeader";
-
-const money = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
 const SIZE = 20;
 
@@ -150,8 +149,8 @@ export function ProductsBrowseTab() {
                     <td>{p.name}</td>
                     <td>{p.brandName}</td>
                     <td className="muted">{p.ean ?? "—"}</td>
-                    <td>{money(p.costPrice)}</td>
-                    <td>{money(p.salePrice)}</td>
+                    <td>{formatMoneyBrl(p.costPrice)}</td>
+                    <td>{formatMoneyBrl(p.salePrice)}</td>
                     <td>{p.minimumStock}</td>
                   </tr>
                 ))}

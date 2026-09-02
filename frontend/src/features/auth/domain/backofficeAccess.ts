@@ -7,6 +7,11 @@ export function canManageBackofficeCatalog(appRole: string | undefined): boolean
   return appRole !== undefined && BACKOFFICE_ROLES.has(appRole);
 }
 
+/** Histórico GET /sales e dashboard (custo/margem). Mesmos papéis que a API após endurecimento. */
+export function canViewFinancialBackoffice(appRole: string | undefined): boolean {
+  return appRole !== undefined && BACKOFFICE_ROLES.has(appRole);
+}
+
 /** Finalizar PDV / ecrã Nova venda. */
 export function canFinalizePosSale(appRole: string | undefined): boolean {
   return appRole !== undefined && POS_ROLES.has(appRole);

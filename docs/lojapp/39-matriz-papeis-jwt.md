@@ -25,6 +25,9 @@ Plano da fatia de documentação: `.cursor/plans/plan-2026-08-18-lojapp-papeis.m
 | Criar vendedora | `USER`, `ADMIN`, `MANAGER` | `SellerControllerTest.createSeller_withCashierRole_returnsForbidden` |
 | Listar / criar regras de comissão | `USER`, `ADMIN`, `MANAGER` | `CommissionRuleControllerTest.listRules_withCashierRole_returnsForbidden` |
 | Relatório / CSV de comissões | `USER`, `ADMIN`, `MANAGER` | `CommissionAccrualControllerTest.list_withCashierRole_returnsForbidden` |
+| `GET /sales`, `/sales/summary`, `/sales/daily` | `USER`, `ADMIN`, `REPRESENTATIVE`, `MANAGER` — **não** `CASHIER` / `SELLER` (histórico traz custo) | `SaleControllerTest.listSales_withCashierRole_returnsForbidden` |
+| `GET /dashboard/brands`, `/products-abc`, `/inventory-kpis` | `USER`, `ADMIN`, `REPRESENTATIVE`, `MANAGER` — **não** `CASHIER` / `SELLER` | `DashboardControllerTest.dashboardByBrand_withCashierRole_returnsForbidden` |
+| `POST /sales` e cancelar | papéis operacionais incl. `CASHIER` / `SELLER` | `SaleControllerTest.registerSale_withCashierRole_returnsOk` |
 | Anónimo (sem papel LojApp) | 403 em NFe import | `NfeControllerTest.importNfe_withAnonymousRole_returnsForbidden` |
 
 `USER` no piloto é dono da loja demo: mantém caixa e backoffice.
@@ -32,4 +35,4 @@ Plano da fatia de documentação: `.cursor/plans/plan-2026-08-18-lojapp-papeis.m
 ## Fora desta fatia
 
 - Novos papéis.
-- Autorização no frontend **espelha** a API no piloto (abas NFe / Nova venda e formulários), mas a API continua a ser a fonte de verdade.
+- Autorização no frontend **espelha** a API no piloto (abas NFe / Nova venda / Vendas / Dashboard / Comissões), mas a API continua a ser a fonte de verdade.

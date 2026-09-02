@@ -20,6 +20,17 @@ public record ProductPageResponse(
         @Schema(description = "Se é a primeira página") boolean first,
         @Schema(description = "Se é a última página") boolean last) {
 
+    public ProductPageResponse withoutCostPrices() {
+        return new ProductPageResponse(
+                content.stream().map(ProductResponse::withoutCost).toList(),
+                totalElements,
+                totalPages,
+                size,
+                number,
+                first,
+                last);
+    }
+
     public static ProductPageResponse from(Page<ProductResponse> page) {
         return new ProductPageResponse(
                 page.getContent(),

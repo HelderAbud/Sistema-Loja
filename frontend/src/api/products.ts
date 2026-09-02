@@ -7,7 +7,7 @@ export type Product = {
   ean: string | null;
   ncm: string | null;
   sku: string | null;
-  costPrice: number;
+  costPrice: number | null;
   salePrice: number;
   minimumStock: number;
   /** Opcional: base multimarcas (API v9+). */

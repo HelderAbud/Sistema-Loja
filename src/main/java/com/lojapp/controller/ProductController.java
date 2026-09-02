@@ -3,6 +3,7 @@ package com.lojapp.controller;
 import com.lojapp.dto.product.ProductPageResponse;
 import com.lojapp.dto.product.ProductRequest;
 import com.lojapp.dto.product.ProductResponse;
+import com.lojapp.security.AppRole;
 import com.lojapp.security.JwtUser;
 import com.lojapp.service.contract.LojappCatalogServiceContract;
 import io.swagger.v3.oas.annotations.Operation;
@@ -78,8 +79,15 @@ public class ProductController {
             Boolean lowStock,
             @AuthenticationPrincipal JwtUser principal) {
         boolean low = Boolean.TRUE.equals(lowStock);
-        return ProductPageResponse.from(
-                catalog.searchProducts(principal.userId(), brandId, q, low, pageable));
+        ProductPageResponse page =
+                ProductPageResponse.from(
+                        catalog.searchProducts(principal.userId(), brandId, q, low, pageable));
+        return hidesProductCost(principal) ? page.withoutCostPrices() : page;
+    }
+
+    private static boolean hidesProductCost(JwtUser principal) {
+        AppRole role = AppRole.fromStoredValue(principal.appRole());
+        return role == AppRole.CASHIER || role == AppRole.SELLER;
     }
 
     @Operation(summary = "Criar produto")

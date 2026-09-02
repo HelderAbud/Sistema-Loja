@@ -58,6 +58,7 @@ public class SaleController {
             content =
                     @Content(schema = @Schema(implementation = SalePageResponse.class)))
     @GetMapping("/sales")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','MANAGER')")
     public SalePageResponse listSales(
             @Parameter(description = "Início do intervalo (ISO-8601)", example = "2026-04-01T00:00:00Z")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -78,6 +79,7 @@ public class SaleController {
             responseCode = "200",
             content = @Content(schema = @Schema(implementation = SalesSummaryResponse.class)))
     @GetMapping("/sales/summary")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','MANAGER')")
     public SalesSummaryResponse summarizeSales(
             @Parameter(description = "Início (ISO-8601)")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
@@ -98,6 +100,7 @@ public class SaleController {
                     @Content(
                             array = @ArraySchema(schema = @Schema(implementation = SalesDailyPointResponse.class))))
     @GetMapping("/sales/daily")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','MANAGER')")
     public List<SalesDailyPointResponse> summarizeSalesDaily(
             @Parameter(description = "Início (ISO-8601)")
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
