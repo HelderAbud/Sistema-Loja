@@ -242,6 +242,50 @@ class CatalogIsolationIntegrationTest {
         assertThat(page1.getContent()).extracting("name").containsExactly("Alpha Estojo");
     }
 
+    @Test
+    void deleteProduct_hidesFromSearchAndAllowsEanReuse() {
+        var first =
+                catalog.createProduct(
+                        userA,
+                        new ProductRequest(
+                                "SKU Soft",
+                                null,
+                                "7890000000011",
+                                null,
+                                "SOFT-1",
+                                new BigDecimal("3.00"),
+                                new BigDecimal("6.00"),
+                                BigDecimal.ZERO));
+
+        catalog.deleteProduct(userA, first.id());
+
+        assertThat(catalog.listProducts(userA)).extracting("name").doesNotContain("SKU Soft");
+        assertThat(
+                        catalog.searchProducts(
+                                        userA, null, "SKU Soft", false, PageRequest.of(0, 20))
+                                .getContent())
+                .isEmpty();
+        assertThatThrownBy(() -> catalog.deleteProduct(userA, first.id()))
+                .isInstanceOf(ProductNotFoundException.class);
+        assertThatThrownBy(() -> catalog.deleteProduct(userB, first.id()))
+                .isInstanceOf(ProductNotFoundException.class);
+
+        var reused =
+                catalog.createProduct(
+                        userA,
+                        new ProductRequest(
+                                "SKU Soft Novo",
+                                null,
+                                "7890000000011",
+                                null,
+                                "SOFT-2",
+                                new BigDecimal("3.00"),
+                                new BigDecimal("6.00"),
+                                BigDecimal.ZERO));
+        assertThat(reused.id()).isNotEqualTo(first.id());
+        assertThat(reused.ean()).isEqualTo("7890000000011");
+    }
+
     private long createUser(String tag) {
         User user = new User();
         user.setEmail(tag + "-" + Instant.now().toEpochMilli() + "@test.local");

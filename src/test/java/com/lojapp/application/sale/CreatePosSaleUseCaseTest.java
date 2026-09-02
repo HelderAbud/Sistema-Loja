@@ -95,7 +95,7 @@ class CreatePosSaleUseCaseTest {
         session.setStatus(CashSessionStatus.OPEN);
 
         when(users.getReferenceById(1L)).thenReturn(user);
-        when(products.findByIdAndUser_Id(10L, 1L)).thenReturn(Optional.of(product));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(10L, 1L)).thenReturn(Optional.of(product));
         when(cashSessions.findByIdAndUser_Id(7L, 1L)).thenReturn(Optional.of(session));
 
         PosSaleFinalizeRequest request =
@@ -155,8 +155,8 @@ class CreatePosSaleUseCaseTest {
         session.setStatus(CashSessionStatus.OPEN);
 
         when(users.getReferenceById(1L)).thenReturn(user);
-        when(products.findByIdAndUser_Id(10L, 1L)).thenReturn(Optional.of(shirt));
-        when(products.findByIdAndUser_Id(11L, 1L)).thenReturn(Optional.of(pants));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(10L, 1L)).thenReturn(Optional.of(shirt));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(11L, 1L)).thenReturn(Optional.of(pants));
         when(cashSessions.findByIdAndUser_Id(7L, 1L)).thenReturn(Optional.of(session));
         when(sales.save(any(Sale.class)))
                 .thenAnswer(
@@ -246,8 +246,8 @@ class CreatePosSaleUseCaseTest {
         session.setStatus(CashSessionStatus.OPEN);
 
         when(users.getReferenceById(1L)).thenReturn(user);
-        when(products.findByIdAndUser_Id(10L, 1L)).thenReturn(Optional.of(shirt));
-        when(products.findByIdAndUser_Id(11L, 1L)).thenReturn(Optional.of(pants));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(10L, 1L)).thenReturn(Optional.of(shirt));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(11L, 1L)).thenReturn(Optional.of(pants));
         when(cashSessions.findByIdAndUser_Id(7L, 1L)).thenReturn(Optional.of(session));
 
         PosSaleFinalizeRequest request =

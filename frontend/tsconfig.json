@@ -25,6 +25,7 @@
     "playwright.config.ts",
     "playwright.capture.config.ts",
     "playwright.piloto-dia12.config.ts",
+    "playwright.real.config.ts",
     "e2e"
   ]
 }

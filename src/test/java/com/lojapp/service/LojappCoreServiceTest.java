@@ -1055,6 +1055,29 @@ catalog.listProducts(userId).stream()
     }
 
     @Test
+    void deleteProduct_excludesFromSearch() {
+        ProductResponse p =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "Prod Soft Delete",
+                                null,
+                                null,
+                                null,
+                                null,
+                                BigDecimal.ONE,
+                                BigDecimal.TEN,
+                                BigDecimal.ZERO));
+        catalog.deleteProduct(userId, p.id());
+        var page =
+                catalog.searchProducts(
+                        userId, null, "Prod Soft Delete", false, PageRequest.of(0, 20));
+        assertThat(page.getContent()).isEmpty();
+        assertThatThrownBy(() -> catalog.deleteProduct(userId, p.id()))
+                .isInstanceOf(ProductNotFoundException.class);
+    }
+
+    @Test
     void searchProducts_filterByBrandId() {
         var brand = catalog.createBrand(userId, new BrandRequest("MarcaZ"));
         catalog.createProduct(

@@ -16,6 +16,10 @@ public final class ProductSpecifications {
         return (root, query, cb) -> cb.equal(root.get("user").get("id"), userId);
     }
 
+    public static Specification<Product> notDeleted() {
+        return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
+    }
+
     public static Specification<Product> brandIdEquals(Long brandId) {
         if (brandId == null) {
             return (root, query, cb) -> cb.conjunction();

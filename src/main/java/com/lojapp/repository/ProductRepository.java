@@ -32,7 +32,19 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         Long getWithStock();
     }
 
-    List<Product> findByUser_IdOrderByNameAsc(Long userId);
+    List<Product> findByUser_IdAndDeletedAtIsNullOrderByNameAsc(Long userId);
+
+    Optional<Product> findByIdAndUser_Id(Long id, Long userId);
+
+    Optional<Product> findByIdAndUser_IdAndDeletedAtIsNull(Long id, Long userId);
+
+    Optional<Product> findByUser_IdAndNameIgnoreCase(Long userId, String name);
+
+    Optional<Product> findByUser_IdAndNameIgnoreCaseAndDeletedAtIsNull(Long userId, String name);
+
+    Optional<Product> findFirstByUser_IdAndEan(Long userId, String ean);
+
+    Optional<Product> findFirstByUser_IdAndEanAndDeletedAtIsNull(Long userId, String ean);
 
     /**
      * Uma linha por produto do utilizador com saldo actual (0 se não existir linha em
@@ -49,6 +61,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                     FROM products p
                     LEFT JOIN inventory_balances b ON b.product_id = p.id AND b.user_id = p.user_id
                     WHERE p.user_id = :userId
+                      AND p.deleted_at IS NULL
                     ORDER BY p.name ASC
                     """,
             nativeQuery = true)
@@ -65,6 +78,7 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                     FROM products p
                     LEFT JOIN inventory_balances b ON b.product_id = p.id AND b.user_id = p.user_id
                     WHERE p.user_id = :userId
+                      AND p.deleted_at IS NULL
                       AND coalesce(b.quantity, 0) < p.minimum_stock
                     ORDER BY (p.minimum_stock - coalesce(b.quantity, 0)) DESC, p.name ASC
                     """,
@@ -82,15 +96,10 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                     FROM products p
                     LEFT JOIN inventory_balances b ON b.product_id = p.id AND b.user_id = p.user_id
                     WHERE p.user_id = :userId
+                      AND p.deleted_at IS NULL
                     """,
             nativeQuery = true)
     InventoryKpiProjection calcInventoryKpis(@Param("userId") Long userId);
-
-    Optional<Product> findByIdAndUser_Id(Long id, Long userId);
-
-    Optional<Product> findByUser_IdAndNameIgnoreCase(Long userId, String name);
-
-    Optional<Product> findFirstByUser_IdAndEan(Long userId, String ean);
 
     /**
      * Desassocia produtos da marca antes de apagar a linha em {@code brands}, mantendo a sessão JPA

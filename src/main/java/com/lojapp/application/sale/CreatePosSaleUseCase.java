@@ -99,7 +99,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
         for (PosSaleLineRequest lineRequest : lines) {
             Product product =
                     products
-                            .findByIdAndUser_Id(lineRequest.productId(), userId)
+                            .findByIdAndUser_IdAndDeletedAtIsNull(lineRequest.productId(), userId)
                             .orElseThrow(ProductNotFoundException::new);
             SaleRegistrationLine line =
                     SaleRegistrationLine.fromRequest(

@@ -82,7 +82,7 @@ public class CreateSaleUseCase {
         User user = users.getReferenceById(userId);
         Product product =
                 products
-                        .findByIdAndUser_Id(request.productId(), userId)
+                        .findByIdAndUser_IdAndDeletedAtIsNull(request.productId(), userId)
                         .orElseThrow(ProductNotFoundException::new);
 
         SaleRegistrationLine line = SaleRegistrationLine.fromRequest(request, product.getCostPrice());

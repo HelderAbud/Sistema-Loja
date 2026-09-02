@@ -6,10 +6,12 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -22,6 +24,7 @@ import com.lojapp.dto.product.ProductRequest;
 import com.lojapp.dto.product.ProductResponse;
 import com.lojapp.exception.GlobalExceptionHandler;
 import com.lojapp.exception.domain.BrandNotFoundException;
+import com.lojapp.exception.domain.ProductNotFoundException;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.AuthCsrfGuardFilter;
 import com.lojapp.security.JwtAuthFilter;
@@ -279,6 +282,34 @@ class ProductControllerTest {
                                 .with(authentication(TestJwtAuth.sellerToken(USER_ID))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].costPrice").value(nullValue()));
+    }
+
+    @Test
+    void deleteProduct_returns204() throws Exception {
+        mockMvc.perform(
+                        delete("/api/v1/lojapp/products/7")
+                                .with(authentication(TestJwtAuth.userToken(USER_ID))))
+                .andExpect(status().isNoContent());
+        verify(catalog).deleteProduct(USER_ID, 7L);
+    }
+
+    @Test
+    void deleteProduct_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        delete("/api/v1/lojapp/products/7")
+                                .with(authentication(TestJwtAuth.cashierToken(USER_ID))))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteProduct_notFound_returns404() throws Exception {
+        doThrow(new ProductNotFoundException()).when(catalog).deleteProduct(USER_ID, 404L);
+
+        mockMvc.perform(
+                        delete("/api/v1/lojapp/products/404")
+                                .with(authentication(TestJwtAuth.userToken(USER_ID))))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(ApiErrorCode.NOT_FOUND.code()));
     }
 
     @Test

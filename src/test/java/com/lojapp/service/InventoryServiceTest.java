@@ -78,7 +78,7 @@ class InventoryServiceTest {
 
     @Test
     void getStockForOwnedProduct_throwsWhenProductMissing() {
-        when(products.findByIdAndUser_Id(9L, 1L)).thenReturn(Optional.empty());
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(9L, 1L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> inventoryService.getStockForOwnedProduct(1L, 9L))
                 .isInstanceOf(ProductNotFoundException.class)
@@ -92,7 +92,7 @@ class InventoryServiceTest {
 
     @Test
     void getStockForOwnedProduct_returnsZeroWhenNoBalanceRow() {
-        when(products.findByIdAndUser_Id(9L, 1L)).thenReturn(Optional.of(new Product()));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(9L, 1L)).thenReturn(Optional.of(new Product()));
         when(inventoryBalances.findByUser_IdAndProduct_Id(1L, 9L)).thenReturn(Optional.empty());
 
         assertThat(inventoryService.getStockForOwnedProduct(1L, 9L)).isEqualByComparingTo(BigDecimal.ZERO);
@@ -100,7 +100,7 @@ class InventoryServiceTest {
 
     @Test
     void getStockForOwnedProduct_returnsBalance() {
-        when(products.findByIdAndUser_Id(9L, 1L)).thenReturn(Optional.of(new Product()));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(9L, 1L)).thenReturn(Optional.of(new Product()));
         InventoryBalance b = new InventoryBalance();
         b.setQuantity(new BigDecimal("3.5"));
         when(inventoryBalances.findByUser_IdAndProduct_Id(1L, 9L)).thenReturn(Optional.of(b));
@@ -125,7 +125,7 @@ class InventoryServiceTest {
 
     @Test
     void adjustStock_productNotOwned_throwsNotFound() {
-        when(products.findByIdAndUser_Id(55L, 1L)).thenReturn(Optional.empty());
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(55L, 1L)).thenReturn(Optional.empty());
         StockAdjustmentRequest request =
                 new StockAdjustmentRequest(55L, new BigDecimal("2"), "Ajuste manual");
 
@@ -139,7 +139,7 @@ class InventoryServiceTest {
     void adjustStock_aliasAppliesManualAdjustmentWithoutIdempotency() {
         Product owned = new Product();
         owned.setId(55L);
-        when(products.findByIdAndUser_Id(55L, 1L)).thenReturn(Optional.of(owned));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(55L, 1L)).thenReturn(Optional.of(owned));
         User owner = new User();
         owner.setId(1L);
         when(users.getReferenceById(1L)).thenReturn(owner);

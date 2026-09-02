@@ -129,7 +129,8 @@ public class InventoryService implements InventoryServiceContract {
             cacheNames = {
                 CacheNames.DASHBOARD_BRANDS,
                 CacheNames.DASHBOARD_PRODUCT_ABC,
-                CacheNames.DASHBOARD_INVENTORY_KPIS
+                CacheNames.DASHBOARD_INVENTORY_KPIS,
+                CacheNames.PRODUCTS
             },
             allEntries = true)
     public void decreaseForSale(User user, Product product, BigDecimal quantitySold, long saleId) {
@@ -148,7 +149,8 @@ public class InventoryService implements InventoryServiceContract {
             cacheNames = {
                 CacheNames.DASHBOARD_BRANDS,
                 CacheNames.DASHBOARD_PRODUCT_ABC,
-                CacheNames.DASHBOARD_INVENTORY_KPIS
+                CacheNames.DASHBOARD_INVENTORY_KPIS,
+                CacheNames.PRODUCTS
             },
             allEntries = true)
     public void restoreStockForCancelledSale(
@@ -165,7 +167,9 @@ public class InventoryService implements InventoryServiceContract {
 
     /** Quantidade recebida na NFe (positiva); persiste movimento {@link InventoryMovementType#ENTRY}. */
     @Transactional
-    @CacheEvict(cacheNames = CacheNames.DASHBOARD_INVENTORY_KPIS, allEntries = true)
+    @CacheEvict(
+            cacheNames = {CacheNames.DASHBOARD_INVENTORY_KPIS, CacheNames.PRODUCTS},
+            allEntries = true)
     public void increaseFromNfe(User user, Product product, BigDecimal quantity, long nfeEntryId) {
         StockLedgerDelta delta = StockLedgerDelta.forNfeEntry(quantity);
         registerStockMovement(
@@ -188,7 +192,7 @@ public class InventoryService implements InventoryServiceContract {
     /** Saldo atual do produto do utilizador; 404 se o produto não existir ou for de outra loja. */
     @Transactional(readOnly = true)
     public BigDecimal getStockForOwnedProduct(long userId, long productId) {
-        if (products.findByIdAndUser_Id(productId, userId).isEmpty()) {
+        if (products.findByIdAndUser_IdAndDeletedAtIsNull(productId, userId).isEmpty()) {
             throw new ProductNotFoundException();
         }
         return getAvailableQuantity(userId, productId);
@@ -207,19 +211,23 @@ public class InventoryService implements InventoryServiceContract {
 
     @Override
     @Transactional
-    @CacheEvict(cacheNames = CacheNames.DASHBOARD_INVENTORY_KPIS, allEntries = true)
+    @CacheEvict(
+            cacheNames = {CacheNames.DASHBOARD_INVENTORY_KPIS, CacheNames.PRODUCTS},
+            allEntries = true)
     public void adjustStock(long userId, StockAdjustmentRequest request) {
         applyManualStockAdjustment(userId, request);
     }
 
     @Transactional
-    @CacheEvict(cacheNames = CacheNames.DASHBOARD_INVENTORY_KPIS, allEntries = true)
+    @CacheEvict(
+            cacheNames = {CacheNames.DASHBOARD_INVENTORY_KPIS, CacheNames.PRODUCTS},
+            allEntries = true)
     public void applyManualStockAdjustment(long userId, StockAdjustmentRequest request) {
         ManualStockAdjustment adj = ManualStockAdjustment.fromRequest(request);
         StockLedgerDelta delta = StockLedgerDelta.forManualAdjustment(adj.quantity());
         Product product =
                 products
-                        .findByIdAndUser_Id(adj.productId(), userId)
+                        .findByIdAndUser_IdAndDeletedAtIsNull(adj.productId(), userId)
                         .orElseThrow(ProductNotFoundException::new);
         registerStockMovement(
                 users.getReferenceById(userId),
