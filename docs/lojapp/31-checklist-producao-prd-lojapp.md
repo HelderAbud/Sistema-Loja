@@ -111,7 +111,7 @@ Referência canónica: `10-guia-junior-piloto-deploy-proximos-passos.md`, `plano
 ## 8. E2E (Playwright + API real quando aplicável)
 
 - [ ] `npx playwright install chromium` (se primeira vez).
-- [ ] `npm run e2e` ou, para reprodutibilidade com API local, `CI=true npm run e2e` (API tipicamente `127.0.0.1:8081`; credenciais `E2E_REAL_*` quando o cenário for "real flow").
+- [ ] `npm run e2e` (sessão mockada) e, no CI, `npm run e2e:real` (job `frontend-e2e-real`: API + Postgres). Localmente: `E2E_REAL_FLOW=1` + `E2E_REAL_EMAIL` + `E2E_REAL_PASSWORD` + API em `:8081` (`VITE_API_BASE` vai no `webServer.env` do Playwright).
 - [ ] Fora de CI, `reuseExistingServer` no Playwright pode reutilizar preview com config errada — em dúvida usar `CI=true`.
 - [ ] Cenários E2E críticos documentados no PR ou em `18-decisoes-e-checklist-entrega.md` (ficheiro `24-matriz-cenarios-e2e.md` não está neste repo).
 

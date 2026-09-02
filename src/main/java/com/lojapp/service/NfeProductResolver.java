@@ -59,13 +59,13 @@ public class NfeProductResolver {
         Optional<String> eanOpt = resolveEanFromItem(item);
         if (eanOpt.isPresent()) {
             Optional<Product> byEan =
-                    products.findFirstByUser_IdAndEan(userId, eanOpt.get());
+                    products.findFirstByUser_IdAndEanAndDeletedAtIsNull(userId, eanOpt.get());
             if (byEan.isPresent()) {
                 return new ProductImportResolution(byEan.get(), false);
             }
         }
         return products
-                .findByUser_IdAndNameIgnoreCase(userId, item.description())
+                .findByUser_IdAndNameIgnoreCaseAndDeletedAtIsNull(userId, item.description())
                 .map(p -> new ProductImportResolution(p, false))
                 .orElseGet(
                         () ->

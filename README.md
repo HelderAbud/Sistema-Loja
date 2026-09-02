@@ -483,13 +483,12 @@ $env:LOJAPP_VERIFY_PASSWORD = '...'
 - Fluxo ponta a ponta: login, catálogo, stock, venda (vendedora opcional), NFe, dashboard, PDV e relatório de comissões.
 - Segurança: JWT com refresh, `@PreAuthorize`, auditoria e isolamento por `user_id`.
 - Qualidade: testes unitários, ArchUnit, Testcontainers, CI (GitHub Actions).
-- Schema versionado com Flyway (V1…V22).
+- Schema versionado com Flyway (V1…V23).
 
 ## Próximos passos
 
 - PWA / modo offline leve; code-split do bundle do dashboard.
 - Expandir `@PreAuthorize` e políticas por role (admin multi-loja).
-- Soft delete em produtos; cache (Caffeine) em leituras frequentes.
 
 ---
 

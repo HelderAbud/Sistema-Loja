@@ -22,7 +22,8 @@ public class CacheConfig {
                 List.of(
                         CacheNames.DASHBOARD_BRANDS,
                         CacheNames.DASHBOARD_PRODUCT_ABC,
-                        CacheNames.DASHBOARD_INVENTORY_KPIS));
+                        CacheNames.DASHBOARD_INVENTORY_KPIS,
+                        CacheNames.PRODUCTS));
         manager.setCaffeine(
                 Caffeine.newBuilder()
                         .maximumSize(10_000)

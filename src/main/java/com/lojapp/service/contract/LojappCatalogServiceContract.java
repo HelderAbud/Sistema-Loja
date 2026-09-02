@@ -26,4 +26,6 @@ public interface LojappCatalogServiceContract {
     ProductResponse createProduct(long userId, ProductRequest request);
 
     ProductResponse updateProduct(long userId, long productId, ProductRequest request);
+
+    void deleteProduct(long userId, long productId);
 }

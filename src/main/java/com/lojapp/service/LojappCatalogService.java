@@ -1,5 +1,6 @@
 package com.lojapp.service;
 
+import com.lojapp.config.CacheNames;
 import com.lojapp.entity.Brand;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.ProductModel;
@@ -24,6 +25,8 @@ import com.lojapp.util.EanNormalizer;
 import com.lojapp.util.Pageables;
 import java.time.Instant;
 import java.util.List;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -59,6 +62,7 @@ public class LojappCatalogService implements LojappCatalogServiceContract {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.PRODUCTS, allEntries = true)
     public BrandResponse createBrand(long userId, BrandRequest request) {
         String name = request.name().trim();
         return brands
@@ -77,6 +81,7 @@ public class LojappCatalogService implements LojappCatalogServiceContract {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.PRODUCTS, allEntries = true)
     public BrandResponse updateBrand(long userId, long brandId, BrandRequest request) {
         Brand brand =
                 brands.findByIdAndUser_Id(brandId, userId).orElseThrow(BrandNotFoundException::new);
@@ -98,6 +103,7 @@ public class LojappCatalogService implements LojappCatalogServiceContract {
      * {@code ON DELETE SET NULL}).
      */
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.PRODUCTS, allEntries = true)
     public void deleteBrand(long userId, long brandId) {
         Brand brand =
                 brands.findByIdAndUser_Id(brandId, userId).orElseThrow(BrandNotFoundException::new);
@@ -107,19 +113,24 @@ public class LojappCatalogService implements LojappCatalogServiceContract {
 
     @Transactional(readOnly = true)
     public List<ProductResponse> listProducts(long userId) {
-        return products.findByUser_IdOrderByNameAsc(userId).stream()
+        return products.findByUser_IdAndDeletedAtIsNullOrderByNameAsc(userId).stream()
                 .map(ProductResponse::from)
                 .toList();
     }
 
     /** Listagem paginada com filtros opcionais (marca, texto no nome, apenas stock abaixo do mínimo). */
     @Transactional(readOnly = true)
+    @Cacheable(
+            cacheNames = CacheNames.PRODUCTS,
+            key =
+                    "#userId + '|' + #brandId + '|' + #q + '|' + #lowStock + '|' + #pageable.pageNumber + '|' + #pageable.pageSize + '|' + #pageable.sort")
     public Page<ProductResponse> searchProducts(
             long userId, Long brandId, String q, boolean lowStock, Pageable pageable) {
         Pageable effective = Pageables.clamp(pageable);
         Specification<Product> spec =
                 Specification.allOf(
                         ProductSpecifications.ownedByUser(userId),
+                        ProductSpecifications.notDeleted(),
                         ProductSpecifications.brandIdEquals(brandId),
                         ProductSpecifications.nameContainsIgnoreCase(q),
                         ProductSpecifications.lowStockOnly(userId, lowStock));
@@ -127,6 +138,7 @@ public class LojappCatalogService implements LojappCatalogServiceContract {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.PRODUCTS, allEntries = true)
     public ProductResponse createProduct(long userId, ProductRequest request) {
         Product product = new Product();
         updateProductFields(userId, product, request);
@@ -134,13 +146,27 @@ public class LojappCatalogService implements LojappCatalogServiceContract {
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.PRODUCTS, allEntries = true)
     public ProductResponse updateProduct(long userId, long productId, ProductRequest request) {
         Product product =
                 products
-                        .findByIdAndUser_Id(productId, userId)
+                        .findByIdAndUser_IdAndDeletedAtIsNull(productId, userId)
                         .orElseThrow(ProductNotFoundException::new);
         updateProductFields(userId, product, request);
         return ProductResponse.from(products.save(product));
+    }
+
+    @Transactional
+    @CacheEvict(cacheNames = CacheNames.PRODUCTS, allEntries = true)
+    public void deleteProduct(long userId, long productId) {
+        Product product =
+                products
+                        .findByIdAndUser_IdAndDeletedAtIsNull(productId, userId)
+                        .orElseThrow(ProductNotFoundException::new);
+        Instant now = Instant.now();
+        product.setDeletedAt(now);
+        product.setUpdatedAt(now);
+        products.save(product);
     }
 
     private void updateProductFields(long userId, Product product, ProductRequest request) {

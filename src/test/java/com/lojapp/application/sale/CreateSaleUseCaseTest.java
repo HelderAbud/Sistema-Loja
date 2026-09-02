@@ -104,7 +104,7 @@ class CreateSaleUseCaseTest {
         Product product = new Product();
         product.setId(10L);
         product.setCostPrice(new BigDecimal("-1.00"));
-        when(products.findByIdAndUser_Id(10L, userId)).thenReturn(Optional.of(product));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(10L, userId)).thenReturn(Optional.of(product));
 
         SaleRequest request =
                 new SaleRequest(10L, new BigDecimal("1"), new BigDecimal("5.00"), null);
@@ -126,7 +126,7 @@ class CreateSaleUseCaseTest {
         Product product = new Product();
         product.setId(20L);
         product.setCostPrice(new BigDecimal("3.00"));
-        when(products.findByIdAndUser_Id(20L, userId)).thenReturn(Optional.of(product));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(20L, userId)).thenReturn(Optional.of(product));
 
         when(sales.save(any(Sale.class)))
                 .thenAnswer(
@@ -165,7 +165,7 @@ class CreateSaleUseCaseTest {
         long userId = 3L;
         User userRef = new User();
         when(users.getReferenceById(userId)).thenReturn(userRef);
-        when(products.findByIdAndUser_Id(99L, userId)).thenReturn(Optional.empty());
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(99L, userId)).thenReturn(Optional.empty());
 
         SaleRequest request =
                 new SaleRequest(99L, new BigDecimal("1"), new BigDecimal("10.00"), null);
@@ -190,7 +190,7 @@ class CreateSaleUseCaseTest {
         Product product = new Product();
         product.setId(40L);
         product.setCostPrice(new BigDecimal("2.50"));
-        when(products.findByIdAndUser_Id(40L, userId)).thenReturn(Optional.of(product));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(40L, userId)).thenReturn(Optional.of(product));
 
         when(sales.save(any(Sale.class)))
                 .thenAnswer(
@@ -226,7 +226,7 @@ class CreateSaleUseCaseTest {
         Product product = new Product();
         product.setId(50L);
         product.setCostPrice(new BigDecimal("2.00"));
-        when(products.findByIdAndUser_Id(50L, userId)).thenReturn(Optional.of(product));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(50L, userId)).thenReturn(Optional.of(product));
 
         when(sales.save(any(Sale.class)))
                 .thenAnswer(
@@ -258,7 +258,7 @@ class CreateSaleUseCaseTest {
         Product product = new Product();
         product.setId(60L);
         product.setCostPrice(new BigDecimal("2.00"));
-        when(products.findByIdAndUser_Id(60L, userId)).thenReturn(Optional.of(product));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(60L, userId)).thenReturn(Optional.of(product));
         when(sales.save(any(Sale.class)))
                 .thenAnswer(
                         inv -> {

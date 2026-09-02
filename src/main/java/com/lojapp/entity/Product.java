@@ -77,6 +77,9 @@ public class Product {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     @PrePersist
     void onPersist() {
         Instant now = Instant.now();
