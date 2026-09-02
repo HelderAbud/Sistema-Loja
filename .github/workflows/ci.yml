@@ -36,6 +36,10 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper
+          key: ${{ runner.os }}-mvnw-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
       - name: Run backend unit tests
         run: chmod +x mvnw && ./mvnw -B -Pci-unit-tests test
 
@@ -49,6 +53,10 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper
+          key: ${{ runner.os }}-mvnw-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
       - name: Run backend integration tests (Docker/Testcontainers)
         run: chmod +x mvnw && ./mvnw -B -Pci-integration-tests test
 
@@ -119,8 +127,21 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper
+          key: ${{ runner.os }}-mvnw-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
       - name: Package API
-        run: chmod +x mvnw && ./mvnw -B -DskipTests package
+        run: |
+          chmod +x mvnw
+          for attempt in 1 2 3; do
+            if ./mvnw -B -DskipTests package; then
+              exit 0
+            fi
+            echo "Maven package attempt ${attempt} failed; retrying..."
+            sleep 10
+          done
+          exit 1
       - name: Start API
         run: |
           nohup java -jar target/lojapp-api-0.0.1-SNAPSHOT.jar > /tmp/lojapp-e2e-api.log 2>&1 &
