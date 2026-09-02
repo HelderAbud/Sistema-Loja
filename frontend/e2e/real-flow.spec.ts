@@ -86,8 +86,8 @@ test.describe("jornada real (API + UI, sem mocks)", () => {
     await page.getByLabel("Palavra-passe").fill(E2E_PASSWORD);
     await page.getByRole("button", { name: /entrar na conta/i }).click();
     await expect(page).toHaveURL(/\/piloto\/products$/);
-
-    await page.getByRole("button", { name: "Nova venda" }).click();
+    await expect(page.getByRole("tab", { name: "Nova venda" })).toBeVisible({ timeout: 15_000 });
+    await page.getByRole("tab", { name: "Nova venda" }).click();
     await expect(page).toHaveURL(/\/piloto\/sale$/);
 
     const productInput = page.getByLabel("Produto — pesquisar por nome");
@@ -101,7 +101,7 @@ test.describe("jornada real (API + UI, sem mocks)", () => {
     await page.getByRole("button", { name: /registar venda/i }).click();
     await expect(page.getByText(/Venda registada — id/i)).toBeVisible();
 
-    await page.getByRole("button", { name: "Dashboard" }).click();
+    await page.getByRole("tab", { name: "Dashboard" }).click();
     await expect(page).toHaveURL(/\/piloto\/dashboard$/);
     await expect(page.getByRole("heading", { name: /Dashboard executivo/i })).toBeVisible();
   });
