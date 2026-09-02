@@ -89,10 +89,21 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     env:
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/loja_db
       SPRING_DATASOURCE_USERNAME: loja_user
       SPRING_DATASOURCE_PASSWORD: ci_e2e_pass
+      SPRING_DATA_REDIS_HOST: localhost
+      SPRING_DATA_REDIS_PORT: "6379"
       LOJAPP_JWT_SECRET: ci-e2e-secret-must-be-32-chars-min!!
       LOJAPP_REGISTRATION_ENABLED: "true"
       LOJAPP_CORS_ORIGINS: http://127.0.0.1:3000
