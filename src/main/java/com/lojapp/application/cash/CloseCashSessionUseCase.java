@@ -60,6 +60,7 @@ public class CloseCashSessionUseCase implements CloseCashSessionUseCaseContract 
             throw new CashSessionDifferenceReasonRequiredException();
         }
 
+        // managerApproval = auto-declaração do mesmo login (uma conta = uma loja), não role de gerente.
         if (differenceAmount.abs().compareTo(posProperties.closeToleranceAmount()) > 0
                 && !request.managerApproval()) {
             throw new CashSessionManagerApprovalRequiredException();

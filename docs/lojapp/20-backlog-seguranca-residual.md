@@ -10,7 +10,7 @@ Objetivo: consolidar pendências de segurança remanescentes em um único ponto 
 
 ## Pendências residuais priorizadas
 
-- [ ] Implementar deteção de reuse de refresh token com revogação de família/sessão em caso de replay confirmado.
+- [ ] Implementar deteção de reuse de refresh token com revogação de família/sessão em caso de replay confirmado. (auditoria 2026-09: rotação single-use já existe; o dono só vê “sessão expirada”.)
 - [ ] Avaliar MFA para perfis sensíveis (ex.: `ADMIN`) com rollout progressivo e fallback operacional.
 - [ ] Definir política de CAPTCHA para registo público quando `invite-secret` não estiver ativo.
 - [ ] Incluir varredura dinâmica (ex.: OWASP ZAP baseline) na pipeline CI para endpoints públicos de auth.

@@ -49,6 +49,8 @@ public final class NfeXmlParser {
                 items.add(new ParsedNfeItem(description, cEan, cEanTrib, qty, unitCost));
             }
             return new ParsedNfe(number, supplierName, accessKey, supplierTaxId, items);
+        } catch (NfeXmlUnreadableException e) {
+            throw e;
         } catch (Exception e) {
             throw new NfeXmlUnreadableException("Falha ao ler XML da NFe", e);
         }
@@ -132,5 +134,12 @@ public final class NfeXmlParser {
             String cEanRaw,
             String cEanTribRaw,
             BigDecimal quantity,
-            BigDecimal unitCost) {}
+            BigDecimal unitCost) {
+        public ParsedNfeItem {
+            if (unitCost != null && unitCost.compareTo(BigDecimal.ZERO) < 0) {
+                throw new NfeXmlUnreadableException(
+                        "Custo unitário negativo na linha do XML da NFe");
+            }
+        }
+    }
 }

@@ -29,6 +29,7 @@ export type CloseCashSessionPreviewResponse = {
   countedAmount: number | null;
   differenceAmount: number | null;
   toleranceAmount: number;
+  /** Wire name histórico: o close exige a auto-declaração do próprio ator. */
   managerApprovalRequired: boolean;
 };
 
@@ -101,6 +102,7 @@ export async function closeCashSession(body: {
   cashSessionId: number;
   countedAmount: number;
   differenceReason?: string | null;
+  /** Auto-declaração do próprio ator (nome histórico no JSON). */
   managerApproval: boolean;
 }): Promise<CloseCashSessionResponse> {
   return apiJson<CloseCashSessionResponse>("/api/v1/lojapp/pos/cash-sessions/close", {
