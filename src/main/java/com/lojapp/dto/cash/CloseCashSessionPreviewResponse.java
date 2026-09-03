@@ -1,5 +1,6 @@
 package com.lojapp.dto.cash;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
 public record CloseCashSessionPreviewResponse(
@@ -11,4 +12,8 @@ public record CloseCashSessionPreviewResponse(
         BigDecimal countedAmount,
         BigDecimal differenceAmount,
         BigDecimal toleranceAmount,
-        boolean managerApprovalRequired) {}
+        @Schema(
+                description =
+                        "True se |diferença| > tolerância: o close exige managerApproval=true "
+                                + "(confirmação do próprio ator, não de um terceiro).")
+                boolean managerApprovalRequired) {}

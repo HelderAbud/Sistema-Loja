@@ -37,32 +37,28 @@ async function renewAccessTokenViaRefreshCookie(): Promise<string | null> {
   }
 }
 
-let bootstrapRefreshInFlight: Promise<boolean> | null = null;
+let refreshInFlight: Promise<boolean> | null = null;
 
-/**
- * Ao arranque da SPA: tenta obter access JWT a partir da cookie HttpOnly de refresh.
- * Pedidos em paralelo (ex.: React StrictMode) partilham a mesma Promise.
- */
-export function bootstrapSessionFromCookie(): Promise<boolean> {
-  if (!bootstrapRefreshInFlight) {
-    bootstrapRefreshInFlight = (async () => {
+async function refreshSession(): Promise<boolean> {
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
       const at = await renewAccessTokenViaRefreshCookie();
       if (!at) return false;
       useAuthStore.getState().setAccessToken(at);
       return true;
-    })();
-    void bootstrapRefreshInFlight.finally(() => {
-      bootstrapRefreshInFlight = null;
+    })().finally(() => {
+      refreshInFlight = null;
     });
   }
-  return bootstrapRefreshInFlight;
+  return refreshInFlight;
 }
 
-async function refreshSession(): Promise<boolean> {
-  const at = await renewAccessTokenViaRefreshCookie();
-  if (!at) return false;
-  useAuthStore.getState().setAccessToken(at);
-  return true;
+/**
+ * Ao arranque da SPA: tenta obter access JWT a partir da cookie HttpOnly de refresh.
+ * Pedidos em paralelo (ex.: React StrictMode ou vários 401 ao mesmo tempo) partilham a mesma Promise.
+ */
+export function bootstrapSessionFromCookie(): Promise<boolean> {
+  return refreshSession();
 }
 
 export async function apiJson<T>(

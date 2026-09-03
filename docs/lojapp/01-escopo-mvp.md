@@ -91,7 +91,8 @@ Referencia detalhada (fluxos, API, operação): `docs/lojapp/10-guia-junior-pilo
 - [x] Ajuste de stock + saldo + listagem abaixo do minimo (`GET .../inventory/low-stock`)
 - [x] Venda com validacao de stock + custo opcional + resposta com id da venda
 - [x] Dashboard por marca ordenado por maior lucro no periodo (`metrics[0]`)
-- [x] Multi-loja basica por `user_id` (uma conta por loja piloto)
+- [x] Multi-loja basica por `user_id` (uma conta por loja piloto; sem funcionários na mesma loja)
+- [ ] Multi-funcionário na mesma loja (login filho + aprovação de terceiro no caixa) — **fora do MVP**; exige entidade loja separada do login
 - [x] Erros HTTP padronizados: `ApiErrorResponse` com `message`, `code`, `timestamp` (`GlobalExceptionHandler`); cliente web em `frontend/src/api.ts` (ver `README.md` e guia 10, Parte **2.0**)
 
 **Nota:** "Dashboard em 1 clique" depende do cliente (front); a API expoe um unico `GET .../dashboard/brands`.

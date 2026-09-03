@@ -211,7 +211,7 @@ export function SellerAreaPage() {
                 onChange={(event) => setManagerApproval(event.target.checked)}
                 disabled={!hasOpenCashSession}
               />{" "}
-              Aprovação de manager
+              Confirmo que revisei a diferença
             </label>
           </div>
 
@@ -260,7 +260,7 @@ export function SellerAreaPage() {
               </article>
               <article>
                 <strong>{closePreviewMut.data.managerApprovalRequired ? "Sim" : "Não"}</strong>
-                <span>aprovação manager</span>
+                <span>confirmação de revisão</span>
               </article>
             </div>
           ) : null}

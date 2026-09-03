@@ -80,6 +80,7 @@ Todos são **POST** e públicos na cadeia Spring (`permitAll` para `POST /api/v1
 - Se cookie existir e body não estiver vazio: regra acima aplica-se.
 - Ordem efectiva: se cookie não vazia → usa-se cookie; senão → body.
 - **200:** novo `accessToken` + novo `Set-Cookie` (rotação).
+- **SPA:** `bootstrapSessionFromCookie`, `apiJson` e `apiText` partilham **uma** Promise de renovação. Vários 401 em paralelo não disparam N refreshes contra um token de uso único.
 - **400:** refresh ausente (`Refresh token ausente`) — `ResponseStatusException` mapeado para `ApiErrorResponse`.
 - **401:** refresh inválido, expirado, ou inconsistência — `ApiErrorResponse`.
 - **429:** mesmo bucket que login.

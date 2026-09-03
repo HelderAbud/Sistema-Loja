@@ -160,7 +160,11 @@ class CashSessionControllerTest {
                                         }
                                         """))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+                .andExpect(jsonPath("$.code").value("FORBIDDEN"))
+                .andExpect(
+                        jsonPath("$.message")
+                                .value(
+                                        "Diferença acima da tolerância exige confirmação de revisão do valor contado."));
     }
 
     @Test

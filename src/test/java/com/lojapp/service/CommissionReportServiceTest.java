@@ -64,15 +64,45 @@ class CommissionReportServiceTest {
         assertThat(csv).contains("2.40");
     }
 
+    @Test
+    void toCsv_prefixesFormulaTriggerInSellerName() {
+        Instant from = Instant.parse("2026-08-01T00:00:00Z");
+        Instant to = Instant.parse("2026-08-31T23:59:59Z");
+        when(accruals.findByUser_IdAndCreatedAtBetweenOrderByCreatedAtDesc(1L, from, to))
+                .thenReturn(List.of(accrual("=1+1", "MarcaX")));
+
+        String csv = service.toCsv(1L, from, to);
+
+        assertThat(csv).contains(",'=1+1,");
+        assertThat(csv).doesNotContain(",=1+1,");
+    }
+
+    @Test
+    void toCsv_prefixesFormulaTriggerAndQuotesWhenNameHasComma() {
+        Instant from = Instant.parse("2026-08-01T00:00:00Z");
+        Instant to = Instant.parse("2026-08-31T23:59:59Z");
+        when(accruals.findByUser_IdAndCreatedAtBetweenOrderByCreatedAtDesc(1L, from, to))
+                .thenReturn(List.of(accrual("=HYPERLINK(\"http://evil.test\",\"x\")", "MarcaX")));
+
+        String csv = service.toCsv(1L, from, to);
+
+        assertThat(csv)
+                .contains("\"'=HYPERLINK(\"\"http://evil.test\"\",\"\"x\"\")\"");
+    }
+
     private static CommissionAccrual accrual() {
+        return accrual("Ana, loja", "MarcaX");
+    }
+
+    private static CommissionAccrual accrual(String sellerName, String brandName) {
         Sale sale = new Sale();
         sale.setId(88L);
         Seller seller = new Seller();
         seller.setId(11L);
-        seller.setDisplayName("Ana, loja");
+        seller.setDisplayName(sellerName);
         Brand brand = new Brand();
         brand.setId(8L);
-        brand.setName("MarcaX");
+        brand.setName(brandName);
         CommissionAccrual row = new CommissionAccrual();
         row.setId(5L);
         row.setSale(sale);

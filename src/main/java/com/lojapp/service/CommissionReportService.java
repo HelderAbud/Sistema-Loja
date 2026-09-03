@@ -6,6 +6,7 @@ import com.lojapp.repository.CommissionAccrualRepository;
 import com.lojapp.service.contract.CommissionReportServiceContract;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,13 +71,19 @@ public class CommissionReportService implements CommissionReportServiceContract 
                 row.getCreatedAt());
     }
 
+    private static final Set<Character> FORMULA_TRIGGERS = Set.of('=', '+', '-', '@', '\t', '\r');
+
     static String csvCell(String value) {
         if (value == null || value.isEmpty()) {
             return "";
         }
-        if (value.indexOf(',') >= 0 || value.indexOf('"') >= 0 || value.indexOf('\n') >= 0) {
-            return "\"" + value.replace("\"", "\"\"") + "\"";
+        String safe = value;
+        if (FORMULA_TRIGGERS.contains(safe.charAt(0))) {
+            safe = "'" + safe;
         }
-        return value;
+        if (safe.indexOf(',') >= 0 || safe.indexOf('"') >= 0 || safe.indexOf('\n') >= 0) {
+            return "\"" + safe.replace("\"", "\"\"") + "\"";
+        }
+        return safe;
     }
 }

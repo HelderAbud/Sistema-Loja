@@ -112,7 +112,7 @@ Listagens / resumo / série diária: filtros `from`, `to` (ISO-8601), `productId
 | Operação | DTO |
 |----------|-----|
 | Abrir | `OpenCashSessionRequest`: `openingAmount` (≥ 0) |
-| Fechar | `CloseCashSessionRequest`: `cashSessionId`, `countedAmount`, `differenceReason?`, `managerApproval` |
+| Fechar | `CloseCashSessionRequest`: `cashSessionId`, `countedAmount`, `differenceReason?`, `managerApproval` (nome histórico: auto-declaração de revisão da diferença, não aprovação de terceiro) |
 
 **Finalizar venda**
 

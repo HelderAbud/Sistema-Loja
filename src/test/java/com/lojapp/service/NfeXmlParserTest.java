@@ -122,4 +122,47 @@ class NfeXmlParserTest {
         assertThat(parsed.items().getFirst().quantity()).isEqualByComparingTo(new BigDecimal("5"));
         assertThat(parsed.items().getFirst().unitCost()).isEqualByComparingTo(new BigDecimal("22.50"));
     }
+
+    @Test
+    void parse_negativeUnitCost_rejectsAsUnreadable() {
+        String xml =
+                """
+                <nfe>
+                  <nNF>1</nNF>
+                  <xNome>Forn</xNome>
+                  <chNFe>35200111111111111111550010000010011000000000</chNFe>
+                  <prod>
+                    <xProd>Item</xProd>
+                    <qCom>1</qCom>
+                    <vUnCom>-50.00</vUnCom>
+                  </prod>
+                </nfe>
+                """;
+        assertThatThrownBy(() -> NfeXmlParser.parse(xml))
+                .isInstanceOf(NfeXmlUnreadableException.class)
+                .hasMessageContaining("Custo unitário negativo")
+                .satisfies(
+                        ex ->
+                                assertThat(((LojappDomainException) ex).getErrorCode())
+                                        .isEqualTo(ApiErrorCode.BAD_REQUEST));
+    }
+
+    @Test
+    void parse_zeroUnitCost_allowedAsBonusLine() {
+        String xml =
+                """
+                <nfe>
+                  <nNF>1</nNF>
+                  <xNome>Forn</xNome>
+                  <chNFe>35200111111111111111550010000010011000000000</chNFe>
+                  <prod>
+                    <xProd>Brinde</xProd>
+                    <qCom>1</qCom>
+                    <vUnCom>0.00</vUnCom>
+                  </prod>
+                </nfe>
+                """;
+        ParsedNfe parsed = NfeXmlParser.parse(xml);
+        assertThat(parsed.items().getFirst().unitCost()).isEqualByComparingTo(BigDecimal.ZERO);
+    }
 }

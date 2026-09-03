@@ -1,6 +1,8 @@
 # Matriz de papéis JWT
 
-Contrato de autorização por superfície. Tenancy continua a ser `user_id` em todas as entidades operacionais.
+Contrato de autorização por superfície. Tenancy continua a ser `user_id` em todas as entidades operacionais: **uma conta = uma loja**. Papéis JWT restringem o que *esse* login pode chamar; um `CASHIER` e um `MANAGER` em contas distintas não partilham caixa, stock nem vendas.
+
+No fechamento de caixa, `managerApproval` / `managerApprovalRequired` são **auto-declaração** (o próprio ator confirma que reviu a diferença acima da tolerância) e entram no log de auditoria. Não há PIN, segundo token nem checagem de um gerente na mesma tenancy — isso só faria sentido com loja ≠ login (fora do MVP). Ver `CONTEXT.md`.
 
 Papéis: `USER`, `ADMIN`, `REPRESENTATIVE`, `CASHIER`, `SELLER`, `MANAGER`.
 
