@@ -24,7 +24,7 @@ import com.lojapp.service.contract.InventoryServiceContract;
 import com.lojapp.service.contract.LojappHierarchyServiceContract;
 import com.lojapp.observability.LojappBusinessMetrics;
 import com.lojapp.util.NfeBrandSuggester.BrandCandidate;
-import com.lojapp.util.TokenHashUtil;
+import com.lojapp.util.NfeXmlFingerprint;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -83,15 +83,14 @@ public class ImportNfeUseCase implements ImportNfeUseCaseContract {
         importValidator.validateParsedItems(parsed.items().size());
         User user = users.getReferenceById(userId);
 
-        String accessKey = parsed.accessKey() == null ? "" : parsed.accessKey().trim();
-        String xmlFingerprint = TokenHashUtil.sha256Hex(rawXml);
-        if (!accessKey.isEmpty()
-                && nfeEntries.existsByUser_IdAndAccessKey(userId, accessKey)) {
+        String accessKey = persistableAccessKey(parsed.accessKey());
+        String xmlFingerprint = NfeXmlFingerprint.sha256Hex(rawXml);
+        if (accessKey != null && nfeEntries.existsByUser_IdAndAccessKey(userId, accessKey)) {
             log.warn("Importação NFe recusada: chave duplicada userId={}", userId);
             businessMetrics.recordNfeImportDuplicateKey();
             throw new DuplicateNfeAccessKeyException();
         }
-        if (accessKey.isEmpty()
+        if (accessKey == null
                 && nfeEntries.existsByUser_IdAndContentFingerprint(userId, xmlFingerprint)) {
             log.warn("Importação NFe recusada: XML duplicado (sem chave) userId={}", userId);
             businessMetrics.recordNfeImportDuplicateXml();
@@ -110,8 +109,8 @@ public class ImportNfeUseCase implements ImportNfeUseCaseContract {
         entry.setSupplierName(parsed.supplierName());
         entry.setSupplierTaxId(parsed.supplierTaxId().orElse(null));
         entry.setSupplier(supplier);
-        entry.setAccessKey(parsed.accessKey());
-        if (accessKey.isEmpty()) {
+        entry.setAccessKey(accessKey);
+        if (accessKey == null) {
             entry.setContentFingerprint(xmlFingerprint);
         }
         NfeRawXmlStorage.StoredRawXml storedRawXml = rawXmlStorage.persist(userId, rawXml);
@@ -172,5 +171,13 @@ public class ImportNfeUseCase implements ImportNfeUseCaseContract {
 
     private Optional<BrandCandidate> suggestBrand(long userId, ParsedNfe parsed) {
         return productResolver.suggestBrand(userId, parsed);
+    }
+
+    /** Em branco não entra no índice único parcial {@code WHERE access_key IS NOT NULL}. */
+    private static String persistableAccessKey(String parsedKey) {
+        if (parsedKey == null || parsedKey.isBlank()) {
+            return null;
+        }
+        return parsedKey.trim();
     }
 }

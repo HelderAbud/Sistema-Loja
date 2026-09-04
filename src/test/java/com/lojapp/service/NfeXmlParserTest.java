@@ -37,6 +37,37 @@ class NfeXmlParserTest {
     }
 
     @Test
+    void parse_missingOrBlankChNFe_accessKeyIsNull() {
+        String missing =
+                """
+                <nfe>
+                  <nNF>1</nNF>
+                  <xNome>Forn</xNome>
+                  <prod>
+                    <xProd>Item</xProd>
+                    <qCom>1</qCom>
+                    <vUnCom>1.00</vUnCom>
+                  </prod>
+                </nfe>
+                """;
+        String blank =
+                """
+                <nfe>
+                  <nNF>1</nNF>
+                  <xNome>Forn</xNome>
+                  <chNFe>   </chNFe>
+                  <prod>
+                    <xProd>Item</xProd>
+                    <qCom>1</qCom>
+                    <vUnCom>1.00</vUnCom>
+                  </prod>
+                </nfe>
+                """;
+        assertThat(NfeXmlParser.parse(missing).accessKey()).isNull();
+        assertThat(NfeXmlParser.parse(blank).accessKey()).isNull();
+    }
+
+    @Test
     void parse_readsCeanAndTrib() {
         String xml =
                 """

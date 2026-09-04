@@ -47,7 +47,7 @@ public class NfeEntry {
     @Column(name = "access_key", length = 80)
     private String accessKey;
 
-    /** SHA-256 hex do XML bruto (UTF-8), só quando não há chave de acesso — dedupe de reimportação. */
+    /** SHA-256 hex do XML canónico (BOM/EOL/trim), só quando {@code access_key} é nula. */
     @Column(name = "content_fingerprint", length = 64)
     private String contentFingerprint;
 

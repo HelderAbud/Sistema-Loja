@@ -972,6 +972,67 @@ catalog.listProducts(userId).stream()
     }
 
     @Test
+    void importNfe_twoDistinctXmlsWithoutAccessKey_bothPersistWithNullAccessKey() {
+        String xmlA =
+                """
+                <nfe>
+                  <nNF>8801</nNF>
+                  <xNome>Fornecedor A Sem Chave</xNome>
+                  <prod>
+                    <xProd>Item A Sem Chave</xProd>
+                    <qCom>1</qCom>
+                    <vUnCom>4.00</vUnCom>
+                  </prod>
+                </nfe>
+                """;
+        String xmlB =
+                """
+                <nfe>
+                  <nNF>8802</nNF>
+                  <xNome>Fornecedor B Sem Chave</xNome>
+                  <prod>
+                    <xProd>Item B Sem Chave</xProd>
+                    <qCom>3</qCom>
+                    <vUnCom>6.00</vUnCom>
+                  </prod>
+                </nfe>
+                """;
+
+        importNfeUseCase.execute(userId, xmlA);
+        importNfeUseCase.execute(userId, xmlB);
+
+        var withoutKey =
+                nfeEntryRepository.findAll().stream()
+                        .filter(e -> "8801".equals(e.getNfeNumber()) || "8802".equals(e.getNfeNumber()))
+                        .toList();
+        assertThat(withoutKey).hasSize(2);
+        assertThat(withoutKey).allMatch(e -> e.getAccessKey() == null);
+        assertThat(withoutKey.get(0).getContentFingerprint())
+                .isNotEqualTo(withoutKey.get(1).getContentFingerprint());
+    }
+
+    @Test
+    void importNfe_sameXmlWithoutAccessKey_crlfVsLf_isDuplicate() {
+        String lf =
+                "<nfe>\n"
+                        + "  <nNF>8810</nNF>\n"
+                        + "  <xNome>Fornecedor EOL</xNome>\n"
+                        + "  <prod>\n"
+                        + "    <xProd>Item EOL</xProd>\n"
+                        + "    <qCom>1</qCom>\n"
+                        + "    <vUnCom>2.00</vUnCom>\n"
+                        + "  </prod>\n"
+                        + "</nfe>\n";
+        String crlf = lf.replace("\n", "\r\n");
+
+        importNfeUseCase.execute(userId, lf);
+        assertThatThrownBy(() -> importNfeUseCase.execute(userId, crlf))
+                .isInstanceOf(DuplicateNfeXmlContentException.class);
+        assertThat(nfeEntryRepository.findAll().stream().filter(e -> "8810".equals(e.getNfeNumber())))
+                .hasSize(1);
+    }
+
+    @Test
     void createBrand_sameNameCaseInsensitive_returnsExistingBrand() {
         var first = catalog.createBrand(userId, new BrandRequest("Marca Unica"));
         var second = catalog.createBrand(userId, new BrandRequest(" marca unica "));
