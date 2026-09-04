@@ -2,8 +2,9 @@
 
 ## Decisão
 
-Quando o XML **não** contém `chNFe` (ou chave vazia), o risco de importar o mesmo ficheiro duas vezes e **duplicar movimento de stock** é tratado por **impressão digital do conteúdo bruto do XML** (`content_fingerprint` = SHA-256 do XML normalizado no use case de importação).
+Quando o XML **não** contém `chNFe` (ou chave vazia), o risco de importar o mesmo ficheiro duas vezes e **duplicar movimento de stock** é tratado por **impressão digital do XML canónico** (`content_fingerprint` = SHA-256 em `NfeXmlFingerprint`: remove BOM, unifica `\r\n`/`\r` para `\n` e faz `strip` das extremidades).
 
+- **Chave persistida:** `chNFe` em falta ou em branco grava `access_key = NULL`. String vazia **não** é usada — o índice único parcial `uq_nfe_entries_user_id_access_key` (`WHERE access_key IS NOT NULL`) trata `""` como valor e bloquearia a 2.ª NFe distinta sem chave.
 - **Âmbito:** por `user_id` — a mesma nota importada por outro utilizador não é bloqueada por esta regra.
 - **Conflito com chave:** se existir chave de acesso, continua a prevalecer a verificação por `access_key` (comportamento anterior).
 

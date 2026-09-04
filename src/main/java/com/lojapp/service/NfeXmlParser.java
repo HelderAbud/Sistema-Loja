@@ -31,7 +31,7 @@ public final class NfeXmlParser {
             String number = firstTextInDoc(doc, "nNF", "0");
             String supplierName = firstSupplierName(doc);
             Optional<String> supplierTaxId = firstEmitTaxId(doc);
-            String accessKey = firstTextInDoc(doc, "chNFe", "");
+            String accessKey = blankToNull(firstTextInDoc(doc, "chNFe", ""));
 
             NodeList prodNodes = doc.getElementsByTagNameNS(NS_ANY, "prod");
             List<ParsedNfeItem> items = new ArrayList<>();
@@ -97,6 +97,11 @@ public final class NfeXmlParser {
             return digits.substring(0, maxLen);
         }
         return digits;
+    }
+
+    /** {@code chNFe} em falta ou em branco vira {@code null} (índice único parcial em Postgres). */
+    private static String blankToNull(String value) {
+        return value == null || value.isBlank() ? null : value;
     }
 
     private static String firstTextInDoc(Document doc, String localName, String fallback) {
