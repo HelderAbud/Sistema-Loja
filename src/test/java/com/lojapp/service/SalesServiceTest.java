@@ -8,8 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.lojapp.application.sale.CancelSaleUseCase;
-import com.lojapp.application.sale.CreateSaleUseCase;
+import com.lojapp.application.usecases.sale.CancelSaleUseCase;
+import com.lojapp.application.usecases.sale.CreateSaleUseCase;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SaleRequest;

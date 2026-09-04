@@ -7,7 +7,7 @@ import com.lojapp.entity.User;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.exception.domain.LojappDomainException;
 import com.lojapp.repository.UserRepository;
-import com.lojapp.application.nfe.ImportNfeUseCase;
+import com.lojapp.application.usecases.nfe.ImportNfeUseCase;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

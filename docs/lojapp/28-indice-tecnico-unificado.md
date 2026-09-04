@@ -2,7 +2,7 @@
 
 Este é o ponto único de entrada para arquitetura, segurança, operação e governança do LojApp.
 
-> Para portfólio, pré-GitHub e gates de segredos, usar `CHECKLIST_FINAL.md` na raiz.
+> Para portfólio, pré-GitHub e gates de segredos, usar `docs/CHECKLIST_FINAL.md`.
 
 ## Núcleo técnico (ficheiros presentes no repo)
 
@@ -46,7 +46,7 @@ Este é o ponto único de entrada para arquitetura, segurança, operação e gov
 - `10-guia-junior-piloto-deploy-proximos-passos.md` — deploy local, piloto, demo e portfólio.
 - `.cursor/plans/` — planos aprovados (ex.: piloto método Helder); podem não existir em clones se a pasta não for commitada; ver nota abaixo.
 
-> **Nota (clones do repositório):** roteiros detalhados podem existir em `.cursor/plans/` na tua máquina. Quem clona o projeto deve basear-se **nos `.md` em `docs/lojapp/`**, no `AGENTS.md`, no `CHECKLIST_FINAL.md` e no bloco **Núcleo técnico** acima.
+> **Nota (clones do repositório):** roteiros detalhados podem existir em `.cursor/plans/` na tua máquina. Quem clona o projeto deve basear-se **nos `.md` em `docs/lojapp/`**, no `AGENTS.md`, no `docs/CHECKLIST_FINAL.md` e no bloco **Núcleo técnico** acima.
 
 ## Estado de documentos legados
 

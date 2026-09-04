@@ -8,10 +8,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.lojapp.application.cash.CloseCashSessionUseCase;
-import com.lojapp.application.cash.GetCashSessionClosePreviewUseCase;
-import com.lojapp.application.cash.GetCurrentCashSessionUseCase;
-import com.lojapp.application.cash.OpenCashSessionUseCase;
+import com.lojapp.application.usecases.cash.CloseCashSessionUseCase;
+import com.lojapp.application.usecases.cash.GetCashSessionClosePreviewUseCase;
+import com.lojapp.application.usecases.cash.GetCurrentCashSessionUseCase;
+import com.lojapp.application.usecases.cash.OpenCashSessionUseCase;
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.dto.cash.CloseCashSessionPreviewResponse;
 import com.lojapp.dto.cash.CloseCashSessionResponse;

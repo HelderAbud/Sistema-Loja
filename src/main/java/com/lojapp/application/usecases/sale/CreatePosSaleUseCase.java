@@ -1,4 +1,4 @@
-package com.lojapp.application.sale;
+package com.lojapp.application.usecases.sale;
 
 import com.lojapp.application.contract.CreatePosSaleUseCaseContract;
 import com.lojapp.application.contract.PosSaleCommissionServiceContract;

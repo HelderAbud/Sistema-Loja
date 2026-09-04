@@ -1,4 +1,4 @@
-package com.lojapp.application.nfe;
+package com.lojapp.application.usecases.nfe;
 
 import com.lojapp.application.contract.ApplyNfeImportSuggestionsUseCaseContract;
 import com.lojapp.dto.nfe.NfeApplySuggestionsRequest;

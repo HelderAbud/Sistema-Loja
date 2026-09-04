@@ -41,4 +41,4 @@ Pedir aprovação explícita antes de:
 
 ## Checklist pré-PR
 
-Usar [`CHECKLIST_FINAL.md`](CHECKLIST_FINAL.md) (P0) + diff sem ficheiros sensíveis. Trilha portfólio: [`TRILHA-DIA-A-DIA.md`](TRILHA-DIA-A-DIA.md).
+Usar [`docs/CHECKLIST_FINAL.md`](docs/CHECKLIST_FINAL.md) (P0) + diff sem ficheiros sensíveis. Trilha portfólio: [`docs/TRILHA-DIA-A-DIA.md`](docs/TRILHA-DIA-A-DIA.md).

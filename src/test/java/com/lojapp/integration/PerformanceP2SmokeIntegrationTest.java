@@ -2,7 +2,7 @@ package com.lojapp.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.lojapp.application.nfe.ImportNfeUseCase;
+import com.lojapp.application.usecases.nfe.ImportNfeUseCase;
 import com.lojapp.dto.brand.BrandRequest;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
 import com.lojapp.dto.product.ProductRequest;

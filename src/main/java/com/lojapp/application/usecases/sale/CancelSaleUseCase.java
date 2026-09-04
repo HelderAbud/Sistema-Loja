@@ -1,4 +1,4 @@
-package com.lojapp.application.sale;
+package com.lojapp.application.usecases.sale;
 
 import com.lojapp.domain.sale.SalePendingCancellation;
 import com.lojapp.entity.Sale;
