@@ -89,7 +89,7 @@ Catálogo de teste (36 SKUs Ogochi / Malwee / Hering): `scripts/fixtures/seed-de
 
 ![Fluxo principal](docs/screenshots/07-fluxo-principal.gif)
 
-Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md). Trilha portfólio: [`TRILHA-DIA-A-DIA.md`](TRILHA-DIA-A-DIA.md).
+Guia de captura: [`docs/screenshots/README.md`](docs/screenshots/README.md). Trilha portfólio: [`docs/TRILHA-DIA-A-DIA.md`](docs/TRILHA-DIA-A-DIA.md).
 
 **Narrativa em 7 etapas:** [`docs/portfolio/etapas.md`](docs/portfolio/etapas.md)
 
@@ -494,14 +494,16 @@ $env:LOJAPP_VERIFY_PASSWORD = '...'
 
 ## Documentação
 
+- [Índice da documentação](docs/README.md)
+- [CONTEXT.md](docs/CONTEXT.md) — vocabulário do domínio
 - [CONTRIBUTING.md](CONTRIBUTING.md) — branches, PR, autor único
-- [CHECKLIST_FINAL.md](CHECKLIST_FINAL.md) — auditoria pré-portfólio
+- [CHECKLIST_FINAL.md](docs/CHECKLIST_FINAL.md) — auditoria pré-portfólio
 - [Escopo MVP](docs/lojapp/01-escopo-mvp.md)
 - [Resultado do piloto demo (Fase C)](docs/lojapp/piloto-demo-resultado.md)
 - [Plano piloto / implantação](docs/lojapp/03-implantacao-pilotos.md)
 - [Guia deploy e próximos passos](docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md)
 - [Docker + WSL2 / Ubuntu](docs/docker-wsl-ubuntu.md)
-- [Trilha dia a dia](TRILHA-DIA-A-DIA.md)
+- [Trilha dia a dia](docs/TRILHA-DIA-A-DIA.md)
 
 ## Licença
 

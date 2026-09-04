@@ -28,7 +28,7 @@ import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
-import com.lojapp.application.sale.CreatePosSaleUseCase;
+import com.lojapp.application.usecases.sale.CreatePosSaleUseCase;
 import com.lojapp.service.InventoryService;
 import com.lojapp.service.LojappCatalogService;
 import com.lojapp.service.SalesService;

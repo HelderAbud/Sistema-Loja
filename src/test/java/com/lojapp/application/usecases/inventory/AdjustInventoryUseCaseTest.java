@@ -1,4 +1,4 @@
-package com.lojapp.application.inventory;
+package com.lojapp.application.usecases.inventory;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

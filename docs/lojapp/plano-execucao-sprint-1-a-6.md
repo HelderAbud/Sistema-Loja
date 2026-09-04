@@ -17,7 +17,7 @@
 - [x] Sprint 1 / Item: padronizar estrutura minima de pastas e convencoes — ver `docs/lojapp/11-checklist-pr-e-convencoes-repositorio.md`.
 - [x] Sprint 1 / Item: criar checklist de PR (higiene + arquitetura + testes) — `docs/lojapp/11-checklist-pr-e-convencoes-repositorio.md`.
 - [x] Sprint 3 / Item: concorrencia de estoque + idempotencia (mapeamento e contrato) — `docs/lojapp/13-estoque-concorrencia-e-idempotencia.md`.
-- [x] Sprint 4 / Item: `CreateSaleUseCase`, `AdjustInventoryUseCase`, `ImportNfeUseCase`, `ApplyNfeImportSuggestionsUseCase`, pacote `com.lojapp.application` (incl. `application.nfe`).
+- [x] Sprint 4 / Item: `CreateSaleUseCase`, `AdjustInventoryUseCase`, `ImportNfeUseCase`, `ApplyNfeImportSuggestionsUseCase`, pacote `com.lojapp.application.usecases` (incl. `usecases.nfe`).
 - [ ] Sprint 4 / Item (próximas iterações): pacote `domain` dedicado + entidades mais ricas; **iteração 1:** `SaleRegistrationLine`; **iteração 2:** `ManualStockAdjustment`; **iteração 3:** `StockLedgerDelta`; **iteração 4:** `SalePendingCancellation`; **iteração 5:** `NfeStockReceiptLine` (`ImportNfeUseCase`); continuar a reduzir `*Service` genéricos onde fizer sentido.
 - [x] Critérios transversais operacionalizados — `docs/lojapp/18-decisoes-e-checklist-entrega.md` (checklist de aceite + modelo de decisões; secção “Critérios transversais” abaixo sincronizada).
 - [x] Sprint 6 / Item: exportar e importar presets de filtros (JSON) na tela de pedidos.

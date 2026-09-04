@@ -2,7 +2,7 @@ package com.lojapp.integration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.lojapp.application.sale.CreatePosSaleUseCase;
+import com.lojapp.application.usecases.sale.CreatePosSaleUseCase;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.dto.sale.PosSaleFinalizeRequest;
 import com.lojapp.dto.sale.PosSalePaymentRequest;

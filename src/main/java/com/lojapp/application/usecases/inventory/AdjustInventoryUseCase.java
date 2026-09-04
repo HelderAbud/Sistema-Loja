@@ -1,4 +1,4 @@
-package com.lojapp.application.inventory;
+package com.lojapp.application.usecases.inventory;
 
 import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
 import com.lojapp.application.idempotency.ApiIdempotencyService;

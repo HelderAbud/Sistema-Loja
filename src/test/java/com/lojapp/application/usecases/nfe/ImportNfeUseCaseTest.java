@@ -1,4 +1,4 @@
-package com.lojapp.application.nfe;
+package com.lojapp.application.usecases.nfe;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

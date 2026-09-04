@@ -42,7 +42,7 @@ Este arquivo é o **ponto de partida oficial** do projeto. Não comece nenhuma t
 | Documento | Por quê |
 |-----------|---------|
 | [`AGENTS.md`](../../AGENTS.md) | Stack, comandos, regras de camada |
-| [`CHECKLIST_FINAL.md`](../../CHECKLIST_FINAL.md) | O que falta para publicar |
+| [`CHECKLIST_FINAL.md`](../CHECKLIST_FINAL.md) | O que falta para publicar |
 | [`docs/lojapp/code-review-2026-05-24.md`](../../docs/lojapp/code-review-2026-05-24.md) | Bugs e blockers explicados |
 | [`docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md`](../../docs/lojapp/10-guia-junior-piloto-deploy-proximos-passos.md) | Rodar o sistema local |
 | [`docs/lojapp/11-checklist-pr-e-convencoes-repositorio.md`](../../docs/lojapp/11-checklist-pr-e-convencoes-repositorio.md) | Como abrir PR |
@@ -233,7 +233,7 @@ Ao final, gere o resumo da sessão no formato da secção "Template de log" dest
 | Artefato | Quando criar | Onde |
 |----------|--------------|------|
 | **Log da sessão** | Sempre, ao fim de cada grill | `docs/lojapp/grill-logs/YYYY-MM-DD-fase-XX.md` |
-| **`CONTEXT.md`** | Primeira sessão; atualizar quando termo novo surgir | Raiz do repo (`CONTEXT.md`) |
+| **`docs/CONTEXT.md`** | Primeira sessão; atualizar quando termo novo surgir | `docs/CONTEXT.md` |
 | **ADR** | Só decisões difíceis de reverter (ver abaixo) | `docs/adr/NNNN-slug.md` |
 
 **Gate:** PR só pode ser aberto se existir log de grill para aquela tarefa (link no corpo do PR).

@@ -14,7 +14,7 @@
 | `.cursor/rules/` | Regras persistentes (backend, testes, migrations, contratos API). |
 | `.cursor/plans/` | Planos aprovados: `plan-AAAA-MM-DD-<slug>.md`. Trilha **Normal**: plano antes de diffs grandes. |
 | `docs/lojapp/` | Contratos de domínio, piloto, MVP, workflow (este ficheiro). |
-| `CHECKLIST_FINAL.md` (raiz) | Auditoria portfólio / pré-GitHub; cruza com as fatias do plano Helder. |
+| `docs/CHECKLIST_FINAL.md` | Auditoria portfólio / pré-GitHub; cruza com as fatias do plano Helder. |
 
 ---
 

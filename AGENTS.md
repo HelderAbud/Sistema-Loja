@@ -49,7 +49,7 @@ Portas canônicas (portfólio): API **8081**, FE **5173**, Postgres host **5433*
 
 ## Regras de arquitetura
 
-- Controllers finos; orquestração em `application` (use cases); negócio e serviços de apoio em `service`.
+- Controllers finos; orquestração em `application/usecases` (por domínio); contratos em `application/contract`; negócio e serviços de apoio em `service`.
 - Schema só via Flyway em `src/main/resources/db/migration/`.
 - Integrações externas: preferir cliente/adaptador dedicado (ver `.cursor/rules/backend-java-spring.md`).
 
@@ -74,7 +74,7 @@ Portas canônicas (portfólio): API **8081**, FE **5173**, Postgres host **5433*
 
 ### Continuar a trilha (sem prompt longo)
 
-Fonte: [`TRILHA-DIA-A-DIA.md`](TRILHA-DIA-A-DIA.md) · Helder v1.2 + skills-pessoal (ver regra `helder-trilha-diaria`).
+Fonte: [`docs/TRILHA-DIA-A-DIA.md`](docs/TRILHA-DIA-A-DIA.md) · Helder v1.2 + skills-pessoal (ver regra `helder-trilha-diaria`).
 
 Basta escrever no chat:
 
@@ -123,9 +123,11 @@ Nunca stage `.env` / secrets.
 | `src/main/resources/db/migration/` | Scripts Flyway |
 | `src/test/java/com/lojapp/` | Testes |
 | `docs/docker-wsl-ubuntu.md` | Docker, permissões e WSL2 (troubleshooting local) |
+| `docs/` | Índice: [`docs/README.md`](docs/README.md). Vocabulário: [`docs/CONTEXT.md`](docs/CONTEXT.md) |
 | `docs/lojapp/` | Produto, pilotos, workflow Cursor (`05-workflow-cursor-superpowers.md`); guia operacional: `10-guia-junior-piloto-deploy-proximos-passos.md`; índices: `00-indice-prioridades-sistema.md`, `28-indice-tecnico-unificado.md`; frontend por feature: `14-arquitetura-frontend-por-feature.md`; continuidade/SLO: `15-operacao-continuidade-filas-s3-slo.md`; NFe sem chave: `16-nfe-xml-sem-chave-dedup.md`; versionamento API: `17-versionamento-api-rest.md`; decisões e aceite: `18-decisoes-e-checklist-entrega.md` |
-| `TRILHA-DIA-A-DIA.md` | Trilha portfólio (1 dia = 1 fatia); gatilho `Continuar LojApp` |
-| `CHECKLIST_FINAL.md` (raiz) | Auditoria portfólio / pré-GitHub (P0/P1); cruza com `.cursor/plans/plan-2026-05-04-helder-piloto-trilha-normal.md` |
+| `docs/TRILHA-DIA-A-DIA.md` | Trilha portfólio (1 dia = 1 fatia); gatilho `Continuar LojApp` |
+| `docs/CHECKLIST_FINAL.md` | Auditoria portfólio / pré-GitHub (P0/P1); cruza com `.cursor/plans/plan-2026-05-04-helder-piloto-trilha-normal.md` |
+| `docs/reviews/` | Reviews estáticos (cobertura e code review 2026-09-04) |
 | `deploy/prometheus/` | Exemplo de alertas: `alerts.lojapp.example.yml` |
 | `scripts/` | Backup/restore Postgres (Docker): `backup-postgres-docker.ps1`, `restore-postgres-docker.ps1`; verificação Docker/WSL: `docker-wsl-check.sh` (bash) |
 | `frontend/src/theme/tokens.css` | Tokens CSS globais (cores, raios, sombras, espaçamento); import antes de `App.css` |

@@ -1,4 +1,4 @@
-package com.lojapp.application.cash;
+package com.lojapp.application.usecases.cash;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

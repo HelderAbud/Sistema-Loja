@@ -2,7 +2,7 @@
 
 Documento operacional para repetir em cada entrega. Funde o fluxo **PM/PO + PRD → implementação → verificação → merge → QA** com rotina **LojApp** (comandos, docs e demo).
 
-**Origens:** `10-guia-junior-piloto-deploy-proximos-passos.md`, `plano-execucao-sprint-1-a-6.md`, `CHECKLIST_FINAL.md` (raiz), `AGENTS.md`. *(Documento `29-resumo-executivo-*` não está versionado neste repo — usar sprint + `CHECKLIST_FINAL` para estado macro.)*
+**Origens:** `10-guia-junior-piloto-deploy-proximos-passos.md`, `plano-execucao-sprint-1-a-6.md`, `docs/CHECKLIST_FINAL.md`, `AGENTS.md`. *(Documento `29-resumo-executivo-*` não está versionado neste repo — usar sprint + `CHECKLIST_FINAL` para estado macro.)*
 
 **Nota de nomenclatura:** este ficheiro é o **checklist de fluxo PRD → entrega**. Itens «Dia 8 / Dia 9» do plano 14d: usar **`CHECKLIST_FINAL.md`** (secções 4 e 8), `13-threat-model-auth-spa.md`, `12-contratos-autenticacao-e-sessao.md` e scripts em `scripts/verify-*.ps1` quando existirem.
 

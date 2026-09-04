@@ -45,7 +45,7 @@ Grave `07-fluxo-principal.gif` (10–20 s) com **ScreenToGif**, **ShareX** ou OB
 
 1. Confirme ficheiros: `Get-ChildItem docs/screenshots/*.png, docs/screenshots/*.gif`
 2. Descomente o bloco de imagens no `README.md` na raiz
-3. Marque Passo 4 em `CHECKLIST_FINAL.md`
+3. Marque Passo 4 em `docs/CHECKLIST_FINAL.md`
 
 ## Roteiro recomendado para o GIF
 

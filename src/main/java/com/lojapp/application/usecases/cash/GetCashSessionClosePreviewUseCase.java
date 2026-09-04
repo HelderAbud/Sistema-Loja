@@ -1,4 +1,4 @@
-package com.lojapp.application.cash;
+package com.lojapp.application.usecases.cash;
 
 import com.lojapp.application.contract.GetCashSessionClosePreviewUseCaseContract;
 import com.lojapp.config.PosProperties;

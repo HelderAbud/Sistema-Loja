@@ -1,7 +1,7 @@
 package com.lojapp.service;
 
-import com.lojapp.application.sale.CancelSaleUseCase;
-import com.lojapp.application.sale.CreateSaleUseCase;
+import com.lojapp.application.usecases.sale.CancelSaleUseCase;
+import com.lojapp.application.usecases.sale.CreateSaleUseCase;
 import com.lojapp.dto.sale.SaleListItemResponse;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SalesDailyPointResponse;

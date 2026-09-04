@@ -1,4 +1,4 @@
-package com.lojapp.application.cash;
+package com.lojapp.application.usecases.cash;
 
 import com.lojapp.application.contract.OpenCashSessionUseCaseContract;
 import com.lojapp.dto.cash.OpenCashSessionRequest;

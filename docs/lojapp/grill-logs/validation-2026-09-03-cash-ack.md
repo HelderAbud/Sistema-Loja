@@ -6,7 +6,7 @@ MVP: uma conta = uma loja. `managerApproval` é auto-declaração, não aprovaç
 
 ## Feito
 
-- Glossário em `CONTEXT.md`; escopo, matriz de papéis e mapeamento do assistente.
+- Glossário em `docs/CONTEXT.md`; escopo, matriz de papéis e mapeamento do assistente.
 - Mensagem 403, `@Schema` e labels na Seller area. JSON inalterado.
 - Teste da mensagem + assert no `CashSessionControllerTest`.
 

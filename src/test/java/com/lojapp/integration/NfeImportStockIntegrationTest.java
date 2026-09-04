@@ -13,7 +13,7 @@ import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.SupplierRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.exception.domain.DuplicateNfeAccessKeyException;
-import com.lojapp.application.nfe.ImportNfeUseCase;
+import com.lojapp.application.usecases.nfe.ImportNfeUseCase;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;

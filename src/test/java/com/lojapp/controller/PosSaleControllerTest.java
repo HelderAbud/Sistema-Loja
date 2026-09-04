@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.lojapp.application.sale.CreatePosSaleUseCase;
+import com.lojapp.application.usecases.sale.CreatePosSaleUseCase;
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.dto.sale.PosSaleFinalizeResponse;
 import com.lojapp.security.AuthRateLimitFilter;
