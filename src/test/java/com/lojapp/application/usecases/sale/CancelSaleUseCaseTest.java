@@ -8,11 +8,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.lojapp.entity.CashSession;
+import com.lojapp.entity.CashSessionStatus;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
 import com.lojapp.entity.SaleItem;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.SaleAlreadyCancelledException;
+import com.lojapp.exception.domain.SaleCashSessionAlreadyClosedException;
+import com.lojapp.repository.CommissionAccrualRepository;
 import com.lojapp.repository.SaleItemRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.service.AuditService;
@@ -32,6 +36,7 @@ class CancelSaleUseCaseTest {
 
     @Mock private SaleRepository sales;
     @Mock private SaleItemRepository saleItems;
+    @Mock private CommissionAccrualRepository commissionAccruals;
     @Mock private InventoryServiceContract inventoryService;
     @Mock private AuditService auditService;
 
@@ -39,11 +44,13 @@ class CancelSaleUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        useCase = new CancelSaleUseCase(sales, saleItems, inventoryService, auditService);
+        useCase =
+                new CancelSaleUseCase(
+                        sales, saleItems, commissionAccruals, inventoryService, auditService);
     }
 
     @Test
-    void execute_whenMultipleItems_restoresEachLine() {
+    void execute_whenMultipleItems_restoresEachLineAndDeletesAccruals() {
         User user = new User();
         user.setId(1L);
         Product shirt = new Product();
@@ -72,7 +79,25 @@ class CancelSaleUseCaseTest {
                 .restoreStockForCancelledSale(eq(user), eq(shirt), eq(new BigDecimal("2")), eq(50L));
         verify(inventoryService)
                 .restoreStockForCancelledSale(eq(user), eq(pants), eq(new BigDecimal("1")), eq(50L));
+        verify(commissionAccruals).deleteBySale_IdAndUser_Id(50L, 1L);
         verify(auditService).log(eq(1L), eq("SALE_CANCELLED"), any());
+    }
+
+    @Test
+    void execute_whenCashSessionClosed_doesNotRestoreOrDeleteAccruals() {
+        CashSession closed = new CashSession();
+        closed.setStatus(CashSessionStatus.CLOSED);
+        Sale sale = new Sale();
+        sale.setId(50L);
+        sale.setCashSession(closed);
+        when(sales.findByIdAndUser_Id(50L, 1L)).thenReturn(Optional.of(sale));
+
+        assertThatThrownBy(() -> useCase.execute(1L, 50L))
+                .isInstanceOf(SaleCashSessionAlreadyClosedException.class);
+
+        verify(inventoryService, never()).restoreStockForCancelledSale(any(), any(), any(), anyLong());
+        verify(commissionAccruals, never()).deleteBySale_IdAndUser_Id(anyLong(), anyLong());
+        verify(auditService, never()).log(anyLong(), any(), any());
     }
 
     @Test
@@ -85,5 +110,6 @@ class CancelSaleUseCaseTest {
         assertThatThrownBy(() -> useCase.execute(1L, 9L)).isInstanceOf(SaleAlreadyCancelledException.class);
 
         verify(inventoryService, never()).restoreStockForCancelledSale(any(), any(), any(), anyLong());
+        verify(commissionAccruals, never()).deleteBySale_IdAndUser_Id(anyLong(), anyLong());
     }
 }

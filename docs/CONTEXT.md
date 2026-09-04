@@ -9,6 +9,7 @@ Vocabulário acordado no grill inicial (2026-05-24). Usar estes termos em PRs, A
 | **Loja / tenant** | Uma conta de login = uma loja. Dados isolados por `user_id` do próprio utilizador em todas as entidades operacionais | Vários funcionários com papéis diferentes a partilhar o mesmo caixa (fora do MVP) |
 | **Papel JWT (`appRole`)** | Perfil do **mesmo** login (o que a API deixa fazer). `CASHIER` e `MANAGER` em contas distintas são duas lojas, não hierarquia | Aprovação de um terceiro na mesma loja |
 | **Vendedora (`Seller`)** | Nome no dropdown para comissão; sem senha, sem login, sem papel | Conta de funcionário |
+| **Cancelamento de venda** | Repõe stock e apaga accruals na mesma TX; recusado se o turno de caixa da venda estiver `CLOSED` | Ajuste de caixa fechado ou reabertura de turno |
 | **Confirmação de diferença (wire: `managerApproval`)** | Auto-declaração do próprio ator: “revisei a diferença acima da tolerância”. Trilha de auditoria, não PIN/role de gerente | Aprovação de gestor de terceiros |
 | **Stock / estoque** | Saldo físico de um produto; invariante: nunca negativo após commit | Relatório de inventário ou KPI de dashboard |
 | **Ajuste manual** | Mutação de stock via `POST /inventory/adjust`, fora de venda ou NFe | Venda PDV ou baixa automática na venda |

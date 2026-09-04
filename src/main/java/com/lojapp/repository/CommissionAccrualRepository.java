@@ -18,8 +18,11 @@ public interface CommissionAccrualRepository extends JpaRepository<CommissionAcc
             where a.user.id = :userId
               and a.createdAt >= :from
               and a.createdAt <= :to
+              and a.sale.cancelledAt is null
             order by a.createdAt desc
             """)
     List<CommissionAccrual> findByUser_IdAndCreatedAtBetweenOrderByCreatedAtDesc(
             @Param("userId") Long userId, @Param("from") Instant from, @Param("to") Instant to);
+
+    void deleteBySale_IdAndUser_Id(Long saleId, Long userId);
 }

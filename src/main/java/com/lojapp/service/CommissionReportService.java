@@ -19,6 +19,7 @@ public class CommissionReportService implements CommissionReportServiceContract 
         this.accruals = accruals;
     }
 
+    /** Accruals de vendas canceladas ficam de fora (filtro {@code cancelledAt} no repositório). */
     @Override
     @Transactional(readOnly = true)
     public List<CommissionAccrualResponse> list(long userId, Instant from, Instant to) {
