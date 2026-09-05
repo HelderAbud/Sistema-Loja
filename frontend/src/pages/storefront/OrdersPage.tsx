@@ -63,6 +63,8 @@ export function OrdersPage() {
     parsedProductId,
     parsedBrandId,
     previousRange,
+    apiRange,
+    previousApiRange,
     applyQuickRange,
   } = useStorefrontOrdersFilters();
 
@@ -76,8 +78,8 @@ export function OrdersPage() {
       listSales({
         page,
         size: 25,
-        from: from || undefined,
-        to: to || undefined,
+        from: apiRange.from,
+        to: apiRange.to,
         productId: parsedProductId,
         brandId: parsedBrandId,
       }),
@@ -94,8 +96,8 @@ export function OrdersPage() {
     ],
     queryFn: () =>
       summarizeSales({
-        from: from || undefined,
-        to: to || undefined,
+        from: apiRange.from,
+        to: apiRange.to,
         productId: parsedProductId,
         brandId: parsedBrandId,
       }),
@@ -108,8 +110,8 @@ export function OrdersPage() {
     ],
     queryFn: () =>
       summarizeSalesDaily({
-        from: from || undefined,
-        to: to || undefined,
+        from: apiRange.from,
+        to: apiRange.to,
         productId: parsedProductId,
         brandId: parsedBrandId,
       }),
@@ -127,8 +129,8 @@ export function OrdersPage() {
     ],
     queryFn: () =>
       summarizeSales({
-        from: previousRange?.from,
-        to: previousRange?.to,
+        from: previousApiRange?.from,
+        to: previousApiRange?.to,
         productId: parsedProductId,
         brandId: parsedBrandId,
       }),
@@ -139,12 +141,36 @@ export function OrdersPage() {
     () => sortSaleRows(salesQ.data?.content ?? [], ordersSortKey, ordersSortDir),
     [salesQ.data, ordersSortKey, ordersSortDir],
   );
-  const summaryPreview = buildSummaryText();
   const [customSummaryText, setCustomSummaryText] = useState(() => getSavedCustomSummaryText());
   const [isSummaryDirty, setIsSummaryDirty] = useState(false);
   const [summaryTemplate, setSummaryTemplate] = useState<SummaryTemplate>(() =>
     getSavedSummaryTemplate(),
   );
+
+  const buildSummaryText = (template: SummaryTemplate = summaryTemplate) => {
+    if (!summaryQ.data) return null;
+    const periodLabel = `${from || "início"} até ${to || "agora"}`;
+    const revenueText = formatCurrency(summaryQ.data.revenue);
+    const unitsText = Number(summaryQ.data.unitsSold).toLocaleString("pt-BR");
+    const ticketText = formatCurrency(summaryQ.data.averageTicket);
+    const varianceTextRaw =
+      previousSummaryQ.data && previousRange
+        ? `\nVariação vs período anterior (${previousRange.from} a ${previousRange.to}):\n- Faturamento: ${formatPercent(percentDelta(summaryQ.data.revenue, previousSummaryQ.data.revenue))}\n- Unidades: ${formatPercent(percentDelta(summaryQ.data.unitsSold, previousSummaryQ.data.unitsSold))}\n- Ticket médio: ${formatPercent(percentDelta(summaryQ.data.averageTicket, previousSummaryQ.data.averageTicket))}`
+        : "";
+    const varianceInline =
+      previousSummaryQ.data && previousRange
+        ? ` | Var. fat.: ${formatPercent(percentDelta(summaryQ.data.revenue, previousSummaryQ.data.revenue))}`
+        : "";
+
+    if (template === "executive") {
+      return `Resumo Executivo - LojApp\nPeríodo analisado: ${periodLabel}\nIndicadores principais:\n- Faturamento consolidado: ${revenueText}\n- Unidades vendidas: ${unitsText}\n- Ticket médio: ${ticketText}${varianceTextRaw}\nRecomendação: manter acompanhamento diário e atuar em produtos com maior tração.`;
+    }
+    if (template === "whatsapp") {
+      return `LojApp | ${periodLabel}\nFaturamento: ${revenueText}\nUnidades: ${unitsText}\nTicket: ${ticketText}${varianceInline}`;
+    }
+    return `Resumo comercial LojApp\nPeríodo: ${periodLabel}\n- Faturamento: ${revenueText}\n- Unidades vendidas: ${unitsText}\n- Ticket médio: ${ticketText}${varianceTextRaw}`;
+  };
+  const summaryPreview = buildSummaryText();
 
   useEffect(() => {
     if (!summaryPreview) {
@@ -234,30 +260,6 @@ export function OrdersPage() {
     } catch {
       toast.error("Não foi possível copiar o resumo.");
     }
-  }
-
-  function buildSummaryText(template: SummaryTemplate = summaryTemplate) {
-    if (!summaryQ.data) return null;
-    const periodLabel = `${from || "início"} até ${to || "agora"}`;
-    const revenueText = formatCurrency(summaryQ.data.revenue);
-    const unitsText = Number(summaryQ.data.unitsSold).toLocaleString("pt-BR");
-    const ticketText = formatCurrency(summaryQ.data.averageTicket);
-    const varianceTextRaw =
-      previousSummaryQ.data && previousRange
-        ? `\nVariação vs período anterior (${previousRange.from} a ${previousRange.to}):\n- Faturamento: ${formatPercent(percentDelta(summaryQ.data.revenue, previousSummaryQ.data.revenue))}\n- Unidades: ${formatPercent(percentDelta(summaryQ.data.unitsSold, previousSummaryQ.data.unitsSold))}\n- Ticket médio: ${formatPercent(percentDelta(summaryQ.data.averageTicket, previousSummaryQ.data.averageTicket))}`
-        : "";
-    const varianceInline =
-      previousSummaryQ.data && previousRange
-        ? ` | Var. fat.: ${formatPercent(percentDelta(summaryQ.data.revenue, previousSummaryQ.data.revenue))}`
-        : "";
-
-    if (template === "executive") {
-      return `Resumo Executivo - LojApp\nPeríodo analisado: ${periodLabel}\nIndicadores principais:\n- Faturamento consolidado: ${revenueText}\n- Unidades vendidas: ${unitsText}\n- Ticket médio: ${ticketText}${varianceTextRaw}\nRecomendação: manter acompanhamento diário e atuar em produtos com maior tração.`;
-    }
-    if (template === "whatsapp") {
-      return `LojApp | ${periodLabel}\nFaturamento: ${revenueText}\nUnidades: ${unitsText}\nTicket: ${ticketText}${varianceInline}`;
-    }
-    return `Resumo comercial LojApp\nPeríodo: ${periodLabel}\n- Faturamento: ${revenueText}\n- Unidades vendidas: ${unitsText}\n- Ticket médio: ${ticketText}${varianceTextRaw}`;
   }
 
   function exportPresetsJson() {
