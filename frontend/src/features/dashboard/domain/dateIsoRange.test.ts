@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  toIsoEndOfDay,
-  toIsoStartOfDay,
-  toSalesApiInstantRange,
-} from "./dateIsoRange";
+import { toIsoEndOfDay, toIsoStartOfDay, toSalesApiInstantRange } from "./dateIsoRange";
 
 describe("dateIsoRange", () => {
   it("toIsoStartOfDay / toIsoEndOfDay devolvem Instant ISO, não YYYY-MM-DD", () => {

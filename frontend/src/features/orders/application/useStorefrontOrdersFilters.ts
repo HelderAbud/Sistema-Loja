@@ -39,9 +39,7 @@ export function useStorefrontOrdersFilters() {
   const apiRange = useMemo(() => toSalesApiInstantRange(from, to), [from, to]);
   const previousApiRange = useMemo(
     () =>
-      previousRange == null
-        ? null
-        : toSalesApiInstantRange(previousRange.from, previousRange.to),
+      previousRange == null ? null : toSalesApiInstantRange(previousRange.from, previousRange.to),
     [previousRange],
   );
 
