@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { toSalesApiInstantRange } from "../../dashboard/domain/dateIsoRange";
 import { computePreviousComparableRange, toDateInputValue } from "../domain/dateRange";
 import type { OrdersFilterPreset, OrdersSortKey, SavedOrderFilters } from "../domain/types";
 import {
@@ -35,6 +36,14 @@ export function useStorefrontOrdersFilters() {
     brandId.trim() === "" || !Number.isFinite(Number(brandId)) ? undefined : Number(brandId);
 
   const previousRange = useMemo(() => computePreviousComparableRange(from, to), [from, to]);
+  const apiRange = useMemo(() => toSalesApiInstantRange(from, to), [from, to]);
+  const previousApiRange = useMemo(
+    () =>
+      previousRange == null
+        ? null
+        : toSalesApiInstantRange(previousRange.from, previousRange.to),
+    [previousRange],
+  );
 
   function applyQuickRange(days: number) {
     const end = new Date();
@@ -100,6 +109,8 @@ export function useStorefrontOrdersFilters() {
     parsedProductId,
     parsedBrandId,
     previousRange,
+    apiRange,
+    previousApiRange,
     applyQuickRange,
   };
 }

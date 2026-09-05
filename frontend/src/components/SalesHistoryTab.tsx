@@ -1,23 +1,12 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { toIsoEndOfDay, toIsoStartOfDay } from "@/features/dashboard/domain/dateIsoRange";
 import { cancelSale, listSales } from "../api";
 import { TableSkeleton } from "./ui/TableSkeleton";
 import { queryKeys } from "../queryKeys";
 
 const money = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-
-function toIsoStartOfDay(localDate: string): string | undefined {
-  if (!localDate) return undefined;
-  const d = new Date(`${localDate}T00:00:00`);
-  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
-}
-
-function toIsoEndOfDay(localDate: string): string | undefined {
-  if (!localDate) return undefined;
-  const d = new Date(`${localDate}T23:59:59.999`);
-  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
-}
 
 export function SalesHistoryTab() {
   const queryClient = useQueryClient();

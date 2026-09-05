@@ -10,3 +10,11 @@ export function toIsoEndOfDay(localDate: string): string | undefined {
   const d = new Date(`${localDate}T23:59:59.999`);
   return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
 }
+
+/** Query params de vendas: Instant ISO-8601 (Spring `ISO.DATE_TIME`). */
+export function toSalesApiInstantRange(fromDay: string, toDay: string) {
+  return {
+    from: toIsoStartOfDay(fromDay.trim()),
+    to: toIsoEndOfDay(toDay.trim()),
+  };
+}
