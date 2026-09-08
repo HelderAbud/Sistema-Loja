@@ -12,7 +12,7 @@ Plano da fatia de documentação: `.cursor/plans/plan-2026-08-18-lojapp-papeis.m
 
 | Superfície | Quem passa | Teste |
 |------------|------------|--------|
-| `GET /api/v1/users/admin/list` | só `ADMIN` | `UserControllerTest`, `UserAuthorizationIntegrationTest` |
+| `GET /api/v1/users/admin/list` | só `ADMIN`; conteúdo = a própria conta (não `findAll`) | `UserControllerTest`, `UserAuthorizationIntegrationTest`, `AuthListUsersForAdminUseCaseTest` |
 | Caixa `.../pos/cash-sessions/**` | `CASHIER`, `MANAGER`, `USER`, `ADMIN` — **não** `SELLER` / `REPRESENTATIVE` | `CashSessionControllerTest.openCashSession_withSellerRole_returnsForbidden` |
 | PDV `POST .../pos/sales/finalize` | `CASHIER`, `SELLER`, `MANAGER`, `USER`, `ADMIN` — **não** `REPRESENTATIVE` | `PosSaleControllerTest.finalizeSale_withRepresentativeRole_returnsForbidden` |
 | NFe import / apply-suggestions | `USER`, `ADMIN`, `MANAGER`, `REPRESENTATIVE` | `NfeControllerTest.importNfe_withCashierRole_returnsForbidden` |
