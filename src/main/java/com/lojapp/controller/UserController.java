@@ -39,15 +39,19 @@ public class UserController {
 
     @GetMapping("/admin/list")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Listar utilizadores (somente ADMIN)")
+    @Operation(
+            summary = "Listar a própria conta (somente ADMIN)",
+            description =
+                    "ADMIN é dono de uma loja (isolamento por user_id). Não enumera outras contas.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Lista de utilizadores"),
+        @ApiResponse(responseCode = "200", description = "Página com a conta autenticada"),
         @ApiResponse(responseCode = "403", description = "Acesso restrito a ADMIN")
     })
     public AdminUserPageResponse listUsersForAdmin(
+            @AuthenticationPrincipal JwtUser principal,
             @ParameterObject
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC)
                     Pageable pageable) {
-        return AdminUserPageResponse.from(authService.listUsersForAdmin(pageable));
+        return AdminUserPageResponse.from(authService.listUsersForAdmin(principal.userId(), pageable));
     }
 }

@@ -121,7 +121,7 @@ Texto falado, 3 casos técnicos e roteiro de ensaio: [`docs/lojapp/pitch-portfol
 | Role | Uso típico |
 |------|------------|
 | `USER` | Operador da loja (catálogo, vendas, NFe, dashboard) |
-| `ADMIN` | Administração (`GET /users/admin/list`, etc.) |
+| `ADMIN` | Dono de loja (mesmo isolamento por `user_id`; `GET /users/admin/list` só a própria conta) |
 | `REPRESENTATIVE` | Representante B2B (mesmo acesso operacional base que `USER`) |
 | `CASHIER` / `SELLER` | PDV — finalização de venda |
 | `MANAGER` | PDV — abertura/fecho de turno de caixa |

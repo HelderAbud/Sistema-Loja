@@ -21,5 +21,5 @@ public interface AuthServiceContract {
 
     UserMeResponse me(long userId);
 
-    Page<AdminUserSummaryResponse> listUsersForAdmin(Pageable pageable);
+    Page<AdminUserSummaryResponse> listUsersForAdmin(long actorUserId, Pageable pageable);
 }

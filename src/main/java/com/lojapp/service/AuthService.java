@@ -55,7 +55,7 @@ public class AuthService implements AuthServiceContract {
         return authMeUseCase.execute(userId);
     }
 
-    public Page<AdminUserSummaryResponse> listUsersForAdmin(Pageable pageable) {
-        return authListUsersForAdminUseCase.execute(pageable);
+    public Page<AdminUserSummaryResponse> listUsersForAdmin(long actorUserId, Pageable pageable) {
+        return authListUsersForAdminUseCase.execute(actorUserId, pageable);
     }
 }

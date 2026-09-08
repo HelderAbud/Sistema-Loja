@@ -3,7 +3,6 @@ package com.lojapp.integration;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 import com.lojapp.entity.User;
 import com.lojapp.repository.UserRepository;
@@ -106,7 +105,9 @@ class UserAuthorizationIntegrationTest {
                                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
-                .andExpect(jsonPath("$.totalElements").value(greaterThanOrEqualTo(2)));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].email").value(admin.getEmail()))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     private User createUser(String role) {

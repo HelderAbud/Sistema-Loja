@@ -1,7 +1,8 @@
 package com.lojapp.controller;
 
-import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -80,21 +81,18 @@ class UserControllerTest {
 
     @Test
     void adminList_withAdminRole_returnsUsers() throws Exception {
-        when(authService.listUsersForAdmin(any()))
+        when(authService.listUsersForAdmin(eq(1L), any()))
                 .thenReturn(
                         new PageImpl<>(
-                                List.of(
-                                        new AdminUserSummaryResponse(1L, "a@lojapp.test", "ADMIN"),
-                                        new AdminUserSummaryResponse(2L, "u@lojapp.test", "USER")),
+                                List.of(new AdminUserSummaryResponse(1L, "a@lojapp.test", "ADMIN")),
                                 PageRequest.of(0, 20),
-                                2));
+                                1));
 
         mockMvc.perform(get("/api/v1/users/admin/list").with(admin(1L)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].email").value("a@lojapp.test"))
                 .andExpect(jsonPath("$.content[0].role").value("ADMIN"))
-                .andExpect(jsonPath("$.content[1].email").value("u@lojapp.test"))
-                .andExpect(jsonPath("$.content[1].role").value("USER"))
-                .andExpect(jsonPath("$.totalElements").value(2));
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 }
