@@ -17,9 +17,12 @@ import com.lojapp.application.idempotency.ApiIdempotencyService;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SaleRequest;
+import com.lojapp.entity.CashSession;
 import com.lojapp.entity.CashSessionStatus;
+import com.lojapp.entity.PaymentMethod;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
+import com.lojapp.entity.SalePayment;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.InsufficientStockException;
 import com.lojapp.exception.domain.LojappDomainException;
@@ -27,6 +30,7 @@ import com.lojapp.exception.domain.ProductNotFoundException;
 import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.SaleItemRepository;
+import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.observability.LojappBusinessMetrics;
@@ -57,6 +61,7 @@ class CreateSaleUseCaseTest {
     @Mock private LojappBusinessMetrics businessMetrics;
     @Mock private PosSaleCommissionServiceContract posSaleCommissionService;
     @Mock private CashSessionRepository cashSessions;
+    @Mock private SalePaymentRepository salePayments;
 
     private CreateSaleUseCase useCase;
 
@@ -73,7 +78,8 @@ class CreateSaleUseCaseTest {
                         idempotencyService,
                         businessMetrics,
                         posSaleCommissionService,
-                        cashSessions);
+                        cashSessions,
+                        salePayments);
         lenient()
                 .when(cashSessions.findByUser_IdAndStatus(anyLong(), eq(CashSessionStatus.OPEN)))
                 .thenReturn(Optional.empty());
@@ -281,5 +287,56 @@ class CreateSaleUseCaseTest {
                         any(Sale.class),
                         org.mockito.ArgumentMatchers.anyList(),
                         eq(11L));
+    }
+
+    @Test
+    void persistSale_whenCashOpen_linksSessionAndCashPayment() {
+        long userId = 7L;
+        User userRef = new User();
+        userRef.setId(userId);
+        when(users.getReferenceById(userId)).thenReturn(userRef);
+
+        Product product = new Product();
+        product.setId(70L);
+        product.setCostPrice(new BigDecimal("2.00"));
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(70L, userId)).thenReturn(Optional.of(product));
+
+        CashSession open = new CashSession();
+        open.setId(88L);
+        when(cashSessions.findByUser_IdAndStatus(userId, CashSessionStatus.OPEN))
+                .thenReturn(Optional.of(open));
+
+        when(sales.save(any(Sale.class)))
+                .thenAnswer(
+                        inv -> {
+                            Sale s = inv.getArgument(0);
+                            s.setId(700L);
+                            s.setSoldAt(Instant.parse("2026-09-08T15:00:00Z"));
+                            return s;
+                        });
+
+        useCase.execute(
+                userId,
+                new SaleRequest(70L, new BigDecimal("2"), new BigDecimal("10.00"), null),
+                Optional.empty());
+
+        ArgumentCaptor<Sale> saleCaptor = ArgumentCaptor.forClass(Sale.class);
+        verify(sales).save(saleCaptor.capture());
+        assertThat(saleCaptor.getValue().getCashSession()).isSameAs(open);
+
+        ArgumentCaptor<SalePayment> paymentCaptor = ArgumentCaptor.forClass(SalePayment.class);
+        verify(salePayments).save(paymentCaptor.capture());
+        assertThat(paymentCaptor.getValue().getPaymentMethod()).isEqualTo(PaymentMethod.CASH);
+        assertThat(paymentCaptor.getValue().getAmount()).isEqualByComparingTo("20.00");
+        assertThat(paymentCaptor.getValue().getSale().getId()).isEqualTo(700L);
+
+        verify(posSaleCommissionService)
+                .assignSellerAndAccrue(
+                        eq(userId),
+                        eq(userRef),
+                        eq(open),
+                        any(Sale.class),
+                        org.mockito.ArgumentMatchers.anyList(),
+                        eq(null));
     }
 }

@@ -22,4 +22,13 @@ describe("sortSaleRows", () => {
     const sorted = sortSaleRows(rows, "quantity", "desc");
     expect(sorted.map((r) => r.id)).toEqual([3, 1, 2]);
   });
+
+  it("ordena por total usando lineTotal quando a venda tem várias linhas", () => {
+    const multi = [
+      { id: 1, quantity: 3, unitPrice: 10, lineTotal: 15, soldAt: "2024-01-01T10:00:00Z" },
+      { id: 2, quantity: 1, unitPrice: 10, lineTotal: 40, soldAt: "2024-01-01T11:00:00Z" },
+    ];
+    const sorted = sortSaleRows(multi, "total", "asc");
+    expect(sorted.map((r) => r.id)).toEqual([1, 2]);
+  });
 });

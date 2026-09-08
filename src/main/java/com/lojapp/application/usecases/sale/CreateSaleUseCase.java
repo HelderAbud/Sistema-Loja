@@ -9,14 +9,17 @@ import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.domain.sale.SaleRegistrationLine;
 import com.lojapp.entity.CashSession;
 import com.lojapp.entity.CashSessionStatus;
+import com.lojapp.entity.PaymentMethod;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
 import com.lojapp.entity.SaleItem;
+import com.lojapp.entity.SalePayment;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.ProductNotFoundException;
 import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.repository.SaleItemRepository;
+import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.service.AuditService;
@@ -46,6 +49,7 @@ public class CreateSaleUseCase {
     private final LojappBusinessMetrics businessMetrics;
     private final PosSaleCommissionServiceContract posSaleCommissionService;
     private final CashSessionRepository cashSessions;
+    private final SalePaymentRepository salePayments;
 
     public CreateSaleUseCase(
             UserRepository users,
@@ -57,7 +61,8 @@ public class CreateSaleUseCase {
             ApiIdempotencyService idempotencyService,
             LojappBusinessMetrics businessMetrics,
             PosSaleCommissionServiceContract posSaleCommissionService,
-            CashSessionRepository cashSessions) {
+            CashSessionRepository cashSessions,
+            SalePaymentRepository salePayments) {
         this.users = users;
         this.products = products;
         this.sales = sales;
@@ -68,6 +73,7 @@ public class CreateSaleUseCase {
         this.businessMetrics = businessMetrics;
         this.posSaleCommissionService = posSaleCommissionService;
         this.cashSessions = cashSessions;
+        this.salePayments = salePayments;
     }
 
     @Transactional
@@ -87,9 +93,12 @@ public class CreateSaleUseCase {
 
         SaleRegistrationLine line = SaleRegistrationLine.fromRequest(request, product.getCostPrice());
 
+        CashSession openSession =
+                cashSessions.findByUser_IdAndStatus(userId, CashSessionStatus.OPEN).orElse(null);
         Sale sale = new Sale();
         sale.setUser(user);
         sale.setProduct(product);
+        sale.setCashSession(openSession);
         sale.setQuantity(line.quantity());
         sale.setUnitPrice(line.unitPrice());
         sale.setUnitCost(line.unitCost());
@@ -102,8 +111,14 @@ public class CreateSaleUseCase {
         saleItem.setUnitPrice(line.unitPrice());
         saleItem.setUnitCost(line.unitCost());
         saleItems.save(saleItem);
-        CashSession openSession =
-                cashSessions.findByUser_IdAndStatus(userId, CashSessionStatus.OPEN).orElse(null);
+        if (openSession != null) {
+            SalePayment payment = new SalePayment();
+            payment.setUser(user);
+            payment.setSale(sale);
+            payment.setPaymentMethod(PaymentMethod.CASH);
+            payment.setAmount(line.unitPrice().multiply(line.quantity()));
+            salePayments.save(payment);
+        }
         posSaleCommissionService.assignSellerAndAccrue(
                 userId, user, openSession, sale, List.of(saleItem), request.sellerId());
         inventoryService.decreaseForSale(user, product, line.quantity(), sale.getId());

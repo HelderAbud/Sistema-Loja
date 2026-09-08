@@ -152,7 +152,7 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
     List<ProductAbcAggregateRow> aggregateProductAbc(
             @Param("userId") Long userId, @Param("from") Instant from, @Param("to") Instant to);
 
-    @EntityGraph(attributePaths = {"product", "product.brand"})
+    @EntityGraph(attributePaths = {"product", "product.brand", "items", "items.product", "items.product.brand"})
     @Query(
             """
             select s from Sale s

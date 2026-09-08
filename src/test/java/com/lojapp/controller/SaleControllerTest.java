@@ -96,7 +96,9 @@ class SaleControllerTest {
                         new BigDecimal("10"),
                         new BigDecimal("5"),
                         soldAt,
-                        false);
+                        false,
+                        1,
+                        new BigDecimal("20"));
         var page =
                 new PageImpl<>(List.of(row), PageRequest.of(0, 20), 1);
         when(sales.listSales(eq(USER_ID), any(), any(), isNull(), isNull(), any()))
