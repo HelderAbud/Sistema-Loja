@@ -12,7 +12,13 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { listBrands, listSales, saleLineTotal, summarizeSales, summarizeSalesDaily } from "../../api";
+import {
+  listBrands,
+  listSales,
+  saleLineTotal,
+  summarizeSales,
+  summarizeSalesDaily,
+} from "../../api";
 import { TableSkeleton } from "../../components/ui/TableSkeleton";
 import {
   type OrdersFilterPreset,
