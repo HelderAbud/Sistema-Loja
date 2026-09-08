@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { listProducts } from "../../api";
 import { useAuthStore } from "../../authStore";
 import { BRAND_NAME } from "../../brand";
+import { formatMoneyBrl } from "../../components/formatMoney";
 import { storefrontProducts, useCartStore } from "../../features/storefront";
 
+/** Alias da vitrine: mesma moeda do piloto (BRL / pt-BR). */
 export function formatCurrency(value: number) {
-  return new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" }).format(value);
+  return formatMoneyBrl(value);
 }
 
 export function percentDelta(current: number, previous: number) {
