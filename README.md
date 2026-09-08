@@ -40,7 +40,8 @@ Swagger / OpenAPI **não** públicos em `prod` (401). **Não há email/senha no 
 | Rota | O quê | Auth |
 |------|--------|------|
 | `/` | Landing | público |
-| `/home` `/catalog` `/product/:slug` `/cart` `/orders` `/seller` `/pitch` | Vitrine / pitch | público |
+| `/pitch` | Pitch do produto | público |
+| `/home` `/catalog` `/product/:slug` `/cart` `/orders` `/seller` | Redirect → `/` (vitrine retirada do menu público) | — |
 | `/login` | Login / registo (registo só se a API tiver `LOJAPP_REGISTRATION_ENABLED=true`) | público |
 | `/app` | Redirect → `/piloto/products` ou `/login` | — |
 | `/piloto` | Redirect → `/piloto/products` | JWT |
@@ -52,6 +53,7 @@ Swagger / OpenAPI **não** públicos em `prod` (401). **Não há email/senha no 
 | `/piloto/inventory` | Stock | JWT |
 | `/piloto/dashboard` | KPIs + curva ABC | JWT |
 | `/piloto/commissions` | Relatório + CSV | JWT (`USER` / `ADMIN` / `MANAGER`) |
+| outras URLs | Página 404 (não redireciona para a home) | público |
 
 ### API (prefixo `/api/v1`)
 

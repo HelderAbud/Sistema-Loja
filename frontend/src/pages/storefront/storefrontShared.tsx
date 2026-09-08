@@ -4,7 +4,7 @@ import { listProducts } from "../../api";
 import { useAuthStore } from "../../authStore";
 import { BRAND_NAME } from "../../brand";
 import { formatMoneyBrl } from "../../components/formatMoney";
-import { storefrontProducts, useCartStore } from "../../features/storefront";
+import { storefrontProducts } from "../../features/storefront";
 
 /** Alias da vitrine: mesma moeda do piloto (BRL / pt-BR). */
 export function formatCurrency(value: number) {
@@ -84,9 +84,6 @@ export function useStorefrontCatalog() {
 }
 
 export function StoreHeader() {
-  const cartCount = useCartStore((state) =>
-    state.items.reduce((acc, item) => acc + item.quantity, 0),
-  );
   return (
     <header className="store-topbar">
       <div className="store-shell store-topbar-content">
@@ -95,12 +92,9 @@ export function StoreHeader() {
           <strong>{BRAND_NAME}</strong>
         </Link>
         <nav className="store-nav">
-          <Link to="/home">Home</Link>
-          <Link to="/catalog">Catálogo</Link>
-          <Link to="/orders">Pedidos</Link>
-          <Link to="/seller">Área Lojista</Link>
+          <Link to="/">Home</Link>
           <Link to="/pitch">Pitch</Link>
-          <Link to="/cart">Carrinho ({cartCount})</Link>
+          <Link to="/login">Entrar</Link>
         </nav>
       </div>
     </header>

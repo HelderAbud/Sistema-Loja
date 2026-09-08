@@ -11,28 +11,13 @@ const PilotoWorkspacePage = lazy(() =>
 );
 
 const LandingPage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.LandingPage })),
-);
-const HomePage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.HomePage })),
-);
-const CatalogPage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.CatalogPage })),
-);
-const OrdersPage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.OrdersPage })),
-);
-const ProductPage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.ProductPage })),
-);
-const CartPage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.CartPage })),
-);
-const SellerAreaPage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.SellerAreaPage })),
+  import("./pages/storefront/LandingPage").then((m) => ({ default: m.LandingPage })),
 );
 const PitchPage = lazy(() =>
-  import("./pages/StorefrontPages").then((m) => ({ default: m.PitchPage })),
+  import("./pages/storefront/PitchPage").then((m) => ({ default: m.PitchPage })),
+);
+const NotFoundPage = lazy(() =>
+  import("./pages/storefront/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
 );
 
 function SessionBackdrop() {
@@ -55,7 +40,7 @@ function LazyRoute({ children }: { children: ReactNode }) {
   return <Suspense fallback={<RouteFallback />}>{children}</Suspense>;
 }
 
-function AppRoutes() {
+export function AppRoutes() {
   const { isAuthenticated, bootstrapSession, logout: endSession } = useAuthSession();
   const {
     email,
@@ -108,54 +93,12 @@ function AppRoutes() {
             </LazyRoute>
           }
         />
-        <Route
-          path="/home"
-          element={
-            <LazyRoute>
-              <HomePage />
-            </LazyRoute>
-          }
-        />
-        <Route
-          path="/catalog"
-          element={
-            <LazyRoute>
-              <CatalogPage />
-            </LazyRoute>
-          }
-        />
-        <Route
-          path="/orders"
-          element={
-            <LazyRoute>
-              <OrdersPage />
-            </LazyRoute>
-          }
-        />
-        <Route
-          path="/product/:slug"
-          element={
-            <LazyRoute>
-              <ProductPage />
-            </LazyRoute>
-          }
-        />
-        <Route
-          path="/cart"
-          element={
-            <LazyRoute>
-              <CartPage />
-            </LazyRoute>
-          }
-        />
-        <Route
-          path="/seller"
-          element={
-            <LazyRoute>
-              <SellerAreaPage />
-            </LazyRoute>
-          }
-        />
+        <Route path="/home" element={<Navigate to="/" replace />} />
+        <Route path="/catalog" element={<Navigate to="/" replace />} />
+        <Route path="/orders" element={<Navigate to="/" replace />} />
+        <Route path="/product/:slug" element={<Navigate to="/" replace />} />
+        <Route path="/cart" element={<Navigate to="/" replace />} />
+        <Route path="/seller" element={<Navigate to="/" replace />} />
         <Route
           path="/pitch"
           element={
@@ -196,7 +139,14 @@ function AppRoutes() {
           path="/app"
           element={<Navigate to={isAuthenticated ? "/piloto/products" : "/login"} replace />}
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route
+          path="*"
+          element={
+            <LazyRoute>
+              <NotFoundPage />
+            </LazyRoute>
+          }
+        />
       </Routes>
     </>
   );
