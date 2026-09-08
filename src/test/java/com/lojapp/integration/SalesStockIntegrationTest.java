@@ -34,6 +34,7 @@ import com.lojapp.service.LojappCatalogService;
 import com.lojapp.service.SalesService;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -547,6 +548,51 @@ class SalesStockIntegrationTest {
         assertThat(summary.revenue()).isEqualByComparingTo(new BigDecimal("52.00"));
         assertThat(summary.averageTicket()).isEqualByComparingTo(new BigDecimal("52.00"));
         assertThat(created.saleId()).isNotNull();
+    }
+
+    @Test
+    void summarizeSalesDaily_groupsByAmericaSaoPauloCalendarDate() {
+        User user = createUser("sale-daily-brt");
+        long userId = user.getId();
+        var product =
+                catalog.createProduct(
+                        userId,
+                        new ProductRequest(
+                                "SKU Daily BRT",
+                                null,
+                                null,
+                                null,
+                                null,
+                                new BigDecimal("10.00"),
+                                new BigDecimal("15.00"),
+                                BigDecimal.ZERO));
+        inventory.adjustStock(
+                userId, new StockAdjustmentRequest(product.id(), new BigDecimal("5"), "SEED"));
+
+        var created =
+                salesService.registerSale(
+                        userId,
+                        new SaleRequest(
+                                product.id(),
+                                new BigDecimal("1"),
+                                new BigDecimal("15.00"),
+                                new BigDecimal("10.00")));
+
+        var sale = sales.findById(created.id()).orElseThrow();
+        sale.setSoldAt(Instant.parse("2026-09-09T00:30:00Z"));
+        sales.saveAndFlush(sale);
+
+        var daily =
+                salesService.summarizeSalesDaily(
+                        userId,
+                        Instant.parse("2026-09-08T00:00:00Z"),
+                        Instant.parse("2026-09-09T23:59:59Z"),
+                        null,
+                        null);
+
+        assertThat(daily).hasSize(1);
+        assertThat(daily.get(0).date()).isEqualTo(LocalDate.of(2026, 9, 8));
+        assertThat(daily.get(0).revenue()).isEqualByComparingTo(new BigDecimal("15.00"));
     }
 
     private User createUser(String label) {

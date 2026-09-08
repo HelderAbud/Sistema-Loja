@@ -211,11 +211,12 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
             @Param("productId") Long productId,
             @Param("brandId") Long brandId);
 
+    /** Calendário da loja: America/Sao_Paulo (não UTC do JDBC). */
     @Query(
             value =
                     """
             select
-                date(s.sold_at) as soldDate,
+                (s.sold_at AT TIME ZONE 'America/Sao_Paulo')::date as soldDate,
                 coalesce(sum(i.unit_price * i.quantity), 0) as revenue,
                 coalesce(sum(i.quantity), 0) as unitsSold
             from sales s
@@ -227,8 +228,8 @@ public interface SaleRepository extends JpaRepository<Sale, Long> {
               and s.cancelled_at is null
               and (:productId is null or i.product_id = :productId)
               and (:brandId is null or p.brand_id = :brandId)
-            group by date(s.sold_at)
-            order by date(s.sold_at) asc
+            group by (s.sold_at AT TIME ZONE 'America/Sao_Paulo')::date
+            order by (s.sold_at AT TIME ZONE 'America/Sao_Paulo')::date asc
             """,
             nativeQuery = true)
     List<SalesDailyAggregateRow> aggregateSalesDaily(
