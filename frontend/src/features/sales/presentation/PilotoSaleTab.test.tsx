@@ -120,8 +120,45 @@ describe("PilotoSaleTab", () => {
     await waitFor(() =>
       expect(registerSale).toHaveBeenCalledWith(
         expect.objectContaining({ productId: 42, sellerId: 11 }),
-        expect.anything(),
+        expect.stringMatching(/\S/),
       ),
     );
+  });
+
+  it("desativa o submit enquanto o stock ainda carrega", async () => {
+    getProductStock.mockImplementation(() => new Promise(() => {}));
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
+    const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
+    fireEvent.mouseDown(option);
+    fireEvent.click(option);
+    fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
+      target: { value: "18" },
+    });
+    expect(screen.getByRole("button", { name: /registar venda/i })).toBeDisabled();
+  });
+
+  it("desativa o submit quando o stock falha", async () => {
+    getProductStock.mockRejectedValue(new Error("stock indisponível"));
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
+    const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
+    fireEvent.mouseDown(option);
+    fireEvent.click(option);
+    await waitFor(() => expect(getProductStock).toHaveBeenCalledWith(42));
+    fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
+      target: { value: "18" },
+    });
+    expect(screen.getByRole("button", { name: /registar venda/i })).toBeDisabled();
   });
 });

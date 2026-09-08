@@ -27,6 +27,7 @@ export function PilotoSaleTab() {
   const [error, setError] = useState<string | null>(null);
   const [saleId, setSaleId] = useState<number | null>(null);
   const [sellerId, setSellerId] = useState("");
+  const saleIdempotencyKeyRef = useRef(crypto.randomUUID());
 
   const stockQ = useQuery({
     queryKey: selected != null ? queryKeys.productStock(selected.id) : ["productStock", -1],
@@ -40,8 +41,10 @@ export function PilotoSaleTab() {
   });
 
   const saleMut = useMutation({
-    mutationFn: registerSale,
+    mutationFn: (body: Parameters<typeof registerSale>[0]) =>
+      registerSale(body, saleIdempotencyKeyRef.current),
     onSuccess: async () => {
+      saleIdempotencyKeyRef.current = crypto.randomUUID();
       invalidateLojappDataQueries(queryClient);
     },
   });
@@ -110,6 +113,14 @@ export function PilotoSaleTab() {
     }
     if (insufficientStock) {
       setError("Quantidade superior ao saldo disponível.");
+      return;
+    }
+    if (stockLoading) {
+      setError("Aguarde o saldo de stock.");
+      return;
+    }
+    if (stockQ.isError) {
+      setError("Não foi possível ler o stock. Tente outra vez.");
       return;
     }
     let uc: number | null = null;
@@ -275,7 +286,11 @@ export function PilotoSaleTab() {
             Venda registada — id <strong>{saleId}</strong>
           </p>
         ) : null}
-        <button type="submit" className="primary" disabled={busy || insufficientStock}>
+        <button
+          type="submit"
+          className="primary"
+          disabled={busy || stockLoading || stockQ.isError || insufficientStock}
+        >
           {busy ? (
             <span className="btn-inline-loading">
               <span
