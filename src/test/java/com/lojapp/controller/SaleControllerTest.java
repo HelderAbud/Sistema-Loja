@@ -112,6 +112,29 @@ class SaleControllerTest {
     }
 
     @Test
+    void listSales_dateOnlyFrom_failsInstantConversion() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales")
+                                .param("from", "2026-09-01")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    void listSales_isoInstantFrom_isOk() throws Exception {
+        when(sales.listSales(eq(USER_ID), any(), any(), isNull(), isNull(), any()))
+                .thenReturn(SalePageResponse.from(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0)));
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales")
+                                .param("from", "2026-09-01T00:00:00.000Z")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     void listSales_withCashierRole_returnsForbidden() throws Exception {
         mockMvc.perform(
                         get("/api/v1/lojapp/sales")
