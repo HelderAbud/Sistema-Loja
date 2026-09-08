@@ -4,7 +4,15 @@ export type SaleRowSortable = {
   quantity: number | string;
   unitPrice: number | string;
   soldAt: string;
+  lineTotal?: number | string | null;
 };
+
+function merchandiseTotal(row: SaleRowSortable): number {
+  if (row.lineTotal != null && row.lineTotal !== "") {
+    return Number(row.lineTotal);
+  }
+  return Number(row.quantity) * Number(row.unitPrice);
+}
 
 export function sortSaleRows<T extends SaleRowSortable>(
   rows: T[],
@@ -19,8 +27,8 @@ export function sortSaleRows<T extends SaleRowSortable>(
         : Number(b.quantity) - Number(a.quantity);
     }
     if (ordersSortKey === "total") {
-      const aTotal = Number(a.quantity) * Number(a.unitPrice);
-      const bTotal = Number(b.quantity) * Number(b.unitPrice);
+      const aTotal = merchandiseTotal(a);
+      const bTotal = merchandiseTotal(b);
       return ordersSortDir === "asc" ? aTotal - bTotal : bTotal - aTotal;
     }
     const aTime = new Date(a.soldAt).getTime();

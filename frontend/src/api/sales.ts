@@ -43,7 +43,21 @@ export type SaleRow = {
   unitCost: number;
   soldAt: string;
   cancelled: boolean;
+  itemCount?: number;
+  lineTotal?: number;
 };
+
+/** Total da venda: linhas do PDV, ou qty × preço unitário no fallback. */
+export function saleLineTotal(row: {
+  quantity: number | string;
+  unitPrice: number | string;
+  lineTotal?: number | string | null;
+}): number {
+  if (row.lineTotal != null && row.lineTotal !== "") {
+    return Number(row.lineTotal);
+  }
+  return Number(row.quantity) * Number(row.unitPrice);
+}
 
 export type SalePage = {
   content: SaleRow[];

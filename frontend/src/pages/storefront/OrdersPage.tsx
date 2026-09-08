@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { listBrands, listSales, summarizeSales, summarizeSalesDaily } from "../../api";
+import { listBrands, listSales, saleLineTotal, summarizeSales, summarizeSalesDaily } from "../../api";
 import { TableSkeleton } from "../../components/ui/TableSkeleton";
 import {
   type OrdersFilterPreset,
@@ -201,7 +201,7 @@ export function OrdersPage() {
         row.productName,
         row.brandName,
         row.quantity,
-        Number(row.unitPrice) * Number(row.quantity),
+        Number(saleLineTotal(row)),
         new Date(row.soldAt).toISOString(),
       ]
         .map(csvEscape)
@@ -762,7 +762,7 @@ export function OrdersPage() {
                       <td>{row.productName}</td>
                       <td>{row.brandName}</td>
                       <td>{row.quantity}</td>
-                      <td>{formatCurrency(row.unitPrice * row.quantity)}</td>
+                      <td>{formatCurrency(saleLineTotal(row))}</td>
                       <td>{new Date(row.soldAt).toLocaleString("pt-BR")}</td>
                     </tr>
                   ))}

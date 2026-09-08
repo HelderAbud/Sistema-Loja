@@ -2,7 +2,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { toIsoEndOfDay, toIsoStartOfDay } from "@/features/dashboard/domain/dateIsoRange";
-import { cancelSale, listSales } from "../api";
+import { cancelSale, listSales, saleLineTotal } from "../api";
 import { TableSkeleton } from "./ui/TableSkeleton";
 import { queryKeys } from "../queryKeys";
 
@@ -118,6 +118,7 @@ export function SalesHistoryTab() {
                   <th>Marca</th>
                   <th>Qtd</th>
                   <th>P. venda</th>
+                  <th>Total</th>
                   <th>P. custo</th>
                   <th>Estado</th>
                   <th></th>
@@ -134,6 +135,7 @@ export function SalesHistoryTab() {
                     <td>{s.brandName}</td>
                     <td>{s.quantity}</td>
                     <td>{money(s.unitPrice)}</td>
+                    <td>{money(saleLineTotal(s))}</td>
                     <td>{money(s.unitCost)}</td>
                     <td>{s.cancelled ? <span className="muted">Cancelada</span> : "Ativa"}</td>
                     <td>
