@@ -63,6 +63,40 @@ class AuthControllerTest {
     }
 
     @Test
+    void login_passwordTooLong_returns400WithoutCallingAuthService() throws Exception {
+        String password = "a".repeat(129);
+
+        mockMvc.perform(
+                        post("/api/v1/auth/login")
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        "{\"email\":\"ok@lojapp.test\",\"password\":\""
+                                                + password
+                                                + "\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(ApiErrorCode.VALIDATION_ERROR.code()));
+
+        verifyNoInteractions(authService);
+    }
+
+    @Test
+    void login_passwordAtMaxLength_reachesAuthService() throws Exception {
+        String password = "a".repeat(128);
+        when(authService.login(any(LoginRequest.class)))
+                .thenReturn(new IssuedAuthTokens("mock.max.access", "mock-refresh-max"));
+
+        mockMvc.perform(
+                        post("/api/v1/auth/login")
+                                .contentType(APPLICATION_JSON)
+                                .content(
+                                        "{\"email\":\"ok@lojapp.test\",\"password\":\""
+                                                + password
+                                                + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accessToken").value("mock.max.access"));
+    }
+
+    @Test
     void login_returnsAccessToken() throws Exception {
         when(authService.login(any(LoginRequest.class)))
                 .thenReturn(new IssuedAuthTokens("mock.login.access", "mock-refresh-2"));

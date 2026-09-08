@@ -17,7 +17,8 @@ public final class AuthDtos {
                                     "Obrigatório quando lojapp.auth.registration.invite-secret está definido; partilhar o valor só por canal seguro.")
                     String inviteToken) {}
 
-    public record LoginRequest(@NotBlank @Email String email, @NotBlank String password) {}
+    public record LoginRequest(
+            @NotBlank @Email String email, @NotBlank @Size(max = 128) String password) {}
 
     /** Corpo opcional: o refresh pode vir só da cookie HttpOnly {@code lojapp_rt}. */
     public record RefreshRequest(String refreshToken) {}
