@@ -122,11 +122,10 @@ test("landing pública na raiz sem sessão", async ({ page }) => {
   await page.goto("/");
   await waitForSessionBootstrap(page);
   expect(new URL(page.url()).pathname).toBe("/");
-  await expect(
-    page.getByRole("heading", { name: /Operação comercial e fiscal alinhadas/i }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: /planilha/i })).toBeVisible();
   await expect(page.getByRole("link", { name: /Entrar no painel/i })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Explorar catálogo/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Ver a demo/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Explorar catálogo/i })).toHaveCount(0);
 });
 
 test("ecrã de login visível sem sessão", async ({ page }) => {

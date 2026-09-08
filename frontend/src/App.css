@@ -546,6 +546,47 @@ button.ghost:hover {
   background: #f1f5f9;
 }
 
+a.primary,
+a.ghost {
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+a.primary {
+  background: linear-gradient(180deg, #2d6aee 0%, var(--primary) 52%, #103ba8 100%);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.2rem;
+  border-radius: 11px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  box-shadow:
+    0 2px 8px rgb(21 71 214 / 32%),
+    0 1px 0 rgb(255 255 255 / 18%) inset;
+}
+
+a.ghost {
+  background: rgb(255 255 255 / 55%);
+  border: 1px solid var(--border-strong);
+  padding: 0.5rem 0.95rem;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 44px;
+  color: inherit;
+}
+
+a.primary:hover {
+  background: var(--primary-hover);
+}
+
+a.ghost:hover {
+  background: #f1f5f9;
+}
+
 .row.spread {
   display: flex;
   justify-content: space-between;
@@ -1334,7 +1375,7 @@ button.ghost:active {
   font-size: clamp(1.9rem, 5vw, 3rem);
   line-height: 1.1;
   letter-spacing: -0.03em;
-  max-width: 18ch;
+  max-width: 28ch;
 }
 
 .store-hero p {
@@ -1435,6 +1476,63 @@ button.ghost:active {
 
 .store-landing-footer a:hover {
   text-decoration: underline;
+}
+
+.store-howto-list {
+  margin: 0 0 var(--space-6);
+  padding-left: 1.2rem;
+  max-width: 60ch;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.store-howto-list a {
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.store-inline-code {
+  font-size: 0.86em;
+}
+
+.store-shot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-4);
+}
+
+.store-shot {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--card);
+  box-shadow: var(--shadow-sm, none);
+}
+
+.store-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top;
+}
+
+.store-shot figcaption {
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.store-badge-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .store-chip {

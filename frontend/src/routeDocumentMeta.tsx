@@ -25,51 +25,30 @@ function metaForPath(pathname: string): { title: string; description: string } {
       description: "Aceda ao painel com a sua conta.",
     };
   }
-  if (pathname.startsWith("/catalog")) {
-    return {
-      title: `Catálogo · ${SITE}`,
-      description: "Explore produtos, preços e disponibilidade no modo demonstração.",
-    };
-  }
-  if (pathname.startsWith("/product/")) {
-    return {
-      title: `Produto · ${SITE}`,
-      description: "Detalhe do produto no catálogo demonstração.",
-    };
-  }
-  if (pathname.startsWith("/orders")) {
-    return {
-      title: `Pedidos · ${SITE}`,
-      description: "Histórico e estado dos pedidos na loja demonstração.",
-    };
-  }
-  if (pathname.startsWith("/cart")) {
-    return {
-      title: `Carrinho · ${SITE}`,
-      description: "Revise itens antes de concluir o pedido demonstração.",
-    };
-  }
-  if (pathname.startsWith("/seller")) {
-    return {
-      title: `Área lojista · ${SITE}`,
-      description: "Visão lojista: inventário, encomendas e gráficos de vendas.",
-    };
-  }
   if (pathname.startsWith("/pitch")) {
     return {
-      title: `Demonstração · ${SITE}`,
-      description: "Pitch e cenários de valor da plataforma.",
+      title: `Pitch · ${SITE}`,
+      description:
+        "NFe XML, stock, PDV, comissões e KPIs isolados por conta — monólito Spring Boot + React.",
     };
   }
-  if (pathname.startsWith("/home")) {
+  if (
+    pathname === "/home" ||
+    pathname.startsWith("/catalog") ||
+    pathname.startsWith("/product/") ||
+    pathname === "/cart" ||
+    pathname === "/orders" ||
+    pathname === "/seller" ||
+    pathname === "/app"
+  ) {
     return {
-      title: `Home da loja · ${SITE}`,
-      description: "Entrada do storefront demonstração.",
+      title: `${SITE} · Gestão comercial e fiscal`,
+      description: DEFAULT_DESCRIPTION,
     };
   }
   return {
-    title: `${SITE} · Gestão comercial e fiscal`,
-    description: DEFAULT_DESCRIPTION,
+    title: `Página não encontrada · ${SITE}`,
+    description: "Este endereço não existe no LojApp.",
   };
 }
 
