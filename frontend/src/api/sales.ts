@@ -9,13 +9,16 @@ export type SaleCreatedResponse = {
   soldAt: string;
 };
 
-export async function registerSale(body: {
-  productId: number;
-  quantity: number;
-  unitPrice: number;
-  unitCost?: number | null;
-  sellerId?: number | null;
-}): Promise<SaleCreatedResponse> {
+export async function registerSale(
+  body: {
+    productId: number;
+    quantity: number;
+    unitPrice: number;
+    unitCost?: number | null;
+    sellerId?: number | null;
+  },
+  idempotencyKey?: string,
+): Promise<SaleCreatedResponse> {
   const payload: Record<string, unknown> = {
     productId: body.productId,
     quantity: body.quantity,
@@ -27,8 +30,13 @@ export async function registerSale(body: {
   if (body.sellerId != null) {
     payload.sellerId = body.sellerId;
   }
+  const headers: Record<string, string> = {};
+  if (idempotencyKey && idempotencyKey.trim()) {
+    headers["Idempotency-Key"] = idempotencyKey.trim();
+  }
   return apiJson<SaleCreatedResponse>("/api/v1/lojapp/sales", {
     method: "POST",
+    headers,
     body: JSON.stringify(payload),
   });
 }
