@@ -7,6 +7,9 @@ describe("formatMoneyBrl", () => {
   });
 
   it("formata número em BRL", () => {
-    expect(formatMoneyBrl(10)).toMatch(/10/);
+    const formatted = formatMoneyBrl(10);
+    expect(formatted).toMatch(/10/);
+    expect(formatted).toMatch(/R\$/);
+    expect(formatted).not.toMatch(/€/);
   });
 });

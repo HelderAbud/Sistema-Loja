@@ -11,7 +11,7 @@ export function HomePage() {
           <p>Curadoria inteligente, visual consistente e foco em conversão.</p>
           <div className="store-kpis">
             <article>
-              <strong>{socialProof.orders.toLocaleString("pt-PT")}+</strong>
+              <strong>{socialProof.orders.toLocaleString("pt-BR")}+</strong>
               <span>pedidos processados</span>
             </article>
             <article>

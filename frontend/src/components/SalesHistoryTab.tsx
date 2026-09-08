@@ -127,7 +127,7 @@ export function SalesHistoryTab() {
                 {data.content.map((s) => (
                   <tr key={s.id}>
                     <td className="muted">{s.id}</td>
-                    <td>{new Date(s.soldAt).toLocaleString("pt-PT")}</td>
+                    <td>{new Date(s.soldAt).toLocaleString("pt-BR")}</td>
                     <td>
                       #{s.productId} {s.productName}
                     </td>
