@@ -9,6 +9,8 @@ const finalizePosSale = vi.fn();
 const listSellers = vi.fn();
 const getCurrentCashSession = vi.fn();
 const openCashSession = vi.fn();
+const closeCashSession = vi.fn();
+const getCloseCashSessionPreview = vi.fn();
 
 vi.mock("@/api", () => ({
   listProducts: (...args: unknown[]) => listProducts(...args),
@@ -17,6 +19,8 @@ vi.mock("@/api", () => ({
   listSellers: (...args: unknown[]) => listSellers(...args),
   getCurrentCashSession: (...args: unknown[]) => getCurrentCashSession(...args),
   openCashSession: (...args: unknown[]) => openCashSession(...args),
+  closeCashSession: (...args: unknown[]) => closeCashSession(...args),
+  getCloseCashSessionPreview: (...args: unknown[]) => getCloseCashSessionPreview(...args),
 }));
 
 const mockProduct = {
@@ -73,6 +77,25 @@ describe("PilotoSaleTab", () => {
       openingAmount: 0,
       openedAt: "2026-09-09T12:00:00Z",
       status: "OPEN",
+    });
+    closeCashSession.mockResolvedValue({
+      cashSessionId: 7,
+      expectedAmount: 0,
+      countedAmount: 0,
+      differenceAmount: 0,
+      closedAt: "2026-09-09T13:00:00Z",
+      status: "CLOSED",
+    });
+    getCloseCashSessionPreview.mockResolvedValue({
+      cashSessionId: 7,
+      expectedAmount: 0,
+      expectedCashAmount: 0,
+      expectedCardAmount: 0,
+      expectedPixAmount: 0,
+      countedAmount: 0,
+      differenceAmount: 0,
+      toleranceAmount: 1,
+      managerApprovalRequired: false,
     });
     finalizePosSale.mockResolvedValue({
       saleId: 99,
@@ -210,5 +233,24 @@ describe("PilotoSaleTab", () => {
     fireEvent.change(screen.getByLabelText(/saldo inicial do caixa/i), { target: { value: "50" } });
     fireEvent.click(screen.getByRole("button", { name: /abrir caixa/i }));
     await waitFor(() => expect(openCashSession).toHaveBeenCalledWith({ openingAmount: 50 }));
+  });
+
+  it("fecha o turno com o valor contado", async () => {
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(/turno de caixa #7/i)).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText(/valor contado no caixa/i), { target: { value: "0" } });
+    fireEvent.click(screen.getByRole("button", { name: /fechar turno/i }));
+    await waitFor(() =>
+      expect(closeCashSession).toHaveBeenCalledWith({
+        cashSessionId: 7,
+        countedAmount: 0,
+        differenceReason: null,
+        managerApproval: false,
+      }),
+    );
   });
 });

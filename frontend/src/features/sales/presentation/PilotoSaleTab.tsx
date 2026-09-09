@@ -1,7 +1,9 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  closeCashSession,
   finalizePosSale,
+  getCloseCashSessionPreview,
   getCurrentCashSession,
   getProductStock,
   listProducts,
@@ -25,6 +27,7 @@ import {
   lineSaleTotal,
   POS_PAYMENT_METHOD_OPTIONS,
 } from "../domain/posPayment";
+import { buildCloseCashBody } from "../domain/cashClose";
 
 export function PilotoSaleTab() {
   const queryClient = useQueryClient();
@@ -44,6 +47,9 @@ export function PilotoSaleTab() {
   const [changeAmount, setChangeAmount] = useState<number | null>(null);
   const [sellerId, setSellerId] = useState("");
   const [openingAmount, setOpeningAmount] = useState("0");
+  const [countedAmount, setCountedAmount] = useState("0");
+  const [differenceReason, setDifferenceReason] = useState("");
+  const [managerApproval, setManagerApproval] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PosPaymentMethod>("CASH");
   const [receivedAmount, setReceivedAmount] = useState("");
   const [cardBrand, setCardBrand] = useState("");
@@ -70,6 +76,26 @@ export function PilotoSaleTab() {
   const openCashMut = useMutation({
     mutationFn: (body: { openingAmount: number }) => openCashSession(body),
     onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.cashSessionCurrent() });
+    },
+  });
+
+  const closePreviewMut = useMutation({
+    mutationFn: ({
+      cashSessionId,
+      countedAmount,
+    }: {
+      cashSessionId: number;
+      countedAmount?: number;
+    }) => getCloseCashSessionPreview(cashSessionId, countedAmount),
+  });
+
+  const closeCashMut = useMutation({
+    mutationFn: (body: Parameters<typeof closeCashSession>[0]) => closeCashSession(body),
+    onSuccess: async () => {
+      closePreviewMut.reset();
+      setDifferenceReason("");
+      setManagerApproval(false);
       await queryClient.invalidateQueries({ queryKey: queryKeys.cashSessionCurrent() });
     },
   });
@@ -124,6 +150,12 @@ export function PilotoSaleTab() {
   const insufficientStock = isInsufficientStock(selected != null, stockQty, qtyNum);
   const cashOpen = Boolean(cashQ.data?.open && cashQ.data.cashSessionId != null);
 
+  useEffect(() => {
+    if (cashQ.data?.open) {
+      setCountedAmount(String(cashQ.data.expectedAmount ?? 0));
+    }
+  }, [cashQ.data?.open, cashQ.data?.cashSessionId, cashQ.data?.expectedAmount]);
+
   function pickProduct(p: Product) {
     setSelected(p);
     setQuery(`${p.name} · #${p.id}`);
@@ -149,6 +181,46 @@ export function PilotoSaleTab() {
     setError(null);
     try {
       await openCashMut.mutateAsync({ openingAmount: amount });
+    } catch (err: unknown) {
+      setError(String(err));
+    }
+  }
+
+  async function onPreviewClose() {
+    if (cashQ.data?.cashSessionId == null) {
+      return;
+    }
+    const counted = parseDecimalInput(countedAmount);
+    setError(null);
+    try {
+      await closePreviewMut.mutateAsync({
+        cashSessionId: cashQ.data.cashSessionId,
+        countedAmount: Number.isFinite(counted) ? counted : undefined,
+      });
+    } catch (err: unknown) {
+      setError(String(err));
+    }
+  }
+
+  async function onCloseCash(e: FormEvent) {
+    e.preventDefault();
+    if (cashQ.data?.cashSessionId == null) {
+      setError("Não há turno aberto para fechar.");
+      return;
+    }
+    const built = buildCloseCashBody({
+      cashSessionId: cashQ.data.cashSessionId,
+      countedRaw: countedAmount,
+      differenceReason,
+      managerApproval,
+    });
+    if ("error" in built) {
+      setError(built.error);
+      return;
+    }
+    setError(null);
+    try {
+      await closeCashMut.mutateAsync(built.body);
     } catch (err: unknown) {
       setError(String(err));
     }
@@ -224,7 +296,7 @@ export function PilotoSaleTab() {
     }
   }
 
-  const busy = saleMut.isPending || openCashMut.isPending;
+  const busy = saleMut.isPending || openCashMut.isPending || closeCashMut.isPending;
   const saleDisabled = busy || !cashOpen || stockLoading || stockQ.isError || insufficientStock;
 
   return (
@@ -249,7 +321,67 @@ export function PilotoSaleTab() {
       {cashQ.isLoading ? (
         <p className="muted small">A carregar turno de caixa…</p>
       ) : cashOpen ? (
-        <p className="muted small">Turno de caixa #{cashQ.data?.cashSessionId} aberto.</p>
+        <form onSubmit={onCloseCash} className="form">
+          <p className="muted small">
+            Turno de caixa #{cashQ.data?.cashSessionId} aberto. Esperado:{" "}
+            {(cashQ.data?.expectedAmount ?? 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </p>
+          <label>
+            Valor contado no caixa (R$)
+            <input
+              value={countedAmount}
+              onChange={(ev) => setCountedAmount(ev.target.value)}
+              disabled={busy}
+            />
+          </label>
+          <label>
+            Motivo da diferença (se o contado ≠ esperado)
+            <input
+              value={differenceReason}
+              onChange={(ev) => setDifferenceReason(ev.target.value)}
+              disabled={busy}
+            />
+          </label>
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={managerApproval}
+              onChange={(ev) => setManagerApproval(ev.target.checked)}
+              disabled={busy}
+            />
+            Confirmo que revisei a diferença
+          </label>
+          {closePreviewMut.data ? (
+            <p className="muted small">
+              Prévia: diferença{" "}
+              {(closePreviewMut.data.differenceAmount ?? 0).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })}
+              {closePreviewMut.data.managerApprovalRequired
+                ? " — confirmação de revisão obrigatória"
+                : ""}
+            </p>
+          ) : null}
+          <div className="row">
+            <button
+              type="button"
+              className="ghost"
+              disabled={busy || closePreviewMut.isPending}
+              onClick={() => {
+                void onPreviewClose();
+              }}
+            >
+              {closePreviewMut.isPending ? "A calcular prévia…" : "Ver prévia de fecho"}
+            </button>
+            <button type="submit" className="ghost" disabled={busy}>
+              {closeCashMut.isPending ? "A fechar turno…" : "Fechar turno"}
+            </button>
+          </div>
+        </form>
       ) : (
         <form onSubmit={onOpenCash} className="form">
           <p className="error small" role="status">
