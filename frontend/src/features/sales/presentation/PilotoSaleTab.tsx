@@ -2,10 +2,12 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   closeCashSession,
+  confirmPosSalePayment,
   finalizePosSale,
   getCloseCashSessionPreview,
   getCurrentCashSession,
   getProductStock,
+  listPendingPosPayments,
   listProducts,
   listSellers,
   openCashSession,
@@ -98,6 +100,21 @@ export function PilotoSaleTab() {
       closePreviewMut.reset();
       setDifferenceReason("");
       setManagerApproval(false);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.cashSessionCurrent() });
+    },
+  });
+
+  const pendingQ = useQuery({
+    queryKey: queryKeys.pendingPosPayments(),
+    queryFn: listPendingPosPayments,
+    enabled: Boolean(cashQ.data?.open && cashQ.data.cashSessionId != null),
+  });
+
+  const confirmPaymentMut = useMutation({
+    mutationFn: (body: { saleId: number; paymentId: number }) =>
+      confirmPosSalePayment(body.saleId, body.paymentId),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.pendingPosPayments() });
       await queryClient.invalidateQueries({ queryKey: queryKeys.cashSessionCurrent() });
     },
   });
@@ -324,7 +341,11 @@ export function PilotoSaleTab() {
     }
   }
 
-  const busy = saleMut.isPending || openCashMut.isPending || closeCashMut.isPending;
+  const busy =
+    saleMut.isPending ||
+    openCashMut.isPending ||
+    closeCashMut.isPending ||
+    confirmPaymentMut.isPending;
   const saleDisabled =
     busy ||
     !cashOpen ||
@@ -435,6 +456,57 @@ export function PilotoSaleTab() {
           </button>
         </form>
       )}
+      {cashOpen ? (
+        <section className="form" aria-labelledby="piloto-pending-payments">
+          <h3 id="piloto-pending-payments">Pagamentos pendentes</h3>
+          <p className="muted small">
+            Só entram no caixa depois da liquidação real. Se o turno da venda já fechou, o valor
+            entra neste caixa aberto.
+          </p>
+          {pendingQ.isError ? (
+            <p className="error small" role="alert">
+              {String(pendingQ.error)}
+            </p>
+          ) : null}
+          {pendingQ.data && pendingQ.data.length > 0 ? (
+            <ul>
+              {pendingQ.data.map((payment) => {
+                const methodLabel =
+                  POS_PAYMENT_METHOD_OPTIONS.find(
+                    (option) => option.value === payment.paymentMethod,
+                  )?.label ?? payment.paymentMethod;
+                return (
+                  <li key={payment.paymentId}>
+                    Venda #{payment.saleId} · {methodLabel} ·{" "}
+                    {payment.amount.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
+                    <button
+                      type="button"
+                      className="ghost"
+                      disabled={busy}
+                      onClick={() => {
+                        setError(null);
+                        void confirmPaymentMut
+                          .mutateAsync({
+                            saleId: payment.saleId,
+                            paymentId: payment.paymentId,
+                          })
+                          .catch((err: unknown) => setError(String(err)));
+                      }}
+                    >
+                      Confirmar liquidação
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="muted small">Nenhum pagamento aguardando liquidação.</p>
+          )}
+        </section>
+      ) : null}
       <form onSubmit={onSubmit} className="form">
         <label className="combobox-wrap">
           Produto — pesquisar por nome

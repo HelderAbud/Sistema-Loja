@@ -3,18 +3,25 @@ package com.lojapp.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.lojapp.application.usecases.sale.CreatePosSaleUseCase;
+import com.lojapp.application.contract.ConfirmPosSalePaymentUseCaseContract;
+import com.lojapp.application.contract.CreatePosSaleUseCaseContract;
+import com.lojapp.application.contract.ListPendingPosPaymentsUseCaseContract;
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.dto.sale.PosSaleFinalizeResponse;
+import com.lojapp.dto.sale.PosSalePaymentView;
+import com.lojapp.entity.PaymentMethod;
+import com.lojapp.entity.PaymentSettlementStatus;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
 import com.lojapp.support.TestJwtAuth;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +49,11 @@ class PosSaleControllerTest {
 
     @MockBean private AuthRateLimitFilter authRateLimitFilter;
 
-    @MockBean private CreatePosSaleUseCase createPosSaleUseCase;
+    @MockBean private CreatePosSaleUseCaseContract createPosSaleUseCase;
+
+    @MockBean private ListPendingPosPaymentsUseCaseContract listPendingPosPaymentsUseCase;
+
+    @MockBean private ConfirmPosSalePaymentUseCaseContract confirmPosSalePaymentUseCase;
 
     @AfterEach
     void clearSecurity() {
@@ -158,5 +169,50 @@ class PosSaleControllerTest {
                                         """)
                                 .with(lojappRepresentative(USER_ID)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void pendingPayments_whenValid_returnsOk() throws Exception {
+        when(listPendingPosPaymentsUseCase.execute(USER_ID))
+                .thenReturn(
+                        List.of(
+                                new PosSalePaymentView(
+                                        5L,
+                                        91L,
+                                        7L,
+                                        null,
+                                        PaymentMethod.PIX,
+                                        new BigDecimal("20.00"),
+                                        PaymentSettlementStatus.PENDING)));
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/pos/sales/pending-payments")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].paymentId").value(5))
+                .andExpect(jsonPath("$[0].saleId").value(91))
+                .andExpect(jsonPath("$[0].settlementStatus").value("PENDING"));
+    }
+
+    @Test
+    void confirmPayment_whenValid_returnsOk() throws Exception {
+        when(confirmPosSalePaymentUseCase.execute(USER_ID, 91L, 5L))
+                .thenReturn(
+                        new PosSalePaymentView(
+                                5L,
+                                91L,
+                                7L,
+                                7L,
+                                PaymentMethod.PIX,
+                                new BigDecimal("20.00"),
+                                PaymentSettlementStatus.CONFIRMED));
+
+        mockMvc.perform(
+                        post("/api/v1/lojapp/pos/sales/91/payments/5/confirm")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.settlementStatus").value("CONFIRMED"));
     }
 }

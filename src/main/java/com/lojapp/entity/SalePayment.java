@@ -63,6 +63,10 @@ public class SalePayment {
     @Column(name = "settlement_status", nullable = false, length = 20)
     private PaymentSettlementStatus settlementStatus = PaymentSettlementStatus.CONFIRMED;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "settlement_cash_session_id")
+    private CashSession settlementCashSession;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
