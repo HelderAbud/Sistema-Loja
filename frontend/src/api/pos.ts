@@ -46,6 +46,11 @@ export type CloseCashSessionResponse = {
 export type PosSalePaymentRequest = {
   paymentMethod: PosPaymentMethod;
   amount: number;
+  cardBrand?: string | null;
+  installments?: number | null;
+  transactionId?: string | null;
+  endToEndId?: string | null;
+  receivedAmount?: number | null;
 };
 
 export type PosSaleLineRequest = {
@@ -72,6 +77,7 @@ export type PosSaleFinalizeResponse = {
   totalAmount: number;
   soldAt: string;
   sellerId?: number | null;
+  changeAmount?: number;
 };
 
 export async function openCashSession(body: {

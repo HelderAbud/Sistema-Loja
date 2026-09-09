@@ -123,6 +123,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
         if (paymentTotal.compareTo(saleTotal) != 0) {
             throw new PosSalePaymentTotalMismatchException();
         }
+        request.payments().forEach(PosSalePaymentDetails::validate);
 
         ResolvedPosLine headerLine = resolved.get(0);
         Sale sale = new Sale();
@@ -154,6 +155,11 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             payment.setSale(sale);
             payment.setPaymentMethod(paymentRequest.paymentMethod());
             payment.setAmount(paymentRequest.amount());
+            payment.setCardBrand(paymentRequest.cardBrand());
+            payment.setInstallments(paymentRequest.installments());
+            payment.setTransactionId(paymentRequest.transactionId());
+            payment.setEndToEndId(paymentRequest.endToEndId());
+            payment.setReceivedAmount(paymentRequest.receivedAmount());
             salePayments.save(payment);
         }
 
@@ -174,7 +180,12 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
 
         Long sellerId = sale.getSeller() == null ? null : sale.getSeller().getId();
         return new PosSaleFinalizeResponse(
-                sale.getId(), cashSession.getId(), saleTotal, sale.getSoldAt(), sellerId);
+                sale.getId(),
+                cashSession.getId(),
+                saleTotal,
+                sale.getSoldAt(),
+                sellerId,
+                PosSalePaymentDetails.totalChange(request.payments()));
     }
 
     private record ResolvedPosLine(Product product, SaleRegistrationLine line) {}
