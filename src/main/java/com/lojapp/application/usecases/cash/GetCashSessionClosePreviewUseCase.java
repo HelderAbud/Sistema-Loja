@@ -44,10 +44,11 @@ public class GetCashSessionClosePreviewUseCase implements GetCashSessionClosePre
         BigDecimal cash =
                 salePayments.sumAmountByCashSessionAndMethod(userId, cashSessionId, PaymentMethod.CASH);
         BigDecimal card =
-                salePayments.sumAmountByCashSessionAndMethod(userId, cashSessionId, PaymentMethod.CARD);
+                salePayments.sumAmountByCashSessionAndMethods(
+                        userId, cashSessionId, PaymentMethod.cardDrawerMethods());
         BigDecimal pix =
                 salePayments.sumAmountByCashSessionAndMethod(userId, cashSessionId, PaymentMethod.PIX);
-        BigDecimal expected = cash.add(card).add(pix);
+        BigDecimal expected = salePayments.sumAmountByCashSession(userId, cashSessionId);
 
         BigDecimal normalizedCounted = countedAmount;
         BigDecimal difference = null;

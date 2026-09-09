@@ -36,12 +36,12 @@ public class GetCurrentCashSessionUseCase implements GetCurrentCashSessionUseCas
                 salePayments.sumAmountByCashSessionAndMethod(
                         userId, cashSession.getId(), PaymentMethod.CASH);
         BigDecimal card =
-                salePayments.sumAmountByCashSessionAndMethod(
-                        userId, cashSession.getId(), PaymentMethod.CARD);
+                salePayments.sumAmountByCashSessionAndMethods(
+                        userId, cashSession.getId(), PaymentMethod.cardDrawerMethods());
         BigDecimal pix =
                 salePayments.sumAmountByCashSessionAndMethod(
                         userId, cashSession.getId(), PaymentMethod.PIX);
-        BigDecimal expected = cash.add(card).add(pix);
+        BigDecimal expected = salePayments.sumAmountByCashSession(userId, cashSession.getId());
 
         return new CurrentCashSessionResponse(
                 true,

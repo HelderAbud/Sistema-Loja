@@ -38,7 +38,7 @@ public class SalePayment {
     private Sale sale;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false, length = 20)
+    @Column(name = "payment_method", nullable = false, length = 50)
     private PaymentMethod paymentMethod;
 
     @Column(nullable = false, precision = 19, scale = 2)

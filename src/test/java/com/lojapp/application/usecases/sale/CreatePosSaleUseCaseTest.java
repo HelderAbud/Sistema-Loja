@@ -22,6 +22,7 @@ import com.lojapp.entity.PaymentMethod;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
 import com.lojapp.entity.SaleItem;
+import com.lojapp.entity.SalePayment;
 import com.lojapp.entity.User;
 import com.lojapp.exception.domain.CashSessionNotOpenException;
 import com.lojapp.exception.domain.PosSaleDuplicateProductException;
@@ -271,5 +272,47 @@ class CreatePosSaleUseCaseTest {
                 .isInstanceOf(PosSalePaymentTotalMismatchException.class);
 
         verify(sales, never()).save(any());
+    }
+
+    @Test
+    void execute_whenSplitCreditAndPix_persistsBothPaymentMethods() {
+        User user = new User();
+        Product product = new Product();
+        product.setCostPrice(new BigDecimal("5.00"));
+        CashSession session = new CashSession();
+        session.setId(7L);
+        session.setStatus(CashSessionStatus.OPEN);
+
+        when(users.getReferenceById(1L)).thenReturn(user);
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(10L, 1L)).thenReturn(Optional.of(product));
+        when(cashSessions.findByIdAndUser_Id(7L, 1L)).thenReturn(Optional.of(session));
+        when(sales.save(any(Sale.class)))
+                .thenAnswer(
+                        inv -> {
+                            Sale sale = inv.getArgument(0);
+                            sale.setId(91L);
+                            sale.setSoldAt(Instant.parse("2026-09-09T12:00:00Z"));
+                            return sale;
+                        });
+
+        PosSaleFinalizeRequest request =
+                PosSaleFinalizeRequest.singleItem(
+                        7L,
+                        10L,
+                        new BigDecimal("1"),
+                        new BigDecimal("50.00"),
+                        new BigDecimal("5.00"),
+                        List.of(
+                                new PosSalePaymentRequest(
+                                        PaymentMethod.CREDIT_CARD, new BigDecimal("30.00")),
+                                new PosSalePaymentRequest(PaymentMethod.PIX, new BigDecimal("20.00"))));
+
+        useCase.execute(1L, request, Optional.empty());
+
+        ArgumentCaptor<SalePayment> paymentCaptor = ArgumentCaptor.forClass(SalePayment.class);
+        verify(salePayments, times(2)).save(paymentCaptor.capture());
+        assertThat(paymentCaptor.getAllValues())
+                .extracting(SalePayment::getPaymentMethod)
+                .containsExactly(PaymentMethod.CREDIT_CARD, PaymentMethod.PIX);
     }
 }
