@@ -117,6 +117,7 @@ public class CreateSaleUseCase {
             payment.setSale(sale);
             payment.setPaymentMethod(PaymentMethod.CASH);
             payment.setAmount(line.unitPrice().multiply(line.quantity()));
+            payment.setSettlementCashSession(openSession);
             salePayments.save(payment);
         }
         posSaleCommissionService.assignSellerAndAccrue(

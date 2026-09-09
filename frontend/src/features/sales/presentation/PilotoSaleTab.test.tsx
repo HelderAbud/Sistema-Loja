@@ -11,6 +11,8 @@ const getCurrentCashSession = vi.fn();
 const openCashSession = vi.fn();
 const closeCashSession = vi.fn();
 const getCloseCashSessionPreview = vi.fn();
+const listPendingPosPayments = vi.fn();
+const confirmPosSalePayment = vi.fn();
 
 vi.mock("@/api", () => ({
   listProducts: (...args: unknown[]) => listProducts(...args),
@@ -21,6 +23,8 @@ vi.mock("@/api", () => ({
   openCashSession: (...args: unknown[]) => openCashSession(...args),
   closeCashSession: (...args: unknown[]) => closeCashSession(...args),
   getCloseCashSessionPreview: (...args: unknown[]) => getCloseCashSessionPreview(...args),
+  listPendingPosPayments: (...args: unknown[]) => listPendingPosPayments(...args),
+  confirmPosSalePayment: (...args: unknown[]) => confirmPosSalePayment(...args),
 }));
 
 const mockProduct = {
@@ -96,6 +100,16 @@ describe("PilotoSaleTab", () => {
       differenceAmount: 0,
       toleranceAmount: 1,
       managerApprovalRequired: false,
+    });
+    listPendingPosPayments.mockResolvedValue([]);
+    confirmPosSalePayment.mockResolvedValue({
+      paymentId: 5,
+      saleId: 91,
+      cashSessionId: 7,
+      settlementCashSessionId: 7,
+      paymentMethod: "PIX",
+      amount: 20,
+      settlementStatus: "CONFIRMED",
     });
     finalizePosSale.mockResolvedValue({
       saleId: 99,
@@ -291,5 +305,27 @@ describe("PilotoSaleTab", () => {
         managerApproval: false,
       }),
     );
+  });
+
+  it("confirma um pagamento pendente do turno aberto", async () => {
+    listPendingPosPayments.mockResolvedValue([
+      {
+        paymentId: 5,
+        saleId: 91,
+        cashSessionId: 7,
+        settlementCashSessionId: null,
+        paymentMethod: "PIX",
+        amount: 20,
+        settlementStatus: "PENDING",
+      },
+    ]);
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(/venda #91/i)).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: /confirmar liquidação/i }));
+    await waitFor(() => expect(confirmPosSalePayment).toHaveBeenCalledWith(91, 5));
   });
 });

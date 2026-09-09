@@ -500,6 +500,7 @@ class CreatePosSaleUseCaseTest {
         verify(salePayments).save(paymentCaptor.capture());
         assertThat(paymentCaptor.getValue().getSettlementStatus())
                 .isEqualTo(PaymentSettlementStatus.PENDING);
+        assertThat(paymentCaptor.getValue().getSettlementCashSession()).isNull();
     }
 
     @Test

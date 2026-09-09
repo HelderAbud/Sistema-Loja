@@ -133,3 +133,27 @@ export async function finalizePosSale(
     body: JSON.stringify(body),
   });
 }
+
+export type PosSalePaymentView = {
+  paymentId: number;
+  saleId: number;
+  cashSessionId: number | null;
+  settlementCashSessionId: number | null;
+  paymentMethod: PosPaymentMethod;
+  amount: number;
+  settlementStatus: "CONFIRMED" | "PENDING";
+};
+
+export async function listPendingPosPayments(): Promise<PosSalePaymentView[]> {
+  return apiJson<PosSalePaymentView[]>("/api/v1/lojapp/pos/sales/pending-payments");
+}
+
+export async function confirmPosSalePayment(
+  saleId: number,
+  paymentId: number,
+): Promise<PosSalePaymentView> {
+  return apiJson<PosSalePaymentView>(
+    `/api/v1/lojapp/pos/sales/${saleId}/payments/${paymentId}/confirm`,
+    { method: "POST", body: "{}" },
+  );
+}

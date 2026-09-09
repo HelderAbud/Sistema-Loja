@@ -12,6 +12,7 @@ import com.lojapp.dto.sale.PosSalePaymentRequest;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.entity.CashSession;
 import com.lojapp.entity.CashSessionStatus;
+import com.lojapp.entity.PaymentSettlementStatus;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
 import com.lojapp.entity.SaleItem;
@@ -161,6 +162,9 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             payment.setEndToEndId(paymentRequest.endToEndId());
             payment.setReceivedAmount(paymentRequest.receivedAmount());
             payment.setSettlementStatus(paymentRequest.settlementStatus());
+            if (paymentRequest.settlementStatus() == PaymentSettlementStatus.CONFIRMED) {
+                payment.setSettlementCashSession(cashSession);
+            }
             salePayments.save(payment);
         }
 
