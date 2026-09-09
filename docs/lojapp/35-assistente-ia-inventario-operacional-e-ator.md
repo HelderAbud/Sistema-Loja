@@ -119,7 +119,7 @@ Listagens / resumo / série diária: filtros `from`, `to` (ISO-8601), `productId
 | Operação | DTO |
 |----------|-----|
 | Corpo | `PosSaleFinalizeRequest`: `cashSessionId`, `productId`, `quantity`, `unitPrice`, `unitCost?`, `payments` (não vazio) |
-| Linha de pagamento | `PosSalePaymentRequest`: `paymentMethod` (`CASH` \| `CARD` \| `PIX`), `amount` (≥ 0.01) |
+| Linha de pagamento | `PosSalePaymentRequest`: `paymentMethod` (CASH, CARD, PIX, CREDIT_CARD, DEBIT_CARD, BANK_TRANSFER, BANK_SLIP, OTHER), `amount` (≥ 0.01, soma = total). Opcionais: `cardBrand`, `installments` (CARD/CREDIT_CARD), `transactionId`, `endToEndId` (PIX), `receivedAmount` (CASH, ≥ amount; troco em `changeAmount` da resposta). |
 
 **Exemplo mínimo de finalize:**
 

@@ -61,11 +61,29 @@ public final class RequestFingerprint {
                                 p ->
                                         p.paymentMethod().name()
                                                 + ":"
-                                                + p.amount().stripTrailingZeros().toPlainString())
+                                                + p.amount().stripTrailingZeros().toPlainString()
+                                                + ":"
+                                                + nullToEmpty(p.cardBrand())
+                                                + ":"
+                                                + (p.installments() == null ? "" : p.installments())
+                                                + ":"
+                                                + nullToEmpty(p.transactionId())
+                                                + ":"
+                                                + nullToEmpty(p.endToEndId())
+                                                + ":"
+                                                + (p.receivedAmount() == null
+                                                        ? ""
+                                                        : p.receivedAmount()
+                                                                .stripTrailingZeros()
+                                                                .toPlainString()))
                         .sorted()
                         .reduce((a, b) -> a + "|" + b)
                         .orElse("");
         String raw = r.cashSessionId() + "|" + lines + "|" + payments + "|" + r.sellerId();
         return TokenHashUtil.sha256Hex(raw);
+    }
+
+    private static String nullToEmpty(String value) {
+        return value == null ? "" : value;
     }
 }

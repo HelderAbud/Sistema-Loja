@@ -44,6 +44,21 @@ public class SalePayment {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
+    @Column(name = "card_brand", length = 40)
+    private String cardBrand;
+
+    @Column
+    private Integer installments;
+
+    @Column(name = "transaction_id", length = 80)
+    private String transactionId;
+
+    @Column(name = "end_to_end_id", length = 32)
+    private String endToEndId;
+
+    @Column(name = "received_amount", precision = 19, scale = 2)
+    private BigDecimal receivedAmount;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

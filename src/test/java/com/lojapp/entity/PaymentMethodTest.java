@@ -17,4 +17,14 @@ class PaymentMethodTest {
                 .containsExactlyInAnyOrder(
                         PaymentMethod.CARD, PaymentMethod.CREDIT_CARD, PaymentMethod.DEBIT_CARD);
     }
+
+    @Test
+    void metadataFlagsMatchDrawerAndPixCashRules() {
+        assertThat(PaymentMethod.CREDIT_CARD.allowsCardBrand()).isTrue();
+        assertThat(PaymentMethod.CREDIT_CARD.allowsInstallments()).isTrue();
+        assertThat(PaymentMethod.DEBIT_CARD.allowsInstallments()).isFalse();
+        assertThat(PaymentMethod.PIX.allowsEndToEndId()).isTrue();
+        assertThat(PaymentMethod.CASH.allowsReceivedAmount()).isTrue();
+        assertThat(PaymentMethod.PIX.allowsReceivedAmount()).isFalse();
+    }
 }
