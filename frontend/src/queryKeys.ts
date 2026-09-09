@@ -20,6 +20,8 @@ export const queryKeys = {
 
   sellers: () => ["sellers"] as const,
 
+  cashSessionCurrent: () => ["pos", "cash-session", "current"] as const,
+
   commissionAccruals: (p: { from?: string; to?: string }) =>
     ["commissionAccruals", p.from ?? "", p.to ?? ""] as const,
 
@@ -40,4 +42,5 @@ export function invalidateLojappDataQueries(queryClient: QueryClient): void {
   void queryClient.invalidateQueries({ queryKey: ["inventory"] });
   void queryClient.invalidateQueries({ queryKey: ["productStock"] });
   void queryClient.invalidateQueries({ queryKey: ["commissionAccruals"] });
+  void queryClient.invalidateQueries({ queryKey: ["pos", "cash-session"] });
 }
