@@ -17,6 +17,7 @@ public interface SalePaymentRepository extends JpaRepository<SalePayment, Long> 
             where sp.user.id = :userId
               and sp.sale.cashSession.id = :cashSessionId
               and sp.sale.cancelledAt is null
+              and sp.settlementStatus = com.lojapp.entity.PaymentSettlementStatus.CONFIRMED
             """)
     BigDecimal sumAmountByCashSession(@Param("userId") Long userId, @Param("cashSessionId") Long cashSessionId);
 
@@ -28,6 +29,7 @@ public interface SalePaymentRepository extends JpaRepository<SalePayment, Long> 
               and sp.sale.cashSession.id = :cashSessionId
               and sp.paymentMethod = :paymentMethod
               and sp.sale.cancelledAt is null
+              and sp.settlementStatus = com.lojapp.entity.PaymentSettlementStatus.CONFIRMED
             """)
     BigDecimal sumAmountByCashSessionAndMethod(
             @Param("userId") Long userId,
@@ -42,6 +44,7 @@ public interface SalePaymentRepository extends JpaRepository<SalePayment, Long> 
               and sp.sale.cashSession.id = :cashSessionId
               and sp.paymentMethod in :paymentMethods
               and sp.sale.cancelledAt is null
+              and sp.settlementStatus = com.lojapp.entity.PaymentSettlementStatus.CONFIRMED
             """)
     BigDecimal sumAmountByCashSessionAndMethods(
             @Param("userId") Long userId,

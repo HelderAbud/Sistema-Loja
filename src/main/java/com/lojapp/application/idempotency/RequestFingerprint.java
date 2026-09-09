@@ -75,7 +75,9 @@ public final class RequestFingerprint {
                                                         ? ""
                                                         : p.receivedAmount()
                                                                 .stripTrailingZeros()
-                                                                .toPlainString()))
+                                                                .toPlainString())
+                                                + ":"
+                                                + p.settlementStatus().name()))
                         .sorted()
                         .reduce((a, b) -> a + "|" + b)
                         .orElse("");

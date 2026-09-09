@@ -19,6 +19,7 @@ import com.lojapp.dto.sale.PosSalePaymentRequest;
 import com.lojapp.entity.CashSession;
 import com.lojapp.entity.CashSessionStatus;
 import com.lojapp.entity.PaymentMethod;
+import com.lojapp.entity.PaymentSettlementStatus;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.Sale;
 import com.lojapp.entity.SaleItem;
@@ -464,6 +465,64 @@ class CreatePosSaleUseCaseTest {
                                         null,
                                         null,
                                         null)));
+
+        assertThatThrownBy(() -> useCase.execute(1L, request, Optional.empty()))
+                .isInstanceOf(PosSalePaymentDetailsInvalidException.class);
+        verify(sales, never()).save(any());
+    }
+
+    @Test
+    void execute_whenPixPending_persistsPendingSettlement() {
+        stubOpenSessionAndProduct();
+        stubSaleSave();
+
+        PosSaleFinalizeRequest request =
+                PosSaleFinalizeRequest.singleItem(
+                        7L,
+                        10L,
+                        new BigDecimal("1"),
+                        new BigDecimal("20.00"),
+                        new BigDecimal("5.00"),
+                        List.of(
+                                new PosSalePaymentRequest(
+                                        PaymentMethod.PIX,
+                                        new BigDecimal("20.00"),
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        PaymentSettlementStatus.PENDING)));
+
+        useCase.execute(1L, request, Optional.empty());
+
+        ArgumentCaptor<SalePayment> paymentCaptor = ArgumentCaptor.forClass(SalePayment.class);
+        verify(salePayments).save(paymentCaptor.capture());
+        assertThat(paymentCaptor.getValue().getSettlementStatus())
+                .isEqualTo(PaymentSettlementStatus.PENDING);
+    }
+
+    @Test
+    void execute_whenCashPending_throws() {
+        stubOpenSessionAndProduct();
+
+        PosSaleFinalizeRequest request =
+                PosSaleFinalizeRequest.singleItem(
+                        7L,
+                        10L,
+                        new BigDecimal("1"),
+                        new BigDecimal("10.00"),
+                        new BigDecimal("5.00"),
+                        List.of(
+                                new PosSalePaymentRequest(
+                                        PaymentMethod.CASH,
+                                        new BigDecimal("10.00"),
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        PaymentSettlementStatus.PENDING)));
 
         assertThatThrownBy(() -> useCase.execute(1L, request, Optional.empty()))
                 .isInstanceOf(PosSalePaymentDetailsInvalidException.class);

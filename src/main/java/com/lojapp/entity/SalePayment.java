@@ -59,6 +59,10 @@ public class SalePayment {
     @Column(name = "received_amount", precision = 19, scale = 2)
     private BigDecimal receivedAmount;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "settlement_status", nullable = false, length = 20)
+    private PaymentSettlementStatus settlementStatus = PaymentSettlementStatus.CONFIRMED;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -66,6 +70,9 @@ public class SalePayment {
     void onPersist() {
         if (createdAt == null) {
             createdAt = Instant.now();
+        }
+        if (settlementStatus == null) {
+            settlementStatus = PaymentSettlementStatus.CONFIRMED;
         }
     }
 }

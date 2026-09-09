@@ -9,7 +9,6 @@ import {
   listProducts,
   listSellers,
   openCashSession,
-  type PosPaymentMethod,
   type Product,
 } from "@/api";
 import { SellerPicker } from "./SellerPicker";
@@ -22,10 +21,15 @@ import {
   SALE_SEARCH_DEBOUNCE_MS,
 } from "../domain/saleFormParse";
 import {
-  buildSinglePosPayment,
+  buildPosPayments,
   cashChangePreview,
   lineSaleTotal,
+  newPaymentLine,
   POS_PAYMENT_METHOD_OPTIONS,
+  remainingFromFilledAmounts,
+  remainingToPay,
+  resolveLineAmount,
+  type PaymentLineDraft,
 } from "../domain/posPayment";
 import { buildCloseCashBody } from "../domain/cashClose";
 
@@ -50,11 +54,9 @@ export function PilotoSaleTab() {
   const [countedAmount, setCountedAmount] = useState("0");
   const [differenceReason, setDifferenceReason] = useState("");
   const [managerApproval, setManagerApproval] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PosPaymentMethod>("CASH");
-  const [receivedAmount, setReceivedAmount] = useState("");
-  const [cardBrand, setCardBrand] = useState("");
-  const [installments, setInstallments] = useState("");
-  const [endToEndId, setEndToEndId] = useState("");
+  const [paymentLines, setPaymentLines] = useState<PaymentLineDraft[]>(() => [
+    newPaymentLine(crypto.randomUUID()),
+  ]);
   const saleIdempotencyKeyRef = useRef(crypto.randomUUID());
 
   const cashQ = useQuery({
@@ -146,7 +148,40 @@ export function PilotoSaleTab() {
   const totalAmount =
     qtyValid && Number.isFinite(priceNum) && priceNum >= 0 ? lineSaleTotal(qtyNum, priceNum) : null;
   const changePreview =
-    totalAmount != null ? cashChangePreview(paymentMethod, totalAmount, receivedAmount) : null;
+    totalAmount == null
+      ? null
+      : paymentLines.reduce<number | null>((sum, line) => {
+          const amount = resolveLineAmount(line.amountRaw, totalAmount, paymentLines.length);
+          if (amount == null) {
+            return sum;
+          }
+          const change = cashChangePreview(line.method, amount, line.receivedRaw);
+          if (change == null) {
+            return sum;
+          }
+          return (sum ?? 0) + change;
+        }, null);
+  const remaining = totalAmount != null ? remainingToPay(totalAmount, paymentLines) : null;
+  const paymentsUnbalanced = remaining == null || !Number.isFinite(remaining) || remaining !== 0;
+
+  function patchPaymentLine(id: string, patch: Partial<PaymentLineDraft>) {
+    setPaymentLines((lines) =>
+      lines.map((line) => (line.id === id ? { ...line, ...patch } : line)),
+    );
+  }
+
+  function addPaymentLine() {
+    const leftover =
+      totalAmount != null ? remainingFromFilledAmounts(totalAmount, paymentLines) : 0;
+    const amountRaw = leftover > 0 ? String(leftover) : "";
+    setPaymentLines((lines) => [...lines, newPaymentLine(crypto.randomUUID(), "PIX", amountRaw)]);
+  }
+
+  function removePaymentLine(id: string) {
+    setPaymentLines((lines) =>
+      lines.length <= 1 ? lines : lines.filter((line) => line.id !== id),
+    );
+  }
   const insufficientStock = isInsufficientStock(selected != null, stockQty, qtyNum);
   const cashOpen = Boolean(cashQ.data?.open && cashQ.data.cashSessionId != null);
 
@@ -263,14 +298,7 @@ export function PilotoSaleTab() {
       }
     }
     const amount = lineSaleTotal(qtyNum, price);
-    const built = buildSinglePosPayment({
-      method: paymentMethod,
-      amount,
-      receivedRaw: receivedAmount,
-      cardBrand,
-      installmentsRaw: installments,
-      endToEndId,
-    });
+    const built = buildPosPayments(amount, paymentLines);
     if ("error" in built) {
       setError(built.error);
       return;
@@ -285,7 +313,7 @@ export function PilotoSaleTab() {
         quantity: qtyNum,
         unitPrice: price,
         ...(uc != null ? { unitCost: uc } : {}),
-        payments: [built.payment],
+        payments: built.payments,
         sellerId: sellerId === "" ? null : Number(sellerId),
       });
       setSaleId(created.saleId);
@@ -297,7 +325,13 @@ export function PilotoSaleTab() {
   }
 
   const busy = saleMut.isPending || openCashMut.isPending || closeCashMut.isPending;
-  const saleDisabled = busy || !cashOpen || stockLoading || stockQ.isError || insufficientStock;
+  const saleDisabled =
+    busy ||
+    !cashOpen ||
+    stockLoading ||
+    stockQ.isError ||
+    insufficientStock ||
+    (totalAmount != null && paymentsUnbalanced);
 
   return (
     <section className="card">
@@ -310,8 +344,9 @@ export function PilotoSaleTab() {
         </button>
       </div>
       <p className="muted small section-lead">
-        Venda no PDV: precisa de turno de caixa aberto. O stock é atualizado após confirmar; o saldo
-        tem de ser suficiente.
+        Venda no PDV: precisa de turno de caixa aberto. Pode dividir o total por qualquer meio
+        (dinheiro, PIX, cartões, boleto, transferência). NSU e end-to-end ficam no registo para
+        conciliar pagamentos reais depois. O stock atualiza ao confirmar.
       </p>
       {cashQ.isError ? (
         <p className="error" role="alert">
@@ -499,71 +534,129 @@ export function PilotoSaleTab() {
         {totalAmount != null ? (
           <p className="muted small">
             Total: {totalAmount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            {remaining != null && Number.isFinite(remaining) ? (
+              <>
+                {" "}
+                · Falta alocar:{" "}
+                {remaining.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </>
+            ) : null}
           </p>
         ) : null}
-        <label>
-          Método de pagamento
-          <select
-            value={paymentMethod}
-            onChange={(ev) => setPaymentMethod(ev.target.value as PosPaymentMethod)}
-            disabled={busy}
-          >
-            {POS_PAYMENT_METHOD_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        {paymentMethod === "CASH" ? (
-          <label>
-            Valor recebido (R$) — opcional para troco
-            <input
-              value={receivedAmount}
-              onChange={(ev) => setReceivedAmount(ev.target.value)}
-              placeholder="ex.: 100"
-              disabled={busy}
-            />
-          </label>
-        ) : null}
+        {paymentLines.map((line, index) => (
+          <fieldset key={line.id} className="form">
+            <legend>Parcela {index + 1}</legend>
+            <label>
+              Método de pagamento
+              <select
+                value={line.method}
+                onChange={(ev) =>
+                  patchPaymentLine(line.id, {
+                    method: ev.target.value as PaymentLineDraft["method"],
+                    pending: ev.target.value === "CASH" ? false : line.pending,
+                  })
+                }
+                disabled={busy}
+              >
+                {POS_PAYMENT_METHOD_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Valor desta parcela (R$)
+              <input
+                value={line.amountRaw}
+                onChange={(ev) => patchPaymentLine(line.id, { amountRaw: ev.target.value })}
+                placeholder={paymentLines.length === 1 ? "vazio = total da venda" : "ex.: 10"}
+                disabled={busy}
+              />
+            </label>
+            {line.method === "CASH" ? (
+              <label>
+                Valor recebido (R$) — opcional para troco
+                <input
+                  value={line.receivedRaw}
+                  onChange={(ev) => patchPaymentLine(line.id, { receivedRaw: ev.target.value })}
+                  placeholder="ex.: 100"
+                  disabled={busy}
+                />
+              </label>
+            ) : null}
+            {line.method === "CARD" ||
+            line.method === "CREDIT_CARD" ||
+            line.method === "DEBIT_CARD" ? (
+              <label>
+                Bandeira (opcional)
+                <input
+                  value={line.cardBrand}
+                  onChange={(ev) => patchPaymentLine(line.id, { cardBrand: ev.target.value })}
+                  placeholder="ex.: VISA"
+                  disabled={busy}
+                />
+              </label>
+            ) : null}
+            {line.method === "CARD" || line.method === "CREDIT_CARD" ? (
+              <label>
+                Parcelas (opcional)
+                <input
+                  value={line.installmentsRaw}
+                  onChange={(ev) => patchPaymentLine(line.id, { installmentsRaw: ev.target.value })}
+                  placeholder="ex.: 3"
+                  disabled={busy}
+                />
+              </label>
+            ) : null}
+            {line.method === "PIX" ? (
+              <label>
+                End-to-end PIX (opcional)
+                <input
+                  value={line.endToEndId}
+                  onChange={(ev) => patchPaymentLine(line.id, { endToEndId: ev.target.value })}
+                  disabled={busy}
+                />
+              </label>
+            ) : null}
+            <label>
+              NSU / id da transação (opcional)
+              <input
+                value={line.transactionId}
+                onChange={(ev) => patchPaymentLine(line.id, { transactionId: ev.target.value })}
+                disabled={busy}
+              />
+            </label>
+            {line.method !== "CASH" ? (
+              <label className="check">
+                <input
+                  type="checkbox"
+                  checked={line.pending}
+                  onChange={(ev) => patchPaymentLine(line.id, { pending: ev.target.checked })}
+                  disabled={busy}
+                />
+                Pendente (aguardar liquidação real — PIX/cartão/boleto)
+              </label>
+            ) : null}
+            {paymentLines.length > 1 ? (
+              <button
+                type="button"
+                className="ghost"
+                disabled={busy}
+                onClick={() => removePaymentLine(line.id)}
+              >
+                Remover parcela {index + 1}
+              </button>
+            ) : null}
+          </fieldset>
+        ))}
+        <button type="button" className="ghost" disabled={busy} onClick={addPaymentLine}>
+          Adicionar meio de pagamento
+        </button>
         {changePreview != null && changePreview >= 0 ? (
           <p className="muted small">
             Troco: {changePreview.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           </p>
-        ) : null}
-        {paymentMethod === "CARD" ||
-        paymentMethod === "CREDIT_CARD" ||
-        paymentMethod === "DEBIT_CARD" ? (
-          <label>
-            Bandeira (opcional)
-            <input
-              value={cardBrand}
-              onChange={(ev) => setCardBrand(ev.target.value)}
-              placeholder="ex.: VISA"
-              disabled={busy}
-            />
-          </label>
-        ) : null}
-        {paymentMethod === "CARD" || paymentMethod === "CREDIT_CARD" ? (
-          <label>
-            Parcelas (opcional)
-            <input
-              value={installments}
-              onChange={(ev) => setInstallments(ev.target.value)}
-              placeholder="ex.: 3"
-              disabled={busy}
-            />
-          </label>
-        ) : null}
-        {paymentMethod === "PIX" ? (
-          <label>
-            End-to-end PIX (opcional)
-            <input
-              value={endToEndId}
-              onChange={(ev) => setEndToEndId(ev.target.value)}
-              disabled={busy}
-            />
-          </label>
         ) : null}
         <label className="check">
           <input

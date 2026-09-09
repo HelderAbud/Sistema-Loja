@@ -1,4 +1,4 @@
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { TestQueryProvider } from "@/test/queryWrapper";
 import { PilotoSaleTab } from "./PilotoSaleTab";
@@ -164,7 +164,7 @@ describe("PilotoSaleTab", () => {
     );
   });
 
-  it("envia PIX quando o método é escolhido", async () => {
+  it("envia PIX pendente quando a liquidação ainda não chegou", async () => {
     getProductStock.mockResolvedValue({ quantity: 10 });
     render(
       <TestQueryProvider>
@@ -177,11 +177,50 @@ describe("PilotoSaleTab", () => {
       target: { value: "20" },
     });
     fireEvent.change(screen.getByLabelText(/^método de pagamento$/i), { target: { value: "PIX" } });
+    fireEvent.click(screen.getByLabelText(/pendente \(aguardar liquidação real/i));
     fireEvent.click(screen.getByRole("button", { name: /registar venda/i }));
     await waitFor(() =>
       expect(finalizePosSale).toHaveBeenCalledWith(
         expect.objectContaining({
-          payments: [{ paymentMethod: "PIX", amount: 20 }],
+          payments: [{ paymentMethod: "PIX", amount: 20, settlementStatus: "PENDING" }],
+        }),
+        expect.any(String),
+      ),
+    );
+  });
+
+  it("envia split dinheiro e PIX no finalize", async () => {
+    getProductStock.mockResolvedValue({ quantity: 10 });
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    await pickTestProduct();
+    fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
+      target: { value: "18" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /adicionar meio de pagamento/i }));
+    const parcela1 = screen.getByRole("group", { name: /parcela 1/i });
+    const parcela2 = screen.getByRole("group", { name: /parcela 2/i });
+    fireEvent.change(within(parcela1).getByLabelText(/valor desta parcela/i), {
+      target: { value: "10" },
+    });
+    fireEvent.change(within(parcela2).getByLabelText(/^método de pagamento$/i), {
+      target: { value: "PIX" },
+    });
+    fireEvent.change(within(parcela2).getByLabelText(/valor desta parcela/i), {
+      target: { value: "8" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /registar venda/i }));
+    await waitFor(() =>
+      expect(finalizePosSale).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payments: [
+            { paymentMethod: "CASH", amount: 10 },
+            { paymentMethod: "PIX", amount: 8 },
+          ],
         }),
         expect.any(String),
       ),
