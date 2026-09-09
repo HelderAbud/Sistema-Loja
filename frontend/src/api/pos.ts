@@ -1,14 +1,7 @@
 import { apiJson } from "./client";
 
 export type PosPaymentMethod =
-    | "CASH"
-    | "CARD"
-    | "PIX"
-    | "CREDIT_CARD"
-    | "DEBIT_CARD"
-    | "BANK_TRANSFER"
-    | "BANK_SLIP"
-    | "OTHER";
+  "CASH" | "CARD" | "PIX" | "CREDIT_CARD" | "DEBIT_CARD" | "BANK_TRANSFER" | "BANK_SLIP" | "OTHER";
 
 export type CurrentCashSessionResponse = {
   open: boolean;
