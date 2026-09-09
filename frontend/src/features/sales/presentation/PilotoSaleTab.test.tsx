@@ -5,14 +5,18 @@ import { PilotoSaleTab } from "./PilotoSaleTab";
 
 const listProducts = vi.fn();
 const getProductStock = vi.fn();
-const registerSale = vi.fn();
+const finalizePosSale = vi.fn();
 const listSellers = vi.fn();
+const getCurrentCashSession = vi.fn();
+const openCashSession = vi.fn();
 
 vi.mock("@/api", () => ({
   listProducts: (...args: unknown[]) => listProducts(...args),
   getProductStock: (...args: unknown[]) => getProductStock(...args),
-  registerSale: (...args: unknown[]) => registerSale(...args),
+  finalizePosSale: (...args: unknown[]) => finalizePosSale(...args),
   listSellers: (...args: unknown[]) => listSellers(...args),
+  getCurrentCashSession: (...args: unknown[]) => getCurrentCashSession(...args),
+  openCashSession: (...args: unknown[]) => openCashSession(...args),
 }));
 
 const mockProduct = {
@@ -26,6 +30,26 @@ const mockProduct = {
   salePrice: 25,
   minimumStock: 0,
 };
+
+const openCash = {
+  open: true,
+  cashSessionId: 7,
+  openingAmount: 0,
+  openedAt: "2026-09-09T12:00:00Z",
+  expectedAmount: 0,
+  expectedCashAmount: 0,
+  expectedCardAmount: 0,
+  expectedPixAmount: 0,
+};
+
+async function pickTestProduct() {
+  await waitFor(() => expect(screen.getByText(/turno de caixa #7/i)).toBeInTheDocument());
+  fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
+  const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
+  fireEvent.mouseDown(option);
+  fireEvent.click(option);
+  await waitFor(() => expect(getProductStock).toHaveBeenCalledWith(42));
+}
 
 describe("PilotoSaleTab", () => {
   beforeEach(() => {
@@ -43,13 +67,20 @@ describe("PilotoSaleTab", () => {
       { id: 11, displayName: "Ana", active: true, sortOrder: 0, createdAt: "2026-01-01T00:00:00Z" },
     ]);
     getProductStock.mockResolvedValue({ quantity: 2 });
-    registerSale.mockResolvedValue({
-      id: 99,
-      productId: 42,
-      quantity: 1,
-      unitPrice: 20,
-      unitCost: 10,
+    getCurrentCashSession.mockResolvedValue(openCash);
+    openCashSession.mockResolvedValue({
+      cashSessionId: 7,
+      openingAmount: 0,
+      openedAt: "2026-09-09T12:00:00Z",
+      status: "OPEN",
+    });
+    finalizePosSale.mockResolvedValue({
+      saleId: 99,
+      cashSessionId: 7,
+      totalAmount: 20,
       soldAt: "2026-01-01T00:00:00Z",
+      sellerId: null,
+      changeAmount: 0,
     });
   });
 
@@ -59,15 +90,7 @@ describe("PilotoSaleTab", () => {
         <PilotoSaleTab />
       </TestQueryProvider>,
     );
-    fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
-    await waitFor(() => expect(listProducts).toHaveBeenCalled());
-
-    const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
-    fireEvent.mouseDown(option);
-    fireEvent.click(option);
-
-    await waitFor(() => expect(getProductStock).toHaveBeenCalledWith(42));
-
+    await pickTestProduct();
     fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "5" } });
 
     expect(screen.getByRole("alert")).toHaveTextContent(/maior que o saldo/);
@@ -81,15 +104,7 @@ describe("PilotoSaleTab", () => {
         <PilotoSaleTab />
       </TestQueryProvider>,
     );
-    fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
-    await waitFor(() => expect(listProducts).toHaveBeenCalled());
-
-    const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
-    fireEvent.mouseDown(option);
-    fireEvent.click(option);
-
-    await waitFor(() => expect(getProductStock).toHaveBeenCalledWith(42));
-
+    await pickTestProduct();
     fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "2" } });
     fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
       target: { value: "18" },
@@ -99,18 +114,14 @@ describe("PilotoSaleTab", () => {
     expect(screen.getByRole("button", { name: /registar venda/i })).not.toBeDisabled();
   });
 
-  it("envia sellerId quando uma vendedora é escolhida", async () => {
+  it("envia sellerId e pagamento CASH no finalize do PDV", async () => {
     getProductStock.mockResolvedValue({ quantity: 10 });
     render(
       <TestQueryProvider>
         <PilotoSaleTab />
       </TestQueryProvider>,
     );
-    fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
-    const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
-    fireEvent.mouseDown(option);
-    fireEvent.click(option);
-    await waitFor(() => expect(getProductStock).toHaveBeenCalledWith(42));
+    await pickTestProduct();
     fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
       target: { value: "18" },
@@ -118,9 +129,38 @@ describe("PilotoSaleTab", () => {
     fireEvent.change(await screen.findByLabelText(/^vendedora$/i), { target: { value: "11" } });
     fireEvent.click(screen.getByRole("button", { name: /registar venda/i }));
     await waitFor(() =>
-      expect(registerSale).toHaveBeenCalledWith(
-        expect.objectContaining({ productId: 42, sellerId: 11 }),
+      expect(finalizePosSale).toHaveBeenCalledWith(
+        expect.objectContaining({
+          cashSessionId: 7,
+          productId: 42,
+          sellerId: 11,
+          payments: [{ paymentMethod: "CASH", amount: 18 }],
+        }),
         expect.stringMatching(/\S/),
+      ),
+    );
+  });
+
+  it("envia PIX quando o método é escolhido", async () => {
+    getProductStock.mockResolvedValue({ quantity: 10 });
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    await pickTestProduct();
+    fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "1" } });
+    fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
+      target: { value: "20" },
+    });
+    fireEvent.change(screen.getByLabelText(/^método de pagamento$/i), { target: { value: "PIX" } });
+    fireEvent.click(screen.getByRole("button", { name: /registar venda/i }));
+    await waitFor(() =>
+      expect(finalizePosSale).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payments: [{ paymentMethod: "PIX", amount: 20 }],
+        }),
+        expect.any(String),
       ),
     );
   });
@@ -150,15 +190,25 @@ describe("PilotoSaleTab", () => {
         <PilotoSaleTab />
       </TestQueryProvider>,
     );
-    fireEvent.change(screen.getByPlaceholderText(/camiseta/i), { target: { value: "c" } });
-    const option = await screen.findByRole("button", { name: /#42 — Camiseta Teste/ });
-    fireEvent.mouseDown(option);
-    fireEvent.click(option);
-    await waitFor(() => expect(getProductStock).toHaveBeenCalledWith(42));
+    await pickTestProduct();
     fireEvent.change(screen.getByLabelText(/^quantidade$/i), { target: { value: "1" } });
     fireEvent.change(screen.getByLabelText(/preço de venda unitário/i), {
       target: { value: "18" },
     });
     expect(screen.getByRole("button", { name: /registar venda/i })).toBeDisabled();
+  });
+
+  it("bloqueia a venda e permite abrir caixa quando o turno está fechado", async () => {
+    getCurrentCashSession.mockResolvedValue({ ...openCash, open: false, cashSessionId: null });
+    render(
+      <TestQueryProvider>
+        <PilotoSaleTab />
+      </TestQueryProvider>,
+    );
+    await waitFor(() => expect(screen.getByRole("button", { name: /abrir caixa/i })).toBeEnabled());
+    expect(screen.getByRole("button", { name: /registar venda/i })).toBeDisabled();
+    fireEvent.change(screen.getByLabelText(/saldo inicial do caixa/i), { target: { value: "50" } });
+    fireEvent.click(screen.getByRole("button", { name: /abrir caixa/i }));
+    await waitFor(() => expect(openCashSession).toHaveBeenCalledWith({ openingAmount: 50 }));
   });
 });

@@ -1,6 +1,15 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { getProductStock, listProducts, listSellers, registerSale, type Product } from "@/api";
+import {
+  finalizePosSale,
+  getCurrentCashSession,
+  getProductStock,
+  listProducts,
+  listSellers,
+  openCashSession,
+  type PosPaymentMethod,
+  type Product,
+} from "@/api";
 import { SellerPicker } from "./SellerPicker";
 import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 import {
@@ -10,6 +19,12 @@ import {
   SALE_MIN_QUERY_LEN,
   SALE_SEARCH_DEBOUNCE_MS,
 } from "../domain/saleFormParse";
+import {
+  buildSinglePosPayment,
+  cashChangePreview,
+  lineSaleTotal,
+  POS_PAYMENT_METHOD_OPTIONS,
+} from "../domain/posPayment";
 
 export function PilotoSaleTab() {
   const queryClient = useQueryClient();
@@ -26,8 +41,20 @@ export function PilotoSaleTab() {
   const [useUnitCost, setUseUnitCost] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saleId, setSaleId] = useState<number | null>(null);
+  const [changeAmount, setChangeAmount] = useState<number | null>(null);
   const [sellerId, setSellerId] = useState("");
+  const [openingAmount, setOpeningAmount] = useState("0");
+  const [paymentMethod, setPaymentMethod] = useState<PosPaymentMethod>("CASH");
+  const [receivedAmount, setReceivedAmount] = useState("");
+  const [cardBrand, setCardBrand] = useState("");
+  const [installments, setInstallments] = useState("");
+  const [endToEndId, setEndToEndId] = useState("");
   const saleIdempotencyKeyRef = useRef(crypto.randomUUID());
+
+  const cashQ = useQuery({
+    queryKey: queryKeys.cashSessionCurrent(),
+    queryFn: getCurrentCashSession,
+  });
 
   const stockQ = useQuery({
     queryKey: selected != null ? queryKeys.productStock(selected.id) : ["productStock", -1],
@@ -40,9 +67,16 @@ export function PilotoSaleTab() {
     queryFn: listSellers,
   });
 
+  const openCashMut = useMutation({
+    mutationFn: (body: { openingAmount: number }) => openCashSession(body),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.cashSessionCurrent() });
+    },
+  });
+
   const saleMut = useMutation({
-    mutationFn: (body: Parameters<typeof registerSale>[0]) =>
-      registerSale(body, saleIdempotencyKeyRef.current),
+    mutationFn: (body: Parameters<typeof finalizePosSale>[0]) =>
+      finalizePosSale(body, saleIdempotencyKeyRef.current),
     onSuccess: async () => {
       saleIdempotencyKeyRef.current = crypto.randomUUID();
       invalidateLojappDataQueries(queryClient);
@@ -82,7 +116,13 @@ export function PilotoSaleTab() {
 
   const qtyNum = parseDecimalInput(quantity);
   const qtyValid = isValidPositiveQuantity(qtyNum);
+  const priceNum = parseDecimalInput(unitPrice);
+  const totalAmount =
+    qtyValid && Number.isFinite(priceNum) && priceNum >= 0 ? lineSaleTotal(qtyNum, priceNum) : null;
+  const changePreview =
+    totalAmount != null ? cashChangePreview(paymentMethod, totalAmount, receivedAmount) : null;
   const insufficientStock = isInsufficientStock(selected != null, stockQty, qtyNum);
+  const cashOpen = Boolean(cashQ.data?.open && cashQ.data.cashSessionId != null);
 
   function pickProduct(p: Product) {
     setSelected(p);
@@ -99,8 +139,27 @@ export function PilotoSaleTab() {
     setListOpen(false);
   }
 
+  async function onOpenCash(e: FormEvent) {
+    e.preventDefault();
+    const amount = parseDecimalInput(openingAmount);
+    if (!Number.isFinite(amount) || amount < 0) {
+      setError("Saldo inicial de caixa inválido.");
+      return;
+    }
+    setError(null);
+    try {
+      await openCashMut.mutateAsync({ openingAmount: amount });
+    } catch (err: unknown) {
+      setError(String(err));
+    }
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!cashOpen || cashQ.data?.cashSessionId == null) {
+      setError("Abra o turno de caixa para vender no PDV.");
+      return;
+    }
     if (selected == null) {
       setError("Escolha um produto na pesquisa.");
       return;
@@ -131,24 +190,42 @@ export function PilotoSaleTab() {
         return;
       }
     }
+    const amount = lineSaleTotal(qtyNum, price);
+    const built = buildSinglePosPayment({
+      method: paymentMethod,
+      amount,
+      receivedRaw: receivedAmount,
+      cardBrand,
+      installmentsRaw: installments,
+      endToEndId,
+    });
+    if ("error" in built) {
+      setError(built.error);
+      return;
+    }
     setError(null);
     setSaleId(null);
+    setChangeAmount(null);
     try {
       const created = await saleMut.mutateAsync({
+        cashSessionId: cashQ.data.cashSessionId,
         productId,
         quantity: qtyNum,
         unitPrice: price,
-        unitCost: uc,
+        ...(uc != null ? { unitCost: uc } : {}),
+        payments: [built.payment],
         sellerId: sellerId === "" ? null : Number(sellerId),
       });
-      setSaleId(created.id);
+      setSaleId(created.saleId);
+      setChangeAmount(created.changeAmount ?? 0);
       await queryClient.invalidateQueries({ queryKey: queryKeys.productStock(productId) });
     } catch (err: unknown) {
       setError(String(err));
     }
   }
 
-  const busy = saleMut.isPending;
+  const busy = saleMut.isPending || openCashMut.isPending;
+  const saleDisabled = busy || !cashOpen || stockLoading || stockQ.isError || insufficientStock;
 
   return (
     <section className="card">
@@ -161,9 +238,36 @@ export function PilotoSaleTab() {
         </button>
       </div>
       <p className="muted small section-lead">
-        O stock é atualizado automaticamente após cada venda; o saldo tem de ser suficiente antes de
-        confirmar.
+        Venda no PDV: precisa de turno de caixa aberto. O stock é atualizado após confirmar; o saldo
+        tem de ser suficiente.
       </p>
+      {cashQ.isError ? (
+        <p className="error" role="alert">
+          Não foi possível ler o caixa. {String(cashQ.error)}
+        </p>
+      ) : null}
+      {cashQ.isLoading ? (
+        <p className="muted small">A carregar turno de caixa…</p>
+      ) : cashOpen ? (
+        <p className="muted small">Turno de caixa #{cashQ.data?.cashSessionId} aberto.</p>
+      ) : (
+        <form onSubmit={onOpenCash} className="form">
+          <p className="error small" role="status">
+            Sem turno aberto: a venda PDV fica bloqueada.
+          </p>
+          <label>
+            Saldo inicial do caixa (R$)
+            <input
+              value={openingAmount}
+              onChange={(ev) => setOpeningAmount(ev.target.value)}
+              disabled={busy}
+            />
+          </label>
+          <button type="submit" className="primary" disabled={busy}>
+            {openCashMut.isPending ? "A abrir caixa…" : "Abrir caixa"}
+          </button>
+        </form>
+      )}
       <form onSubmit={onSubmit} className="form">
         <label className="combobox-wrap">
           Produto — pesquisar por nome
@@ -260,6 +364,75 @@ export function PilotoSaleTab() {
             placeholder="ex.: 18.90"
           />
         </label>
+        {totalAmount != null ? (
+          <p className="muted small">
+            Total: {totalAmount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </p>
+        ) : null}
+        <label>
+          Método de pagamento
+          <select
+            value={paymentMethod}
+            onChange={(ev) => setPaymentMethod(ev.target.value as PosPaymentMethod)}
+            disabled={busy}
+          >
+            {POS_PAYMENT_METHOD_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        {paymentMethod === "CASH" ? (
+          <label>
+            Valor recebido (R$) — opcional para troco
+            <input
+              value={receivedAmount}
+              onChange={(ev) => setReceivedAmount(ev.target.value)}
+              placeholder="ex.: 100"
+              disabled={busy}
+            />
+          </label>
+        ) : null}
+        {changePreview != null && changePreview >= 0 ? (
+          <p className="muted small">
+            Troco: {changePreview.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          </p>
+        ) : null}
+        {paymentMethod === "CARD" ||
+        paymentMethod === "CREDIT_CARD" ||
+        paymentMethod === "DEBIT_CARD" ? (
+          <label>
+            Bandeira (opcional)
+            <input
+              value={cardBrand}
+              onChange={(ev) => setCardBrand(ev.target.value)}
+              placeholder="ex.: VISA"
+              disabled={busy}
+            />
+          </label>
+        ) : null}
+        {paymentMethod === "CARD" || paymentMethod === "CREDIT_CARD" ? (
+          <label>
+            Parcelas (opcional)
+            <input
+              value={installments}
+              onChange={(ev) => setInstallments(ev.target.value)}
+              placeholder="ex.: 3"
+              disabled={busy}
+            />
+          </label>
+        ) : null}
+        {paymentMethod === "PIX" ? (
+          <label>
+            End-to-end PIX (opcional)
+            <input
+              value={endToEndId}
+              onChange={(ev) => setEndToEndId(ev.target.value)}
+              disabled={busy}
+            />
+          </label>
+        ) : null}
         <label className="check">
           <input
             type="checkbox"
@@ -284,14 +457,13 @@ export function PilotoSaleTab() {
         {saleId != null ? (
           <p className="success small">
             Venda registada — id <strong>{saleId}</strong>
+            {changeAmount != null && changeAmount > 0
+              ? ` · Troco ${changeAmount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`
+              : null}
           </p>
         ) : null}
-        <button
-          type="submit"
-          className="primary"
-          disabled={busy || stockLoading || stockQ.isError || insufficientStock}
-        >
-          {busy ? (
+        <button type="submit" className="primary" disabled={saleDisabled}>
+          {busy && saleMut.isPending ? (
             <span className="btn-inline-loading">
               <span
                 className="ui-spinner"

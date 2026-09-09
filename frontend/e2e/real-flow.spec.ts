@@ -96,6 +96,13 @@ test.describe("jornada real (API + UI, sem mocks)", () => {
     await expect(pickProduct.first()).toBeVisible({ timeout: 10_000 });
     await pickProduct.first().click();
 
+    const openCash = page.getByRole("button", { name: /abrir caixa/i });
+    if (await openCash.isVisible()) {
+      await page.getByLabel(/Saldo inicial do caixa/).fill("50");
+      await openCash.click();
+      await expect(page.getByText(/Turno de caixa #/i)).toBeVisible({ timeout: 10_000 });
+    }
+
     await page.getByLabel("Quantidade").fill("1");
     await page.getByLabel(/Preço de venda unitário/).fill("19.9");
     await page.getByRole("button", { name: /registar venda/i }).click();
