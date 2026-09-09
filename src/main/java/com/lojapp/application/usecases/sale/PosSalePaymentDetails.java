@@ -1,6 +1,8 @@
 package com.lojapp.application.usecases.sale;
 
 import com.lojapp.dto.sale.PosSalePaymentRequest;
+import com.lojapp.entity.PaymentMethod;
+import com.lojapp.entity.PaymentSettlementStatus;
 import com.lojapp.exception.domain.PosSalePaymentDetailsInvalidException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -31,6 +33,11 @@ public final class PosSalePaymentDetails {
         if (hasText(payment.endToEndId()) && !payment.paymentMethod().allowsEndToEndId()) {
             throw new PosSalePaymentDetailsInvalidException(
                     "endToEndId só é permitido para PIX.");
+        }
+        if (payment.settlementStatus() == PaymentSettlementStatus.PENDING
+                && payment.paymentMethod() == PaymentMethod.CASH) {
+            throw new PosSalePaymentDetailsInvalidException(
+                    "Pagamento em dinheiro não pode ficar pendente: o valor já está no caixa.");
         }
     }
 

@@ -160,6 +160,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             payment.setTransactionId(paymentRequest.transactionId());
             payment.setEndToEndId(paymentRequest.endToEndId());
             payment.setReceivedAmount(paymentRequest.receivedAmount());
+            payment.setSettlementStatus(paymentRequest.settlementStatus());
             salePayments.save(payment);
         }
 

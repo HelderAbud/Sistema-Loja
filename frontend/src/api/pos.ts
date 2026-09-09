@@ -51,6 +51,7 @@ export type PosSalePaymentRequest = {
   transactionId?: string | null;
   endToEndId?: string | null;
   receivedAmount?: number | null;
+  settlementStatus?: "CONFIRMED" | "PENDING";
 };
 
 export type PosSaleLineRequest = {
