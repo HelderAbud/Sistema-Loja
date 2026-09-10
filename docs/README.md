@@ -5,6 +5,7 @@
 | Documento | Caminho |
 |-----------|---------|
 | Vocabulário / domínio | [`CONTEXT.md`](CONTEXT.md) |
+| ADRs | [`adr/0001-idempotencia-somente-em-application.md`](adr/0001-idempotencia-somente-em-application.md), [`adr/0002-pagamento-pdv-lancamento-sem-psp.md`](adr/0002-pagamento-pdv-lancamento-sem-psp.md) |
 | Auditoria portfólio (P0/P1) | [`CHECKLIST_FINAL.md`](CHECKLIST_FINAL.md) |
 | Trilha dia a dia | [`TRILHA-DIA-A-DIA.md`](TRILHA-DIA-A-DIA.md) |
 | Plano consolidado (série A/B/PR) | [`lojapp/plano-consolidado-melhorias-2026-05-24.md`](lojapp/plano-consolidado-melhorias-2026-05-24.md) |

@@ -15,6 +15,9 @@ export const queryKeys = {
 
   lowStock: () => ["inventory", "lowStock"] as const,
 
+  productMovements: (productId: number, page: number) =>
+    ["inventory", "movements", productId, page] as const,
+
   sales: (p: { page: number; size: number; from?: string; to?: string; productId?: number }) =>
     ["sales", p.page, p.size, p.from ?? "", p.to ?? "", p.productId ?? ""] as const,
 

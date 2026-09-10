@@ -1,5 +1,6 @@
 package com.lojapp.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -14,14 +15,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.dto.ApiErrorCode;
+import com.lojapp.dto.inventory.InventoryMovementPageResponse;
+import com.lojapp.dto.inventory.InventoryMovementResponse;
 import com.lojapp.exception.GlobalExceptionHandler;
+import com.lojapp.exception.domain.ProductNotFoundException;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
 import com.lojapp.support.TestJwtAuth;
 import com.lojapp.service.contract.InventoryServiceContract;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Pageable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,5 +187,62 @@ class InventoryControllerTest {
                 .andExpect(status().isForbidden());
 
         verifyNoInteractions(adjustInventory);
+    }
+
+    @Test
+    void productMovements_returnsPage() throws Exception {
+        Instant at = Instant.parse("2026-09-10T14:32:00Z");
+        InventoryMovementPageResponse page =
+                new InventoryMovementPageResponse(
+                        List.of(
+                                new InventoryMovementResponse(
+                                        1L,
+                                        "SALE",
+                                        new BigDecimal("-3"),
+                                        "SALE_REGISTER",
+                                        456L,
+                                        null,
+                                        at)),
+                        1,
+                        1,
+                        20,
+                        0,
+                        true,
+                        true);
+        when(inventory.listProductMovements(eq(USER_ID), eq(7L), any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/inventory/products/7/movements")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].sourceId").value(456))
+                .andExpect(jsonPath("$.content[0].movementType").value("SALE"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    void productMovements_withCashierRole_returnsPage() throws Exception {
+        InventoryMovementPageResponse page =
+                new InventoryMovementPageResponse(List.of(), 0, 0, 20, 0, true, true);
+        when(inventory.listProductMovements(eq(USER_ID), eq(7L), any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/inventory/products/7/movements")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
+    void productMovements_productOfAnotherUser_returns404() throws Exception {
+        when(inventory.listProductMovements(eq(USER_ID), eq(99L), any(Pageable.class)))
+                .thenThrow(new ProductNotFoundException());
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/inventory/products/99/movements")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value(ApiErrorCode.NOT_FOUND.code()));
     }
 }

@@ -10,6 +10,8 @@ import com.lojapp.dto.dashboard.InventoryKpiResponse;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.domain.inventory.ManualStockAdjustment;
 import com.lojapp.domain.inventory.StockLedgerDelta;
+import com.lojapp.dto.inventory.InventoryMovementPageResponse;
+import com.lojapp.dto.inventory.InventoryMovementResponse;
 import com.lojapp.dto.inventory.LowStockResponse;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
 import com.lojapp.exception.domain.InsufficientStockException;
@@ -30,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,6 +76,17 @@ public class InventoryService implements InventoryServiceContract {
             BigDecimal quantity,
             String source,
             Long sourceId) {
+        registerStockMovement(user, product, movementType, quantity, source, sourceId, null);
+    }
+
+    private void registerStockMovement(
+            User user,
+            Product product,
+            InventoryMovementType movementType,
+            BigDecimal quantity,
+            String source,
+            Long sourceId,
+            String reason) {
         InventoryMovement movement = new InventoryMovement();
         movement.setUser(user);
         movement.setProduct(product);
@@ -79,6 +94,7 @@ public class InventoryService implements InventoryServiceContract {
         movement.setQuantity(quantity);
         movement.setSource(source);
         movement.setSourceId(sourceId);
+        movement.setReason(reason);
         inventoryMovements.save(movement);
 
         InventoryBalance balance = loadOrCreateBalanceForUpdate(user, product);
@@ -122,6 +138,7 @@ public class InventoryService implements InventoryServiceContract {
     private static final String SOURCE_SALE_REGISTER = "SALE_REGISTER";
     private static final String SOURCE_SALE_CANCEL = "SALE_CANCEL";
     private static final String SOURCE_NFE_IMPORT = "NFE_IMPORT";
+    private static final String SOURCE_MANUAL_ADJUST = "MANUAL_ADJUST";
 
     /** Quantidade vendida (positiva); persiste movimento {@link InventoryMovementType#SALE} com delta negativo. */
     @Transactional
@@ -198,6 +215,28 @@ public class InventoryService implements InventoryServiceContract {
         return getAvailableQuantity(userId, productId);
     }
 
+    @Transactional(readOnly = true)
+    public InventoryMovementPageResponse listProductMovements(
+            long userId, long productId, Pageable pageable) {
+        if (products.findByIdAndUser_IdAndDeletedAtIsNull(productId, userId).isEmpty()) {
+            throw new ProductNotFoundException();
+        }
+        Page<InventoryMovementResponse> page =
+                inventoryMovements
+                        .findByUser_IdAndProduct_IdOrderByCreatedAtDesc(userId, productId, pageable)
+                        .map(
+                                m ->
+                                        new InventoryMovementResponse(
+                                                m.getId(),
+                                                m.getMovementType(),
+                                                m.getQuantity(),
+                                                m.getSource(),
+                                                m.getSourceId(),
+                                                m.getReason(),
+                                                m.getCreatedAt()));
+        return InventoryMovementPageResponse.from(page);
+    }
+
     /**
      * Pré-checagem de saldo sem lock  pode divergir de uma venda concurrente; a garantia é {@link
      * #registerStockMovement} com lock pessimista.
@@ -234,8 +273,9 @@ public class InventoryService implements InventoryServiceContract {
                 product,
                 InventoryMovementType.ADJUSTMENT,
                 delta.signedQuantity(),
-                adj.reason(),
-                null);
+                SOURCE_MANUAL_ADJUST,
+                null,
+                adj.reason());
         log.info(
                 "Stock ajustado userId={} productId={} delta={}",
                 userId,

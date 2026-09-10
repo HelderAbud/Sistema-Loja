@@ -27,3 +27,35 @@ export type ProductStock = { quantity: number };
 export async function getProductStock(productId: number): Promise<ProductStock> {
   return apiJson<ProductStock>(`/api/v1/lojapp/inventory/products/${productId}/stock`);
 }
+
+export type InventoryMovement = {
+  id: number;
+  movementType: string;
+  quantity: number;
+  source: string;
+  sourceId: number | null;
+  reason: string | null;
+  createdAt: string;
+};
+
+export type InventoryMovementPage = {
+  content: InventoryMovement[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+};
+
+export async function listProductMovements(
+  productId: number,
+  page = 0,
+): Promise<InventoryMovementPage> {
+  const q = new URLSearchParams();
+  q.set("page", String(page));
+  q.set("size", "20");
+  return apiJson<InventoryMovementPage>(
+    `/api/v1/lojapp/inventory/products/${productId}/movements?${q}`,
+  );
+}
