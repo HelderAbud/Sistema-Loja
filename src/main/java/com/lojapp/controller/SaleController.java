@@ -4,6 +4,7 @@ import com.lojapp.dto.sale.SalePageResponse;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.dto.sale.SalesDailyPointResponse;
+import com.lojapp.dto.sale.SalesPaymentsSummaryResponse;
 import com.lojapp.dto.sale.SalesSummaryResponse;
 import com.lojapp.security.JwtUser;
 import com.lojapp.application.contract.SalesServiceContract;
@@ -112,6 +113,23 @@ public class SaleController {
             @Parameter(description = "Filtrar por marca") @RequestParam(required = false) Long brandId,
             @AuthenticationPrincipal JwtUser principal) {
         return sales.summarizeSalesDaily(principal.userId(), from, to, productId, brandId);
+    }
+
+    @Operation(summary = "Pagamentos agregados por método (liquidado vs pendente)")
+    @ApiResponse(
+            responseCode = "200",
+            content = @Content(schema = @Schema(implementation = SalesPaymentsSummaryResponse.class)))
+    @GetMapping("/sales/payments-summary")
+    @PreAuthorize("hasAnyRole('USER','ADMIN','REPRESENTATIVE','MANAGER')")
+    public SalesPaymentsSummaryResponse summarizeSalesPayments(
+            @Parameter(description = "Início (ISO-8601)")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    Instant from,
+            @Parameter(description = "Fim (ISO-8601)")
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+                    Instant to,
+            @AuthenticationPrincipal JwtUser principal) {
+        return sales.summarizeSalesPayments(principal.userId(), from, to);
     }
 
     @Operation(summary = "Cancelar venda")

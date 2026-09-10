@@ -16,7 +16,9 @@ import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SaleListItemResponse;
 import com.lojapp.dto.sale.SalePageResponse;
 import com.lojapp.dto.sale.SalesDailyPointResponse;
+import com.lojapp.dto.sale.SalesPaymentsSummaryResponse;
 import com.lojapp.dto.sale.SalesSummaryResponse;
+import com.lojapp.entity.PaymentMethod;
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.security.AuthRateLimitFilter;
 import com.lojapp.security.JwtAuthFilter;
@@ -206,6 +208,46 @@ class SaleControllerTest {
                 .andExpect(jsonPath("$[0].date").value("2026-04-01"))
                 .andExpect(jsonPath("$[0].revenue").value(50.0))
                 .andExpect(jsonPath("$[0].unitsSold").value(3.0));
+    }
+
+    @Test
+    void summarizeSalesPayments_withAuthentication_returnsSummary() throws Exception {
+        when(sales.summarizeSalesPayments(eq(USER_ID), isNull(), isNull()))
+                .thenReturn(
+                        new SalesPaymentsSummaryResponse(
+                                new SalesPaymentsSummaryResponse.Slice(
+                                        new BigDecimal("30.00"),
+                                        new BigDecimal("20.00"),
+                                        List.of(
+                                                new SalesPaymentsSummaryResponse.PaymentMethodBreakdown(
+                                                        PaymentMethod.PIX,
+                                                        new BigDecimal("10.00"),
+                                                        new BigDecimal("20.00")))),
+                                new SalesPaymentsSummaryResponse.Slice(
+                                        new BigDecimal("15.00"), BigDecimal.ZERO, List.of()),
+                                new SalesPaymentsSummaryResponse.Slice(
+                                        BigDecimal.ZERO,
+                                        new BigDecimal("20.00"),
+                                        List.of())));
+
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales/payments-summary")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappUser(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sold.confirmedTotal").value(30.0))
+                .andExpect(jsonPath("$.sold.pendingTotal").value(20.0))
+                .andExpect(jsonPath("$.settled.confirmedTotal").value(15.0))
+                .andExpect(jsonPath("$.openPending.pendingTotal").value(20.0));
+    }
+
+    @Test
+    void summarizeSalesPayments_withCashierRole_returnsForbidden() throws Exception {
+        mockMvc.perform(
+                        get("/api/v1/lojapp/sales/payments-summary")
+                                .header(HttpHeaders.AUTHORIZATION, "Bearer test")
+                                .with(lojappCashier(USER_ID)))
+                .andExpect(status().isForbidden());
     }
 
     @Test

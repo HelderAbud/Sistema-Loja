@@ -24,6 +24,7 @@ import com.lojapp.repository.SaleRepository;
 import com.lojapp.repository.UserRepository;
 import com.lojapp.service.AuditService;
 import com.lojapp.service.contract.InventoryServiceContract;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -118,6 +119,7 @@ public class CreateSaleUseCase {
             payment.setPaymentMethod(PaymentMethod.CASH);
             payment.setAmount(line.unitPrice().multiply(line.quantity()));
             payment.setSettlementCashSession(openSession);
+            payment.setSettledAt(sale.getSoldAt() != null ? sale.getSoldAt() : Instant.now());
             salePayments.save(payment);
         }
         posSaleCommissionService.assignSellerAndAccrue(

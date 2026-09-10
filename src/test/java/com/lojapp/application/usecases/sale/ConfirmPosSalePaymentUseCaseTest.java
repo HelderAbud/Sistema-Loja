@@ -51,6 +51,7 @@ class ConfirmPosSalePaymentUseCaseTest {
 
         assertThat(payment.getSettlementStatus()).isEqualTo(PaymentSettlementStatus.CONFIRMED);
         assertThat(payment.getSettlementCashSession().getId()).isEqualTo(7L);
+        assertThat(payment.getSettledAt()).isNotNull();
         assertThat(view.settlementCashSessionId()).isEqualTo(7L);
         verify(salePayments).save(payment);
         verify(auditService)

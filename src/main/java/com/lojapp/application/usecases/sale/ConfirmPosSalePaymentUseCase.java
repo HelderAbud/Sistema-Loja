@@ -13,6 +13,7 @@ import com.lojapp.exception.domain.SalePaymentConfirmSessionClosedException;
 import com.lojapp.repository.CashSessionRepository;
 import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.service.AuditService;
+import java.time.Instant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +52,7 @@ public class ConfirmPosSalePaymentUseCase implements ConfirmPosSalePaymentUseCas
         CashSession settlementSession = resolveSettlementSession(userId, sale);
         payment.setSettlementStatus(PaymentSettlementStatus.CONFIRMED);
         payment.setSettlementCashSession(settlementSession);
+        payment.setSettledAt(Instant.now());
         salePayments.save(payment);
         auditService.log(
                 userId,

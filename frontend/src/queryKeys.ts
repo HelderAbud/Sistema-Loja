@@ -32,6 +32,7 @@ export const queryKeys = {
     brands: (rangeKey: string) => ["dashboard", "brands", rangeKey] as const,
     abc: (rangeKey: string) => ["dashboard", "abc", rangeKey] as const,
     inventory: () => ["dashboard", "inventory"] as const,
+    payments: (rangeKey: string) => ["dashboard", "payments", rangeKey] as const,
   },
 };
 

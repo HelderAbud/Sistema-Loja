@@ -1,8 +1,10 @@
 package com.lojapp.repository;
 
-import com.lojapp.entity.SalePayment;
 import com.lojapp.entity.PaymentMethod;
+import com.lojapp.entity.PaymentSettlementStatus;
+import com.lojapp.entity.SalePayment;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -76,4 +78,62 @@ public interface SalePaymentRepository extends JpaRepository<SalePayment, Long> 
             """)
     Optional<SalePayment> findByIdAndUserIdWithSale(
             @Param("paymentId") Long paymentId, @Param("userId") Long userId);
+
+    interface PaymentSettlementAggregateRow {
+        PaymentMethod getPaymentMethod();
+
+        PaymentSettlementStatus getSettlementStatus();
+
+        BigDecimal getAmount();
+    }
+
+    @Query(
+            """
+            select
+                sp.paymentMethod as paymentMethod,
+                sp.settlementStatus as settlementStatus,
+                coalesce(sum(sp.amount), 0) as amount
+            from SalePayment sp
+            join sp.sale s
+            where sp.user.id = :userId
+              and s.cancelledAt is null
+              and s.soldAt >= :from
+              and s.soldAt <= :to
+            group by sp.paymentMethod, sp.settlementStatus
+            """)
+    List<PaymentSettlementAggregateRow> aggregateBySoldAt(
+            @Param("userId") Long userId, @Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(
+            """
+            select
+                sp.paymentMethod as paymentMethod,
+                sp.settlementStatus as settlementStatus,
+                coalesce(sum(sp.amount), 0) as amount
+            from SalePayment sp
+            join sp.sale s
+            where sp.user.id = :userId
+              and s.cancelledAt is null
+              and sp.settlementStatus = com.lojapp.entity.PaymentSettlementStatus.CONFIRMED
+              and sp.settledAt >= :from
+              and sp.settledAt <= :to
+            group by sp.paymentMethod, sp.settlementStatus
+            """)
+    List<PaymentSettlementAggregateRow> aggregateConfirmedBySettledAt(
+            @Param("userId") Long userId, @Param("from") Instant from, @Param("to") Instant to);
+
+    @Query(
+            """
+            select
+                sp.paymentMethod as paymentMethod,
+                sp.settlementStatus as settlementStatus,
+                coalesce(sum(sp.amount), 0) as amount
+            from SalePayment sp
+            join sp.sale s
+            where sp.user.id = :userId
+              and s.cancelledAt is null
+              and sp.settlementStatus = com.lojapp.entity.PaymentSettlementStatus.PENDING
+            group by sp.paymentMethod, sp.settlementStatus
+            """)
+    List<PaymentSettlementAggregateRow> aggregateOpenPending(@Param("userId") Long userId);
 }

@@ -4,6 +4,7 @@ import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SalePageResponse;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.dto.sale.SalesDailyPointResponse;
+import com.lojapp.dto.sale.SalesPaymentsSummaryResponse;
 import com.lojapp.dto.sale.SalesSummaryResponse;
 import java.time.Instant;
 import java.util.List;
@@ -31,4 +32,6 @@ public interface SalesServiceContract {
 
     List<SalesDailyPointResponse> summarizeSalesDaily(
             long userId, Instant from, Instant to, Long productId, Long brandId);
+
+    SalesPaymentsSummaryResponse summarizeSalesPayments(long userId, Instant from, Instant to);
 }

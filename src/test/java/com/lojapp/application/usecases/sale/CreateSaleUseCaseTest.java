@@ -329,6 +329,7 @@ class CreateSaleUseCaseTest {
         assertThat(paymentCaptor.getValue().getPaymentMethod()).isEqualTo(PaymentMethod.CASH);
         assertThat(paymentCaptor.getValue().getAmount()).isEqualByComparingTo("20.00");
         assertThat(paymentCaptor.getValue().getSettlementCashSession()).isSameAs(open);
+        assertThat(paymentCaptor.getValue().getSettledAt()).isNotNull();
         assertThat(paymentCaptor.getValue().getSale().getId()).isEqualTo(700L);
 
         verify(posSaleCommissionService)

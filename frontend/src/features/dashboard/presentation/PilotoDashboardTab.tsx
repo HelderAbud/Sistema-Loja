@@ -7,7 +7,7 @@ import { DashboardFilters } from "./DashboardFilters";
 export function PilotoDashboardTab() {
   const { fromDay, toDay, applied, setFromDay, setToDay, onSubmit, loadDefault } =
     useDashboardFilters();
-  const { brandsQ, abcQ, invQ, fetchingDash } = useDashboardData(applied);
+  const { brandsQ, abcQ, invQ, paymentsQ, fetchingDash } = useDashboardData(applied);
 
   const data = brandsQ.data;
   const busy = brandsQ.isPending || abcQ.isPending;
@@ -22,7 +22,7 @@ export function PilotoDashboardTab() {
           <span className="dashboard-badge">Tempo real · API</span>
         </div>
         <p className="muted small dashboard-hero-lead">
-          KPIs por marca, ranking de produtos, curva ABC e Pareto — mais inventário agregado. Sem
+          KPIs por marca, ranking de produtos, curva ABC, pagamentos por método e inventário. Sem
           datas, o intervalo é os últimos 30 dias; os valores refletem a API em tempo real.
         </p>
       </div>
@@ -48,6 +48,7 @@ export function PilotoDashboardTab() {
           data={data}
           abc={abcQ.data}
           inv={invQ.data}
+          payments={paymentsQ.data}
           inventoryPending={invQ.isPending}
         />
       ) : null}
