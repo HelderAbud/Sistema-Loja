@@ -67,6 +67,9 @@ public class SalePayment {
     @JoinColumn(name = "settlement_cash_session_id")
     private CashSession settlementCashSession;
 
+    @Column(name = "settled_at")
+    private Instant settledAt;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 

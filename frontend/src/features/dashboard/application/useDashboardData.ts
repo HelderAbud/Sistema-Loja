@@ -1,7 +1,12 @@
 import { useEffect } from "react";
 import { useIsFetching, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { dashboardBrands, dashboardInventoryKpis, dashboardProductAbc } from "@/api";
+import {
+  dashboardBrands,
+  dashboardInventoryKpis,
+  dashboardProductAbc,
+  summarizeSalesPayments,
+} from "@/api";
 import { queryKeys } from "@/queryKeys";
 
 export function useDashboardData(applied: { from?: string; to?: string }) {
@@ -22,12 +27,17 @@ export function useDashboardData(applied: { from?: string; to?: string }) {
     queryFn: dashboardInventoryKpis,
   });
 
-  const err = brandsQ.error ?? abcQ.error ?? invQ.error;
+  const paymentsQ = useQuery({
+    queryKey: queryKeys.dashboard.payments(rangeKey),
+    queryFn: () => summarizeSalesPayments(applied),
+  });
+
+  const err = brandsQ.error ?? abcQ.error ?? invQ.error ?? paymentsQ.error;
   useEffect(() => {
     if (err) toast.error(String(err));
   }, [err]);
 
   const fetchingDash = useIsFetching({ queryKey: queryKeys.dashboard.root() }) > 0;
 
-  return { brandsQ, abcQ, invQ, fetchingDash };
+  return { brandsQ, abcQ, invQ, paymentsQ, fetchingDash };
 }

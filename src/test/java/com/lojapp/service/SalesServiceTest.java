@@ -14,9 +14,14 @@ import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.sale.SaleCreatedResponse;
 import com.lojapp.dto.sale.SaleRequest;
 import com.lojapp.exception.domain.LojappDomainException;
+import com.lojapp.dto.sale.SalesPaymentsSummaryResponse;
+import com.lojapp.entity.PaymentMethod;
+import com.lojapp.entity.PaymentSettlementStatus;
+import com.lojapp.repository.SalePaymentRepository;
 import com.lojapp.repository.SaleRepository;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +38,7 @@ import org.springframework.data.domain.Sort;
 class SalesServiceTest {
 
     @Mock private SaleRepository sales;
+    @Mock private SalePaymentRepository salePayments;
     @Mock private CreateSaleUseCase createSaleUseCase;
     @Mock private CancelSaleUseCase cancelSaleUseCase;
 
@@ -148,5 +154,70 @@ class SalesServiceTest {
         verify(sales)
                 .searchForUser(eq(userId), eq(from), eq(to), eq(3L), eq(null), pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(25);
+    }
+
+    @Test
+    void summarizeSalesPayments_splitsSoldSettledAndOpenPending() {
+        Instant from = Instant.parse("2026-09-01T00:00:00Z");
+        Instant to = Instant.parse("2026-09-09T23:59:59Z");
+        when(salePayments.aggregateBySoldAt(eq(1L), eq(from), eq(to)))
+                .thenReturn(
+                        List.of(
+                                new PaymentRow(
+                                        PaymentMethod.CASH,
+                                        PaymentSettlementStatus.CONFIRMED,
+                                        new BigDecimal("30.00")),
+                                new PaymentRow(
+                                        PaymentMethod.PIX,
+                                        PaymentSettlementStatus.PENDING,
+                                        new BigDecimal("20.00"))));
+        when(salePayments.aggregateConfirmedBySettledAt(eq(1L), eq(from), eq(to)))
+                .thenReturn(
+                        List.of(
+                                new PaymentRow(
+                                        PaymentMethod.PIX,
+                                        PaymentSettlementStatus.CONFIRMED,
+                                        new BigDecimal("15.00"))));
+        when(salePayments.aggregateOpenPending(1L))
+                .thenReturn(
+                        List.of(
+                                new PaymentRow(
+                                        PaymentMethod.PIX,
+                                        PaymentSettlementStatus.PENDING,
+                                        new BigDecimal("20.00"))));
+
+        SalesPaymentsSummaryResponse summary =
+                salesService.summarizeSalesPayments(1L, from, to);
+
+        assertThat(summary.sold().confirmedTotal()).isEqualByComparingTo("30.00");
+        assertThat(summary.sold().pendingTotal()).isEqualByComparingTo("20.00");
+        assertThat(summary.settled().confirmedTotal()).isEqualByComparingTo("15.00");
+        assertThat(summary.settled().pendingTotal()).isEqualByComparingTo("0");
+        assertThat(summary.openPending().pendingTotal()).isEqualByComparingTo("20.00");
+        assertThat(summary.openPending().methods())
+                .containsExactly(
+                        new SalesPaymentsSummaryResponse.PaymentMethodBreakdown(
+                                PaymentMethod.PIX, BigDecimal.ZERO, new BigDecimal("20.00")));
+    }
+
+    private record PaymentRow(
+            PaymentMethod paymentMethod,
+            PaymentSettlementStatus settlementStatus,
+            BigDecimal amount)
+            implements SalePaymentRepository.PaymentSettlementAggregateRow {
+        @Override
+        public PaymentMethod getPaymentMethod() {
+            return paymentMethod;
+        }
+
+        @Override
+        public PaymentSettlementStatus getSettlementStatus() {
+            return settlementStatus;
+        }
+
+        @Override
+        public BigDecimal getAmount() {
+            return amount;
+        }
     }
 }

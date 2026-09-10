@@ -128,6 +128,34 @@ export async function summarizeSales(params: {
   return apiJson<SalesSummary>(`/api/v1/lojapp/sales/summary?${q}`);
 }
 
+export type SalesPaymentMethodBreakdown = {
+  paymentMethod: string;
+  confirmedAmount: number;
+  pendingAmount: number;
+};
+
+export type SalesPaymentsSlice = {
+  confirmedTotal: number;
+  pendingTotal: number;
+  methods: SalesPaymentMethodBreakdown[];
+};
+
+export type SalesPaymentsSummary = {
+  sold: SalesPaymentsSlice;
+  settled: SalesPaymentsSlice;
+  openPending: SalesPaymentsSlice;
+};
+
+export async function summarizeSalesPayments(params: {
+  from?: string;
+  to?: string;
+}): Promise<SalesPaymentsSummary> {
+  const q = new URLSearchParams();
+  if (params.from) q.set("from", params.from);
+  if (params.to) q.set("to", params.to);
+  return apiJson<SalesPaymentsSummary>(`/api/v1/lojapp/sales/payments-summary?${q}`);
+}
+
 export async function summarizeSalesDaily(params: {
   from?: string;
   to?: string;

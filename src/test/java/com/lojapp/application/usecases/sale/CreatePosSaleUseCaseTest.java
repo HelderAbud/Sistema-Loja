@@ -501,6 +501,7 @@ class CreatePosSaleUseCaseTest {
         assertThat(paymentCaptor.getValue().getSettlementStatus())
                 .isEqualTo(PaymentSettlementStatus.PENDING);
         assertThat(paymentCaptor.getValue().getSettlementCashSession()).isNull();
+        assertThat(paymentCaptor.getValue().getSettledAt()).isNull();
     }
 
     @Test

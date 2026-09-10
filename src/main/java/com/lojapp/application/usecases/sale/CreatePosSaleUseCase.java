@@ -31,6 +31,7 @@ import com.lojapp.repository.UserRepository;
 import com.lojapp.service.AuditService;
 import com.lojapp.service.contract.InventoryServiceContract;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -164,6 +165,7 @@ public class CreatePosSaleUseCase implements CreatePosSaleUseCaseContract {
             payment.setSettlementStatus(paymentRequest.settlementStatus());
             if (paymentRequest.settlementStatus() == PaymentSettlementStatus.CONFIRMED) {
                 payment.setSettlementCashSession(cashSession);
+                payment.setSettledAt(sale.getSoldAt() != null ? sale.getSoldAt() : Instant.now());
             }
             salePayments.save(payment);
         }
