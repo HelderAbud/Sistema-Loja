@@ -46,6 +46,9 @@ public class InventoryMovement {
     @Column(name = "source_id")
     private Long sourceId;
 
+    @Column(length = 500)
+    private String reason;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
 }

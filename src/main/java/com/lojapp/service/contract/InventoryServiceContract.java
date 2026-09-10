@@ -1,12 +1,14 @@
 package com.lojapp.service.contract;
 
 import com.lojapp.dto.dashboard.InventoryKpiResponse;
+import com.lojapp.dto.inventory.InventoryMovementPageResponse;
 import com.lojapp.dto.inventory.LowStockResponse;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.User;
 import java.math.BigDecimal;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 public interface InventoryServiceContract {
 
@@ -20,6 +22,8 @@ public interface InventoryServiceContract {
     BigDecimal getAvailableQuantity(long userId, long productId);
 
     BigDecimal getStockForOwnedProduct(long userId, long productId);
+
+    InventoryMovementPageResponse listProductMovements(long userId, long productId, Pageable pageable);
 
     void assertSufficientStock(long userId, long productId, BigDecimal quantityRequested);
 

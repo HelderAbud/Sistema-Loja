@@ -24,6 +24,9 @@ import com.lojapp.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -150,8 +153,46 @@ class InventoryServiceTest {
 
         inventoryService.adjustStock(1L, request);
 
-        verify(inventoryMovements).save(any(InventoryMovement.class));
+        ArgumentCaptor<InventoryMovement> movementCaptor = ArgumentCaptor.forClass(InventoryMovement.class);
+        verify(inventoryMovements).save(movementCaptor.capture());
+        InventoryMovement saved = movementCaptor.getValue();
+        assertThat(saved.getSource()).isEqualTo("MANUAL_ADJUST");
+        assertThat(saved.getReason()).isEqualTo("Ajuste manual");
         verify(auditService).log(eq(1L), eq("STOCK_ADJUST"), any(String.class));
+    }
+
+    @Test
+    void listProductMovements_throwsWhenProductMissing() {
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(9L, 1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(
+                        () ->
+                                inventoryService.listProductMovements(1L, 9L, PageRequest.of(0, 20)))
+                .isInstanceOf(ProductNotFoundException.class);
+
+        verifyNoInteractions(inventoryMovements);
+    }
+
+    @Test
+    void listProductMovements_mapsPageForOwnedProduct() {
+        when(products.findByIdAndUser_IdAndDeletedAtIsNull(9L, 1L)).thenReturn(Optional.of(new Product()));
+        InventoryMovement row = new InventoryMovement();
+        row.setId(3L);
+        row.setMovementType("ADJUSTMENT");
+        row.setQuantity(new BigDecimal("-5"));
+        row.setSource("MANUAL_ADJUST");
+        row.setReason("quebra");
+        Page<InventoryMovement> raw = new PageImpl<>(List.of(row), PageRequest.of(0, 20), 1);
+        when(inventoryMovements.findByUser_IdAndProduct_IdOrderByCreatedAtDesc(
+                        eq(1L), eq(9L), any()))
+                .thenReturn(raw);
+
+        var page = inventoryService.listProductMovements(1L, 9L, PageRequest.of(0, 20));
+
+        assertThat(page.content()).hasSize(1);
+        assertThat(page.content().get(0).reason()).isEqualTo("quebra");
+        assertThat(page.content().get(0).source()).isEqualTo("MANUAL_ADJUST");
+        assertThat(page.totalElements()).isEqualTo(1);
     }
 
     @Test

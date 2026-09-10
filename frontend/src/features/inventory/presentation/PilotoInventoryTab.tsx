@@ -1,11 +1,24 @@
 import { FormEvent, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { adjustStock, listLowStock } from "@/api";
+import { adjustStock, listLowStock, listProductMovements } from "@/api";
 import { canManageBackofficeCatalog } from "@/features/auth";
 import { useCurrentUser } from "@/hooks";
 import { TableSkeleton } from "@/components/ui/TableSkeleton";
 import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 import { validateManualStockAdjust } from "../domain/manualAdjust";
+
+function movementTypeLabel(type: string): string {
+  if (type === "SALE") return "Venda";
+  if (type === "ENTRY") return "Entrada";
+  if (type === "ADJUSTMENT") return "Ajuste";
+  return type;
+}
+
+function formatMovementWhen(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString("pt-BR");
+}
 
 export function PilotoInventoryTab() {
   const queryClient = useQueryClient();
@@ -16,10 +29,21 @@ export function PilotoInventoryTab() {
   const [reason, setReason] = useState("AJUSTE_MANUAL");
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
+  const [historyProductId, setHistoryProductId] = useState("");
+  const [historyPage, setHistoryPage] = useState(0);
+
+  const historyPid = Number(historyProductId);
+  const historyEnabled = Number.isFinite(historyPid) && historyPid > 0;
 
   const lowQ = useQuery({
     queryKey: queryKeys.lowStock(),
     queryFn: listLowStock,
+  });
+
+  const histQ = useQuery({
+    queryKey: queryKeys.productMovements(historyPid, historyPage),
+    queryFn: () => listProductMovements(historyPid, historyPage),
+    enabled: historyEnabled,
   });
 
   const adjustMut = useMutation({
@@ -148,6 +172,90 @@ export function PilotoInventoryTab() {
           </form>
         </section>
       ) : null}
+
+      <section className="card">
+        <div className="section-head">
+          <h2>Histórico de movimentos</h2>
+        </div>
+        <p className="muted small section-lead">
+          Kardex do produto: data, tipo, quantidade com sinal, origem e motivo do ajuste.
+        </p>
+        <label>
+          Id do produto
+          <input
+            inputMode="numeric"
+            value={historyProductId}
+            onChange={(ev) => {
+              setHistoryProductId(ev.target.value);
+              setHistoryPage(0);
+            }}
+            placeholder="ex.: 1"
+            aria-label="Id do produto para histórico"
+          />
+        </label>
+        {!historyEnabled ? (
+          <p className="muted">Indique o id do produto para ver o kardex.</p>
+        ) : null}
+        {histQ.error ? <p className="error">{String(histQ.error)}</p> : null}
+        {historyEnabled && histQ.isPending ? (
+          <TableSkeleton rows={5} label="A carregar histórico" />
+        ) : null}
+        {histQ.data && histQ.data.content.length === 0 ? (
+          <p className="muted">Nenhum movimento para este produto.</p>
+        ) : null}
+        {histQ.data && histQ.data.content.length > 0 ? (
+          <div className="table-wrap">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Quantidade</th>
+                  <th>Origem</th>
+                  <th>Motivo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {histQ.data.content.map((row) => (
+                  <tr key={row.id}>
+                    <td>{formatMovementWhen(row.createdAt)}</td>
+                    <td>{movementTypeLabel(row.movementType)}</td>
+                    <td>{row.quantity}</td>
+                    <td>
+                      {row.source}
+                      {row.sourceId != null ? ` #${row.sourceId}` : ""}
+                    </td>
+                    <td>{row.reason ?? "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+        {histQ.data && histQ.data.totalPages > 1 ? (
+          <div className="row">
+            <button
+              type="button"
+              className="ghost"
+              disabled={histQ.data.first}
+              onClick={() => setHistoryPage((p) => Math.max(0, p - 1))}
+            >
+              Anterior
+            </button>
+            <span className="muted small">
+              Página {histQ.data.number + 1} de {histQ.data.totalPages}
+            </span>
+            <button
+              type="button"
+              className="ghost"
+              disabled={histQ.data.last}
+              onClick={() => setHistoryPage((p) => p + 1)}
+            >
+              Seguinte
+            </button>
+          </div>
+        ) : null}
+      </section>
     </div>
   );
 }

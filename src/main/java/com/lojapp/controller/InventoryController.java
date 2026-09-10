@@ -1,6 +1,7 @@
 package com.lojapp.controller;
 
 import com.lojapp.application.contract.AdjustInventoryUseCaseContract;
+import com.lojapp.dto.inventory.InventoryMovementPageResponse;
 import com.lojapp.dto.inventory.LowStockResponse;
 import com.lojapp.dto.inventory.ProductStockResponse;
 import com.lojapp.dto.inventory.StockAdjustmentRequest;
@@ -18,6 +19,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -94,5 +98,25 @@ public class InventoryController {
     public ProductStockResponse productStock(
             @PathVariable long productId, @AuthenticationPrincipal JwtUser principal) {
         return new ProductStockResponse(inventory.getStockForOwnedProduct(principal.userId(), productId));
+    }
+
+    @Operation(
+            summary = "Histórico de movimentos de estoque (kardex)",
+            description =
+                    "Página de movimentos do produto da loja autenticada. `page` (base 0), `size` (omissão 20).")
+    @ApiResponses({
+        @ApiResponse(
+                responseCode = "200",
+                content =
+                        @Content(
+                                schema = @Schema(implementation = InventoryMovementPageResponse.class))),
+        @ApiResponse(responseCode = "404", description = "Produto inexistente ou de outro utilizador")
+    })
+    @GetMapping("/inventory/products/{productId}/movements")
+    public InventoryMovementPageResponse productMovements(
+            @PathVariable long productId,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable,
+            @AuthenticationPrincipal JwtUser principal) {
+        return inventory.listProductMovements(principal.userId(), productId, pageable);
     }
 }

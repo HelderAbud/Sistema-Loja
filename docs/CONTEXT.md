@@ -15,6 +15,9 @@ Vocabulário acordado no grill inicial (2026-05-24). Usar estes termos em PRs, A
 | **Ajuste manual** | Mutação de stock via `POST /inventory/adjust`, fora de venda ou NFe | Venda PDV ou baixa automática na venda |
 | **Idempotência (HTTP)** | Mesmo `Idempotency-Key` + mesmo fingerprint → mesma resposta, sem efeito duplicado | Cache HTTP ou deduplicação de NFe por hash de XML |
 | **NFe (MVP)** | Importação de XML fiscal offline; dedupe sem `chNFe` por hash do conteúdo | Emissão, consulta SEFAZ ou manifestação |
+| **Pagamento (PDV)** | Lançamento de como a loja recebeu (método + valor + CONFIRMED/PENDING). O lojista cobra fora do sistema | Gateway, PSP, QR LojApp, TEF, checkout online |
+| **HITL de pagamento** | Operador confirma PIX/cartão pendente quando o dinheiro caiu no mundo real | Webhook do adquirente ou “pago” dito só pelo browser |
+| **Kardex** | Histórico paginado de `inventory_movements` por produto da loja (`GET .../products/{id}/movements`) | Saldo actual (`GET .../stock`) ou auditoria genérica |
 
 ## Arquitetura (backend)
 
