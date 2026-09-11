@@ -6,12 +6,30 @@ import { useCurrentUser } from "@/hooks";
 import { TableSkeleton } from "@/components/ui/TableSkeleton";
 import { invalidateLojappDataQueries, queryKeys } from "@/queryKeys";
 import { validateManualStockAdjust } from "../domain/manualAdjust";
+import { ProductSearchCombobox } from "./ProductSearchCombobox";
 
 function movementTypeLabel(type: string): string {
   if (type === "SALE") return "Venda";
   if (type === "ENTRY") return "Entrada";
   if (type === "ADJUSTMENT") return "Ajuste";
   return type;
+}
+
+function sourceLabel(source: string, sourceId: number | null): string {
+  const names: Record<string, string> = {
+    MANUAL_ADJUST: "Ajuste manual",
+    SALE_REGISTER: "Venda",
+    SALE_CANCEL: "Cancelamento",
+    NFE_IMPORT: "NFe",
+  };
+  const name = names[source] ?? source;
+  return sourceId != null ? `${name} #${sourceId}` : name;
+}
+
+function quantityClass(quantity: number): string {
+  if (quantity > 0) return "qty-in";
+  if (quantity < 0) return "qty-out";
+  return "";
 }
 
 function formatMovementWhen(iso: string): string {
@@ -29,11 +47,8 @@ export function PilotoInventoryTab() {
   const [reason, setReason] = useState("AJUSTE_MANUAL");
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
-  const [historyProductId, setHistoryProductId] = useState("");
+  const [historyProductId, setHistoryProductId] = useState<number | null>(null);
   const [historyPage, setHistoryPage] = useState(0);
-
-  const historyPid = Number(historyProductId);
-  const historyEnabled = Number.isFinite(historyPid) && historyPid > 0;
 
   const lowQ = useQuery({
     queryKey: queryKeys.lowStock(),
@@ -41,9 +56,9 @@ export function PilotoInventoryTab() {
   });
 
   const histQ = useQuery({
-    queryKey: queryKeys.productMovements(historyPid, historyPage),
-    queryFn: () => listProductMovements(historyPid, historyPage),
-    enabled: historyEnabled,
+    queryKey: queryKeys.productMovements(historyProductId ?? 0, historyPage),
+    queryFn: () => listProductMovements(historyProductId as number, historyPage),
+    enabled: historyProductId != null && historyProductId > 0,
   });
 
   const adjustMut = useMutation({
@@ -180,24 +195,20 @@ export function PilotoInventoryTab() {
         <p className="muted small section-lead">
           Kardex do produto: data, tipo, quantidade com sinal, origem e motivo do ajuste.
         </p>
-        <label>
-          Id do produto
-          <input
-            inputMode="numeric"
-            value={historyProductId}
-            onChange={(ev) => {
-              setHistoryProductId(ev.target.value);
-              setHistoryPage(0);
-            }}
-            placeholder="ex.: 1"
-            aria-label="Id do produto para histórico"
-          />
-        </label>
-        {!historyEnabled ? (
-          <p className="muted">Indique o id do produto para ver o kardex.</p>
+        <ProductSearchCombobox
+          id="piloto-inventory-kardex-listbox"
+          label="Produto — pesquisar por nome"
+          inputAriaLabel="Produto para histórico"
+          onSelect={(p) => {
+            setHistoryProductId(p.id);
+            setHistoryPage(0);
+          }}
+        />
+        {historyProductId == null ? (
+          <p className="muted">Pesquise e escolha um produto para ver o kardex.</p>
         ) : null}
         {histQ.error ? <p className="error">{String(histQ.error)}</p> : null}
-        {historyEnabled && histQ.isPending ? (
+        {historyProductId != null && histQ.isPending ? (
           <TableSkeleton rows={5} label="A carregar histórico" />
         ) : null}
         {histQ.data && histQ.data.content.length === 0 ? (
@@ -220,11 +231,8 @@ export function PilotoInventoryTab() {
                   <tr key={row.id}>
                     <td>{formatMovementWhen(row.createdAt)}</td>
                     <td>{movementTypeLabel(row.movementType)}</td>
-                    <td>{row.quantity}</td>
-                    <td>
-                      {row.source}
-                      {row.sourceId != null ? ` #${row.sourceId}` : ""}
-                    </td>
+                    <td className={quantityClass(Number(row.quantity))}>{row.quantity}</td>
+                    <td>{sourceLabel(row.source, row.sourceId)}</td>
                     <td>{row.reason ?? "—"}</td>
                   </tr>
                 ))}

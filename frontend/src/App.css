@@ -300,6 +300,18 @@ label.check.mid {
   margin: 0;
 }
 
+.qty-in {
+  color: var(--chart-green, #059669);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.qty-out {
+  color: var(--error, #b91c1c);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
 .header h1 {
   margin: 0 0 0.25rem;
   font-size: 1.5rem;
