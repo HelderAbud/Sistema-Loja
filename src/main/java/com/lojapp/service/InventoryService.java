@@ -296,7 +296,9 @@ public class InventoryService implements InventoryServiceContract {
         BigDecimal totalUnits = kpi.getTotalUnits() == null ? BigDecimal.ZERO : kpi.getTotalUnits();
         int lowStockCount = kpi.getLowStock() == null ? 0 : kpi.getLowStock().intValue();
         int withStock = kpi.getWithStock() == null ? 0 : kpi.getWithStock().intValue();
-        return new InventoryKpiResponse(totalSkus, totalUnits, lowStockCount, withStock);
+        BigDecimal totalStockValue =
+                kpi.getTotalStockValue() == null ? BigDecimal.ZERO : kpi.getTotalStockValue();
+        return new InventoryKpiResponse(totalSkus, totalUnits, lowStockCount, withStock, totalStockValue);
     }
 
     @Transactional(readOnly = true)

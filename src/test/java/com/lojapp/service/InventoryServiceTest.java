@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -254,5 +255,22 @@ class InventoryServiceTest {
         ArgumentCaptor<InventoryBalance> balanceCaptor = ArgumentCaptor.forClass(InventoryBalance.class);
         verify(inventoryBalances).save(balanceCaptor.capture());
         assertThat(balanceCaptor.getValue().getQuantity()).isEqualByComparingTo(new BigDecimal("7"));
+    }
+
+    @Test
+    void inventoryKpis_mapsTotalStockValueFromProjection() {
+        ProductRepository.InventoryKpiProjection projection =
+                mock(ProductRepository.InventoryKpiProjection.class);
+        when(projection.getTotalProducts()).thenReturn(2L);
+        when(projection.getTotalUnits()).thenReturn(new BigDecimal("10"));
+        when(projection.getLowStock()).thenReturn(1L);
+        when(projection.getWithStock()).thenReturn(1L);
+        when(projection.getTotalStockValue()).thenReturn(new BigDecimal("150.50"));
+        when(products.calcInventoryKpis(1L)).thenReturn(projection);
+
+        var kpis = inventoryService.inventoryKpis(1L);
+
+        assertThat(kpis.totalSkus()).isEqualTo(2);
+        assertThat(kpis.totalStockValue()).isEqualByComparingTo("150.50");
     }
 }

@@ -30,6 +30,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
         Long getLowStock();
 
         Long getWithStock();
+
+        BigDecimal getTotalStockValue();
     }
 
     List<Product> findByUser_IdAndDeletedAtIsNullOrderByNameAsc(Long userId);
@@ -92,7 +94,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                       COUNT(*) AS totalProducts,
                       COALESCE(SUM(COALESCE(b.quantity, 0)), 0) AS totalUnits,
                       SUM(CASE WHEN COALESCE(b.quantity, 0) < p.minimum_stock THEN 1 ELSE 0 END) AS lowStock,
-                      SUM(CASE WHEN COALESCE(b.quantity, 0) > 0 THEN 1 ELSE 0 END) AS withStock
+                      SUM(CASE WHEN COALESCE(b.quantity, 0) > 0 THEN 1 ELSE 0 END) AS withStock,
+                      COALESCE(SUM(COALESCE(b.quantity, 0) * p.cost_price), 0) AS totalStockValue
                     FROM products p
                     LEFT JOIN inventory_balances b ON b.product_id = p.id AND b.user_id = p.user_id
                     WHERE p.user_id = :userId

@@ -511,6 +511,7 @@ catalog.createProduct(
         assertThat(k.totalSkus()).isGreaterThanOrEqualTo(1);
         assertThat(k.totalUnits()).isGreaterThanOrEqualTo(new BigDecimal("3"));
         assertThat(k.lowStockCount()).isGreaterThanOrEqualTo(1);
+        assertThat(k.totalStockValue()).isGreaterThanOrEqualTo(new BigDecimal("3.00"));
     }
 
     @Test
