@@ -146,12 +146,11 @@ Transformar frontend em arquitetura evolutiva.
 
 - [x] Plano de migracao documentado — `docs/lojapp/14-arquitetura-frontend-por-feature.md` + `features/_template/README.md`.
 - [x] Estrutura por feature com:
-  - [x] `features/` (storefront, auth)
-  - [x] `domain/` + `application/` (storefront, auth); `presentation/` opcional / fase seguinte
-- [x] Isolar regras de negocio da UI no **storefront** (catalogo demo + totais de carrinho em `domain`).
-- [x] Contratos por feature via barrels (`features/storefront/index.ts`, `features/auth/index.ts`).
+  - [x] `features/` (auth, dashboard, sales, nfe, inventory; vitrine demo removida)
+  - [x] `domain/` + `application/` por feature; `presentation/` nas abas do piloto
+- [x] Contratos por feature via barrels (`features/auth/index.ts` e restantes).
 - [x] Padronizar base de erro/loading — `src/shared/async/remoteState.ts` (extensivel com TanStack Query).
-- [x] Reduzir dependencias cruzadas entre telas — **piloto**: `OrdersPage` (feature `orders`); dashboard do piloto migrado para `features/dashboard` (`PilotoDashboardTab` só consome o barrel).
+- [x] Reduzir dependencias cruzadas entre telas — dashboard do piloto em `features/dashboard` (`PilotoDashboardTab` só consome o barrel).
 - [x] Template de nova feature — `features/_template/README.md`.
 
 ### Riscos

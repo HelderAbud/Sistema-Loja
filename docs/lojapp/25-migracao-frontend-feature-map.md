@@ -6,8 +6,8 @@ Estado consolidado para evolução incremental sem big bang.
 
 ### `frontend/src/pages/`
 
-- `StorefrontPages.tsx` (alta concentração de UI + regras de negócio de catálogo/pedidos/resumo)
 - `LoginPage.tsx` (auth presentation ainda em `pages/`)
+- `pages/storefront/` — landing, pitch e 404 (portal público; vitrine demo removida)
 
 ### `frontend/src/components/`
 
@@ -16,9 +16,8 @@ Estado consolidado para evolução incremental sem big bang.
 
 ## Prioridade de migração (impacto)
 
-1. **orders/sales/dashboard primeiro**: telas com maior acoplamento a API, filtros e regras.
-2. **storefront em seguida**: extrair blocos de `StorefrontPages.tsx` para `features/storefront` e `features/orders/presentation`.
-3. **auth por último nesta fase**: mover `LoginPage` para `features/auth/presentation` sem quebrar rota.
+1. **sales/dashboard**: telas com maior acoplamento a API, filtros e regras.
+2. **auth**: mover `LoginPage` para `features/auth/presentation` sem quebrar rota.
 
 ## Redução de acoplamento aplicada nesta iteração
 

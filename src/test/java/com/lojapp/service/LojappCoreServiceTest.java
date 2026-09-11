@@ -899,7 +899,7 @@ importNfeUseCase.execute(userId, xml);
                         .findFirst()
                         .orElseThrow();
         assertThat(saldo(kept.id())).isEqualByComparingTo(new BigDecimal("4"));
-        assertThat(kept.costPrice()).isEqualByComparingTo(new BigDecimal("5.00"));
+        assertThat(kept.costPrice()).isEqualByComparingTo(new BigDecimal("3.00"));
     }
 
     @Test

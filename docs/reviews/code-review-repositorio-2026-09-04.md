@@ -144,11 +144,9 @@ Há **1 CRITICAL** e vários **HIGH** de negócio. Isolamento por `user_id`, XXE
 
 ### H13. Custo do produto não actualiza no match NFe → lucro enviesado
 
-- **Onde:** `NfeProductResolver.java` (L57–73); venda sem `unitCost` usa `product.costPrice`
-- **Bug:** Match por EAN/nome reutiliza produto **sem** actualizar custo. `vUnCom` fica só em `nfe_items`. Vendas seguintes herdam custo velho.
-- **Trigger:** Produto custo 10 → NFe mesmo EAN custo 20 → venda sem custo explícito.
-- **Fix:** Política explícita (último custo / média ponderada) ou exigir custo na venda a partir da NFe.
-- **Testes:** `LojappCoreServiceTest` documenta que o custo **não** é sobrescrito no match — comportamento actual, risco de negócio.
+- **Estado (2026-09-11):** corrigido. Política **último custo**: no match por EAN ou nome, `cost_price` recebe o `vUnCom`. Preço de venda não muda. Testes: `NfeLastPurchaseCostTest`, `NfeProductResolverTest`; `LojappCoreServiceTest#importNfe_matchesExistingProductByEan_whenDescriptionDiffers` espera o custo da nota.
+- **Onde:** `NfeLastPurchaseCost`, `NfeProductResolver.applyLastCostOnMatch`
+- **Residual:** média ponderada continua fora do MVP.
 
 ### H14. `POST /sales` com caixa aberto não associa `cash_session_id`
 
