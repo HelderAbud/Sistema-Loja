@@ -19,6 +19,7 @@ Vocabulário acordado no grill inicial (2026-05-24). Usar estes termos em PRs, A
 | **HITL de pagamento** | Operador confirma PIX/cartão pendente quando o dinheiro caiu no mundo real | Webhook do adquirente ou “pago” dito só pelo browser |
 | **Kardex** | Histórico paginado de `inventory_movements` por produto da loja (`GET .../products/{id}/movements`) | Saldo actual (`GET .../stock`) ou auditoria genérica |
 | **Valor ao custo** | Soma `cost_price × quantidade` no KPI de estoque (`totalStockValue`) | Preço de venda ou valor de mercado |
+| **Último custo (NFe)** | No match por EAN ou nome, `cost_price` passa a ser o `vUnCom` da nota | Média ponderada; preço de venda (não muda no match) |
 
 ## Arquitetura (backend)
 

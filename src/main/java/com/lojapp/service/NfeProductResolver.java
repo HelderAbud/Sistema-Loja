@@ -9,6 +9,7 @@ import com.lojapp.repository.BrandRepository;
 import com.lojapp.repository.ProductRepository;
 import com.lojapp.service.NfeXmlParser.ParsedNfe;
 import com.lojapp.service.NfeXmlParser.ParsedNfeItem;
+import com.lojapp.domain.nfe.NfeLastPurchaseCost;
 import com.lojapp.util.EanNormalizer;
 import com.lojapp.util.NfeBrandSuggester;
 import com.lojapp.util.NfeBrandSuggester.BrandCandidate;
@@ -61,16 +62,27 @@ public class NfeProductResolver {
             Optional<Product> byEan =
                     products.findFirstByUser_IdAndEanAndDeletedAtIsNull(userId, eanOpt.get());
             if (byEan.isPresent()) {
-                return new ProductImportResolution(byEan.get(), false);
+                return new ProductImportResolution(applyLastCostOnMatch(byEan.get(), item), false);
             }
         }
         return products
                 .findByUser_IdAndNameIgnoreCaseAndDeletedAtIsNull(userId, item.description())
-                .map(p -> new ProductImportResolution(p, false))
+                .map(p -> new ProductImportResolution(applyLastCostOnMatch(p, item), false))
                 .orElseGet(
                         () ->
                                 new ProductImportResolution(
                                         createFallbackProduct(user, item, supplier), true));
+    }
+
+    private Product applyLastCostOnMatch(Product product, ParsedNfeItem item) {
+        return NfeLastPurchaseCost.replacementCost(product.getCostPrice(), item.unitCost())
+                .map(
+                        lastCost -> {
+                            product.setCostPrice(lastCost);
+                            product.setUpdatedAt(Instant.now());
+                            return products.save(product);
+                        })
+                .orElse(product);
     }
 
     public SuggestionApplyResult applySuggestions(

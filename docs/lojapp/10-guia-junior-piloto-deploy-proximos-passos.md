@@ -145,8 +145,8 @@ Use esta lista ao ligar **frontend** e **API** em domínios diferentes (ou em pi
 
 1. Parse do XML: número da NFe, nome fornecedor, chave `chNFe`, itens (`xProd`, quantidades, valores).
 2. Gravar `nfe_entries` + `nfe_items`.
-3. Por linha: localizar produto por **nome (ignorando maiúsculas)** ou criar produto fallback (custo = unitário NFe; venda = custo; stock mín. 0).
-4. Atualizar `cost_price` do produto com o custo da linha.
+3. Por linha: localizar produto por **EAN**, senão por **nome (ignorando maiúsculas)**, senão criar fallback (custo e venda = unitário NFe; stock mín. 0).
+4. No match, actualizar só `cost_price` com o último `vUnCom` da nota (não altera preço de venda).
 5. Movimento de stock `ENTRY` + atualização de `inventory_balances` (origem `NFE_IMPORT`).
 
 **O que já existe [x]:** rastreabilidade cabeçalho + itens; entrada de stock; 400 se XML ilegível; **idempotência por `chNFe`:** segunda importação com a mesma chave (mesmo `user_id`) → **409 CONFLICT**; chave vazia não deduplica.
