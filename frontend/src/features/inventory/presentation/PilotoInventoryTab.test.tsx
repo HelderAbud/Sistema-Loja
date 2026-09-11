@@ -3,17 +3,13 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { TestQueryProvider } from "@/test/queryWrapper";
 import { PilotoInventoryTab } from "./PilotoInventoryTab";
 
-const {
-  listLowStockMock,
-  listProductMovementsMock,
-  adjustStockMock,
-  listProductsMock,
-} = vi.hoisted(() => ({
-  listLowStockMock: vi.fn(),
-  listProductMovementsMock: vi.fn(),
-  adjustStockMock: vi.fn(),
-  listProductsMock: vi.fn(),
-}));
+const { listLowStockMock, listProductMovementsMock, adjustStockMock, listProductsMock } =
+  vi.hoisted(() => ({
+    listLowStockMock: vi.fn(),
+    listProductMovementsMock: vi.fn(),
+    adjustStockMock: vi.fn(),
+    listProductsMock: vi.fn(),
+  }));
 
 vi.mock("@/hooks", () => ({
   useCurrentUser: () => ({ data: { appRole: "USER" } }),
