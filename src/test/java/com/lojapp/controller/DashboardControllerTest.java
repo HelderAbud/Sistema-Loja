@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.lojapp.config.MethodSecurityConfig;
 import com.lojapp.dto.ApiErrorCode;
 import com.lojapp.dto.dashboard.BrandDashboardResponse;
+import com.lojapp.dto.dashboard.InventoryKpiResponse;
 import com.lojapp.exception.GlobalExceptionHandler;
 import com.lojapp.support.TestJwtAuth;
 import com.lojapp.security.AuthRateLimitFilter;
@@ -115,6 +116,23 @@ class DashboardControllerTest {
     void dashboardInventoryKpis_withCashierRole_returnsForbidden() throws Exception {
         mockMvc.perform(get("/api/v1/lojapp/dashboard/inventory-kpis").with(lojappCashier(USER_ID)))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void dashboardInventoryKpis_returnsTotalStockValue() throws Exception {
+        when(inventory.inventoryKpis(USER_ID))
+                .thenReturn(
+                        new InventoryKpiResponse(
+                                4,
+                                new java.math.BigDecimal("12"),
+                                1,
+                                3,
+                                new java.math.BigDecimal("240.00")));
+
+        mockMvc.perform(get("/api/v1/lojapp/dashboard/inventory-kpis").with(lojappUser(USER_ID)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalSkus").value(4))
+                .andExpect(jsonPath("$.totalStockValue").value(240.00));
     }
 
     @Test

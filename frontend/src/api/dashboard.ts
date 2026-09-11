@@ -68,6 +68,7 @@ export type InventoryKpis = {
   totalUnits: number;
   lowStockCount: number;
   skusWithPositiveStock: number;
+  totalStockValue: number;
 };
 
 export async function dashboardInventoryKpis(): Promise<InventoryKpis> {
