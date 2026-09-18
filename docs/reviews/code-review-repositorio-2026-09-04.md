@@ -82,11 +82,8 @@ Há **1 CRITICAL** e vários **HIGH** de negócio. Isolamento por `user_id`, XXE
 
 ### H5. Listagem de vendas PDV multi-item usa só o header denormalizado
 
-- **Onde:** `CreatePosSaleUseCase.java` (L127–135); `SaleListItemResponse.from` (L21–35); `SaleRepository.searchForUser` (L155–168)
-- **Bug:** O header `Sale` guarda só a **1ª linha**. Totais reais estão em `sale_items`. KPI/summary usam items (OK). `GET /sales` mostra produto/qty/preço da primeira linha.
-- **Trigger:** PDV com 2+ produtos → histórico / `/orders`.
-- **Fix:** Listar a partir de items (ou total agregado + indicador multi-linha). Não tratar o header como a venda inteira.
-- **Testes:** Integração cobre stock/items; **não** a listagem multi-item.
+- **Estado (2026-09-17):** API já agrega `itemCount`, `lineTotal` e nome “+ N outro(s)” (`SaleListItemResponse.fromItems` + `EntityGraph` em `searchForUser`). Histórico do piloto usa `saleLineTotal`. Preço/custo **unitário** da 1.ª linha deixa de ser mostrado quando `itemCount > 1` (`saleListUnitAmount`).
+- **Residual:** a listagem continua uma linha por venda (não explode `sale_items`); `unitPrice`/`unitCost` no JSON ainda reflectem a 1.ª linha.
 
 ### H6. `/orders` envia `YYYY-MM-DD` onde a API exige `Instant` ISO-8601
 

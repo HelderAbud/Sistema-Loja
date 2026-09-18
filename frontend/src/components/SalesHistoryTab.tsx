@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { toIsoEndOfDay, toIsoStartOfDay } from "@/features/dashboard/domain/dateIsoRange";
 import { cancelSale, listSales, saleLineTotal } from "../api";
+import { saleListUnitAmount } from "@/features/sales/domain/saleListDisplay";
 import { TableSkeleton } from "./ui/TableSkeleton";
 import { queryKeys } from "../queryKeys";
 
@@ -125,37 +126,59 @@ export function SalesHistoryTab() {
                 </tr>
               </thead>
               <tbody>
-                {data.content.map((s) => (
-                  <tr key={s.id}>
-                    <td className="muted">{s.id}</td>
-                    <td>{new Date(s.soldAt).toLocaleString("pt-BR")}</td>
-                    <td>
-                      #{s.productId} {s.productName}
-                    </td>
-                    <td>{s.brandName}</td>
-                    <td>{s.quantity}</td>
-                    <td>{money(s.unitPrice)}</td>
-                    <td>{money(saleLineTotal(s))}</td>
-                    <td>{money(s.unitCost)}</td>
-                    <td>{s.cancelled ? <span className="muted">Cancelada</span> : "Ativa"}</td>
-                    <td>
-                      {!s.cancelled ? (
-                        <button
-                          type="button"
-                          className="ghost small"
-                          disabled={cancelMut.isPending}
-                          onClick={() => {
-                            if (window.confirm(`Cancelar venda #${s.id}? O stock será reposto.`)) {
-                              void cancelMut.mutateAsync(s.id);
-                            }
-                          }}
-                        >
-                          Cancelar
-                        </button>
-                      ) : null}
-                    </td>
-                  </tr>
-                ))}
+                {data.content.map((s) => {
+                  const unitSale = saleListUnitAmount(s.itemCount, s.unitPrice);
+                  const unitCost = saleListUnitAmount(s.itemCount, s.unitCost);
+                  return (
+                    <tr key={s.id}>
+                      <td className="muted">{s.id}</td>
+                      <td>{new Date(s.soldAt).toLocaleString("pt-BR")}</td>
+                      <td>
+                        #{s.productId} {s.productName}
+                      </td>
+                      <td>{s.brandName}</td>
+                      <td>{s.quantity}</td>
+                      <td>
+                        {unitSale == null ? (
+                          <span className="muted" title="Vários preços unitários nesta venda">
+                            —
+                          </span>
+                        ) : (
+                          money(unitSale)
+                        )}
+                      </td>
+                      <td>{money(saleLineTotal(s))}</td>
+                      <td>
+                        {unitCost == null ? (
+                          <span className="muted" title="Vários custos unitários nesta venda">
+                            —
+                          </span>
+                        ) : (
+                          money(unitCost)
+                        )}
+                      </td>
+                      <td>{s.cancelled ? <span className="muted">Cancelada</span> : "Ativa"}</td>
+                      <td>
+                        {!s.cancelled ? (
+                          <button
+                            type="button"
+                            className="ghost small"
+                            disabled={cancelMut.isPending}
+                            onClick={() => {
+                              if (
+                                window.confirm(`Cancelar venda #${s.id}? O stock será reposto.`)
+                              ) {
+                                void cancelMut.mutateAsync(s.id);
+                              }
+                            }}
+                          >
+                            Cancelar
+                          </button>
+                        ) : null}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
