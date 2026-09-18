@@ -6,3 +6,4 @@ export {
   SALE_SEARCH_DEBOUNCE_MS,
 } from "./domain/saleFormParse";
 export { PilotoSaleTab } from "./presentation/PilotoSaleTab";
+export { saleListUnitAmount } from "./domain/saleListDisplay";
