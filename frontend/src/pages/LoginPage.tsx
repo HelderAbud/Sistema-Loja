@@ -115,8 +115,9 @@ export function LoginPage({
               </button>
             </form>
             <p className="hint muted">
-              API em <code>http://localhost:8081</code> (proxy Vite). Em produção defina{" "}
-              <code>VITE_API_BASE</code>.
+              No seu computador a API fica em <code>http://localhost:8081</code> (proxy Vite). Na
+              demo pública o pedido sai do mesmo site. Se a entrada demorar, a API pode estar a
+              acordar — aguarde alguns segundos e tente outra vez.
             </p>
           </main>
         </div>
