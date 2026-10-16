@@ -30,6 +30,7 @@ SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, v
 | API (Railway) | [sistema-loja-production-7608.up.railway.app](https://sistema-loja-production-7608.up.railway.app) |
 | Health | [GET /actuator/health](https://sistema-loja-production-7608.up.railway.app/actuator/health) (`status: UP`, Postgres UP) |
 | Piloto (resultado) | [`docs/lojapp/piloto-demo-resultado.md`](docs/lojapp/piloto-demo-resultado.md) |
+| Notas desta demo | [`CHANGELOG.md`](CHANGELOG.md) (`0.2.0`) |
 
 Swagger / OpenAPI **não** públicos em `prod` (401). **Não há email/senha no Git** — a conta da demo pública é a registada no ambiente (HITL). Rate limit em memória (`LOJAPP_RATE_LIMIT_MODE=memory`); Redis **não** é obrigatório neste deploy.
 
