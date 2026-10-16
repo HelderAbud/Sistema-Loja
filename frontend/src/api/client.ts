@@ -1,7 +1,12 @@
 import { getAccessToken, useAuthStore } from "../authStore";
 import { mapUserFacingApiError } from "../shared/errors/mapUserFacingApiError";
+import { resolveApiBase } from "./resolveApiBase";
 
-const base = () => (import.meta.env.VITE_API_BASE ?? "").replace(/\/$/, "");
+const base = () =>
+  resolveApiBase(
+    import.meta.env.VITE_API_BASE,
+    typeof window === "undefined" ? "" : window.location.host,
+  );
 
 /** Corpo JSON padrão de erro da API (`GlobalExceptionHandler`). */
 export type ApiErrorBody = {

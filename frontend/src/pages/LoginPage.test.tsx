@@ -21,6 +21,7 @@ describe("LoginPage", () => {
     const submit = screen.getByRole("button", { name: /entrar na conta/i });
     expect(submit).toBeDisabled();
     expect(submit).toHaveTextContent(/A processar/i);
+    expect(screen.getByText(/pode estar a acordar/i)).toBeInTheDocument();
   });
 
   it("mostra erro e permite trocar modo para registo", () => {

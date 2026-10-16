@@ -24,8 +24,8 @@
         <!-- Overrides vs Spring Boot 3.5.14 BOM — Trivy docker-image (app.jar) -->
         <!-- CVE-2026-42198 -->
         <postgresql.version>42.7.13</postgresql.version>
-        <!-- CVE-2026-54512, CVE-2026-54513 -->
-        <jackson-bom.version>2.21.4</jackson-bom.version>
+        <!-- CVE-2026-54512, CVE-2026-54513, CVE-2026-89407, CVE-2026-89425, CVE-2026-68497, CVE-2026-91776, CVE-2026-91777 -->
+        <jackson-bom.version>2.21.7</jackson-bom.version>
         <!-- CVE-2026-59901, CVE-2026-55831, CVE-2026-55833, CVE-2026-56745, CVE-2026-75595 (Trivy) -->
         <netty.version>4.1.137.Final</netty.version>
         <!-- CVE-2026-65182, CVE-2026-65905, CVE-2026-68525 — Trivy pede 10.1.58; o Maven Central saltou essa versão (há 10.1.57 e 10.1.59). -->

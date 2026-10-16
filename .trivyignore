@@ -7,3 +7,9 @@
 # GHSA-qwww-vcr4-c8h2 (react-router >=7.12 <8.3) — só afeta unstable RSC APIs.
 # LojApp SPA usa BrowserRouter (sem RSC). Fix upstream é major 8.3.0; acompanhar em fatia dedicada.
 GHSA-qwww-vcr4-c8h2
+
+# Spring Framework 6.2.19 (Boot 3.5). O patch OSS é 7.0.9; 6.2.20 é só Enterprise e não está no Maven Central.
+# CVE-2026-47884 exige XsltView com mapping "/**". CVE-2026-47890 exige SSE com fragmentos de view.
+# Esta API é JSON (sem XsltView, sem SseEmitter). Migração para Boot 4 fica numa fatia própria.
+CVE-2026-47884
+CVE-2026-47890
