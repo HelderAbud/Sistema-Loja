@@ -32,7 +32,7 @@ SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, v
 | Piloto (resultado) | [`docs/lojapp/piloto-demo-resultado.md`](docs/lojapp/piloto-demo-resultado.md) |
 | Notas desta demo | [`CHANGELOG.md`](CHANGELOG.md) (`0.2.0`) |
 
-Swagger / OpenAPI **não** públicos em `prod` (401). **Não há email/senha no Git** — a conta da demo pública é a registada no ambiente (HITL). Rate limit em memória (`LOJAPP_RATE_LIMIT_MODE=memory`); Redis **não** é obrigatório neste deploy.
+Swagger / OpenAPI **não** públicos em `prod` (401). O contrato versionado está em [`docs/openapi/openapi.json`](docs/openapi/openapi.json). **Não há email/senha no Git** — a conta da demo pública é a registada no ambiente (HITL). Rate limit em memória (`LOJAPP_RATE_LIMIT_MODE=memory`); Redis **não** é obrigatório neste deploy.
 
 **Navegação na Vercel:** clicar nos links da app funciona (React Router). `frontend/vercel.json` reescreve `/(.*)` → `index.html` para F5 / URL directa (`/login`, `/piloto/products`, …). O mesmo ficheiro faz proxy de `/api/*` para a Railway, para o cookie de refresh (`SameSite=Lax`) ficar no mesmo site que o front. No host da demo, o browser ignora `VITE_API_BASE` apontando para a Railway e chama `/api` local.
 

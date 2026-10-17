@@ -1,0 +1,3697 @@
+{
+  "openapi" : "3.1.0",
+  "info" : {
+    "title" : "LojApp Pro API",
+    "description" : "MVP NFe + estoque + marca. **Listagem de produtos** (`GET /api/v1/lojapp/products`): resposta paginada em objeto com `content`, `totalElements`, etc.  não é um array JSON na raiz. Erros: JSON `ApiErrorResponse` com `message`, `code` e `timestamp` (ISO-8601). Códigos fixos incluem `VALIDATION_ERROR`, `BAD_REQUEST`, `INTERNAL_ERROR`, ou o nome do estado HTTP (ex. `CONFLICT`, `NOT_FOUND`) em respostas com `LojappDomainException` / `ResponseStatusException`.",
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "http://localhost",
+    "description" : "Generated server url"
+  } ],
+  "paths" : {
+    "/api/v1/lojapp/products/{id}" : {
+      "put" : {
+        "tags" : [ "LojApp - Produtos" ],
+        "summary" : "Atualizar produto",
+        "operationId" : "updateProduct",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id do produto",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "example" : 10
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Produto inexistente ou de outro utilizador",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "LojApp - Produtos" ],
+        "summary" : "Desativar produto (soft delete)",
+        "description" : "O produto deixa de aparecer no catálogo e em KPIs. Vendas e movimentos de stock antigos mantêm a referência.",
+        "operationId" : "deleteProduct",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id do produto",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "example" : 10
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Produto desativado"
+          },
+          "404" : {
+            "description" : "Produto inexistente, já desativado ou de outro utilizador"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/brands/{id}" : {
+      "put" : {
+        "tags" : [ "LojApp - Marcas" ],
+        "summary" : "Atualizar marca",
+        "description" : "O nome deve ser unico por loja (comparacao sem distinguir maiusculas).",
+        "operationId" : "updateBrand",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id da marca",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BrandRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Marca atualizada",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Marca inexistente ou de outra loja",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Ja existe outra marca com o mesmo nome",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "LojApp - Marcas" ],
+        "summary" : "Eliminar marca",
+        "description" : "Produtos que usavam esta marca ficam sem marca (equivalente a marca nao informada no catalogo).",
+        "operationId" : "deleteBrand",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id da marca",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Marca eliminada"
+          },
+          "404" : {
+            "description" : "Marca inexistente ou de outra loja"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/suppliers" : {
+      "get" : {
+        "tags" : [ "LojApp - Fornecedores" ],
+        "summary" : "Listar fornecedores da loja",
+        "operationId" : "listSuppliers",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SupplierResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Fornecedores" ],
+        "summary" : "Criar fornecedor",
+        "description" : "CNPJ/CPF opcional; único por loja quando informado.",
+        "operationId" : "createSupplier",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SupplierRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SupplierResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/sellers" : {
+      "get" : {
+        "tags" : [ "LojApp - Vendedoras" ],
+        "summary" : "Listar vendedoras da loja",
+        "operationId" : "listSellers",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SellerResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Vendedoras" ],
+        "summary" : "Criar vendedora",
+        "operationId" : "createSeller",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SellerRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SellerResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/sales" : {
+      "get" : {
+        "tags" : [ "LojApp - Vendas" ],
+        "summary" : "Listar vendas (paginado)",
+        "description" : "Resposta em envelope com `content` e metadados de página (Spring Data). Ordenação por defeito: `soldAt` descendente.",
+        "operationId" : "listSales",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Início do intervalo (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "example" : "2026-04-01T00:00:00Z"
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "description" : "Fim do intervalo (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "productId",
+          "in" : "query",
+          "description" : "Filtrar por produto",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "brandId",
+          "in" : "query",
+          "description" : "Filtrar por marca",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "pageable",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SalePageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Vendas" ],
+        "summary" : "Registar venda",
+        "description" : "Regista uma linha de venda e movimenta stock. Ver `SaleRequest` para custo e sellerId opcionais.",
+        "operationId" : "registerSale",
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "description" : "Opcional. Replay com a mesma chave e o mesmo corpo devolve a mesma venda (24h por defeito).",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/SaleRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SaleCreatedResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Validação",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SaleCreatedResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Produto inexistente ou de outro utilizador",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SaleCreatedResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Conflito de negócio (ex.: stock insuficiente)",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SaleCreatedResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/sales/{id}/cancel" : {
+      "post" : {
+        "tags" : [ "LojApp - Vendas" ],
+        "summary" : "Cancelar venda",
+        "operationId" : "cancelSale",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id da venda",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Venda cancelada"
+          },
+          "404" : {
+            "description" : "Venda inexistente ou de outro utilizador"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/products" : {
+      "get" : {
+        "tags" : [ "LojApp - Produtos" ],
+        "summary" : "Listar produtos (paginado)",
+        "description" : "A resposta e um **objeto** com a lista em `content` e metadados (`totalElements`, `totalPages`, `size`, `number`, `first`, `last`). Nao e um array na raiz do JSON.\n\n**Paginacao (Spring Data):** `page` (base 0), `size` (omissao 20; maximo 200 no servidor), `sort` (ex.: `name,asc` ou `name,desc`).\n\n**Filtros opcionais:** `brandId` - so produtos dessa marca; `q` - substring do nome (comparacao case-insensitive); `lowStock=true` - stock abaixo do minimo ou sem registo de saldo quando o minimo e maior que zero.",
+        "operationId" : "listProducts",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "default" : [ "name,ASC" ],
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }, {
+          "name" : "brandId",
+          "in" : "query",
+          "description" : "Filtrar por id da marca do utilizador atual",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "example" : 1
+        }, {
+          "name" : "q",
+          "in" : "query",
+          "description" : "Texto a procurar no nome do produto (contem)",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          },
+          "example" : "caderno"
+        }, {
+          "name" : "lowStock",
+          "in" : "query",
+          "description" : "Se `true`, so produtos com stock baixo (quantidade &lt; minimo, ou sem saldo com minimo &gt; 0)",
+          "required" : false,
+          "schema" : {
+            "type" : "boolean"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Pagina de produtos",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Produtos" ],
+        "summary" : "Criar produto",
+        "operationId" : "createProduct",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/product-models" : {
+      "get" : {
+        "tags" : [ "LojApp - Modelos" ],
+        "summary" : "Listar modelos de uma marca",
+        "description" : "Filtro opcional por colecao.",
+        "operationId" : "listModels",
+        "parameters" : [ {
+          "name" : "brandId",
+          "in" : "query",
+          "description" : "Id da marca",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "collectionId",
+          "in" : "query",
+          "description" : "Id da colecao (opcional)",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ProductModelResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Modelos" ],
+        "summary" : "Criar modelo",
+        "operationId" : "createModel",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductModelRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductModelResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/product-collections" : {
+      "get" : {
+        "tags" : [ "LojApp - Colecoes" ],
+        "summary" : "Listar colecoes de uma marca",
+        "operationId" : "listCollections",
+        "parameters" : [ {
+          "name" : "brandId",
+          "in" : "query",
+          "description" : "Id da marca",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ProductCollectionResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Colecoes" ],
+        "summary" : "Criar colecao",
+        "operationId" : "createCollection",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ProductCollectionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductCollectionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/pos/sales/{saleId}/payments/{paymentId}/confirm" : {
+      "post" : {
+        "tags" : [ "LojApp - PDV Vendas" ],
+        "operationId" : "confirmPayment",
+        "parameters" : [ {
+          "name" : "saleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "paymentId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PosSalePaymentView"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/pos/sales/finalize" : {
+      "post" : {
+        "tags" : [ "LojApp - PDV Vendas" ],
+        "operationId" : "finalizeSale",
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "description" : "Obrigatória no PDV. Repetição com mesma chave/corpo devolve a mesma venda finalizada.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PosSaleFinalizeRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PosSaleFinalizeResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/pos/cash-sessions/open" : {
+      "post" : {
+        "tags" : [ "LojApp - PDV Caixa" ],
+        "operationId" : "openCashSession",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/OpenCashSessionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/OpenCashSessionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/pos/cash-sessions/close" : {
+      "post" : {
+        "tags" : [ "LojApp - PDV Caixa" ],
+        "operationId" : "closeCashSession",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CloseCashSessionRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CloseCashSessionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/nfe/import" : {
+      "post" : {
+        "tags" : [ "LojApp - NFe" ],
+        "operationId" : "importNfe",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NfeImportRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NfeImportResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/nfe/entries/{nfeEntryId}/apply-suggestions" : {
+      "post" : {
+        "tags" : [ "LojApp - NFe" ],
+        "summary" : "Aplicar sugestoes de uma NFe importada",
+        "description" : "Re-le o XML da entrada e aplica marca sugerida e/ou fornecedor da nota aos produtos ligados a essa importacao, apenas onde marca ou fornecedor ainda estao vazios.",
+        "operationId" : "applyImportSuggestions",
+        "parameters" : [ {
+          "name" : "nfeEntryId",
+          "in" : "path",
+          "description" : "Id da entrada devolvido em importNfe",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/NfeApplySuggestionsRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/NfeApplySuggestionsResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/inventory/adjust" : {
+      "post" : {
+        "tags" : [ "LojApp - Estoque" ],
+        "summary" : "Ajustar stock manualmente",
+        "description" : "Delta em `quantity`: positivo entra stock, negativo sai. Motivo obrigatório. Opcionalmente enviar `Idempotency-Key` para evitar duplicar o mesmo ajuste em retries.",
+        "operationId" : "adjustStock",
+        "parameters" : [ {
+          "name" : "Idempotency-Key",
+          "in" : "header",
+          "description" : "Opcional. Evita duplicar o mesmo ajuste em retries (24h por defeito).",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StockAdjustmentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Ajuste aplicado"
+          },
+          "400" : {
+            "description" : "Validação (ex.: quantity zero, reason vazio)"
+          },
+          "404" : {
+            "description" : "Produto inexistente ou de outro utilizador"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/commission-rules" : {
+      "get" : {
+        "tags" : [ "LojApp - Regras de comissao" ],
+        "summary" : "Listar regras de comissao (percentual vigente a partir de validFrom)",
+        "operationId" : "listRules",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CommissionRuleResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Regras de comissao" ],
+        "summary" : "Criar regra de comissao",
+        "description" : "brandId nulo = percentual global da loja. validFrom no futuro nao se aplica a vendas anteriores.",
+        "operationId" : "createRule",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CommissionRuleRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CommissionRuleResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/brands" : {
+      "get" : {
+        "tags" : [ "LojApp - Marcas" ],
+        "operationId" : "listBrands",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/BrandResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "LojApp - Marcas" ],
+        "operationId" : "createBrand",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/BrandRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrandResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/auth/register" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Registo de utilizador",
+        "description" : "Cria conta. O access JWT vem no JSON; o refresh opaco é gravado em cookie HttpOnly (path /api/v1/auth).",
+        "operationId" : "register",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Conta criada",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Corpo inválido ou validação falhou",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Registo desativado, domínio de email não autorizado ou convite (inviteToken) inválido",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Email já cadastrado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Limite de tentativas de registo por IP (por hora) excedido",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/refresh" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Renovar access token",
+        "description" : "Lê o refresh da cookie HttpOnly (ou do corpo JSON para compatibilidade). Rotação: emite nova cookie e novo access.",
+        "operationId" : "refresh",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RefreshRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Access renovado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Refresh ausente",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Refresh inválido ou expirado",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Terminar sessão no browser",
+        "description" : "Remove a cookie de refresh (HttpOnly). O access JWT deve ser descartado no cliente.",
+        "operationId" : "logout",
+        "responses" : {
+          "204" : {
+            "description" : "Cookie de refresh limpa"
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Login",
+        "description" : "Autentica com email e palavra-passe. Access JWT no JSON; refresh em cookie HttpOnly.",
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Autenticação bem-sucedida",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Corpo inválido ou validação falhou",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Credenciais inválidas",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/users/me" : {
+      "get" : {
+        "tags" : [ "Users" ],
+        "operationId" : "me",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserMeResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/users/admin/list" : {
+      "get" : {
+        "tags" : [ "Users" ],
+        "summary" : "Listar a própria conta (somente ADMIN)",
+        "description" : "ADMIN é dono de uma loja (isolamento por user_id). Não enumera outras contas.",
+        "operationId" : "listUsersForAdmin",
+        "parameters" : [ {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "default" : [ "id,ASC" ],
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Página com a conta autenticada",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminUserPageResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Acesso restrito a ADMIN",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AdminUserPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/suppliers/{id}" : {
+      "get" : {
+        "tags" : [ "LojApp - Fornecedores" ],
+        "summary" : "Obter fornecedor por id",
+        "operationId" : "getSupplier",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id do fornecedor",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SupplierResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/sales/summary" : {
+      "get" : {
+        "tags" : [ "LojApp - Vendas" ],
+        "summary" : "Resumo agregado de vendas no intervalo",
+        "operationId" : "summarizeSales",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Início (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "description" : "Fim (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "productId",
+          "in" : "query",
+          "description" : "Filtrar por produto",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "brandId",
+          "in" : "query",
+          "description" : "Filtrar por marca",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SalesSummaryResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/sales/payments-summary" : {
+      "get" : {
+        "tags" : [ "LojApp - Vendas" ],
+        "summary" : "Pagamentos agregados por método (liquidado vs pendente)",
+        "operationId" : "summarizeSalesPayments",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Início (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "description" : "Fim (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/SalesPaymentsSummaryResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/sales/daily" : {
+      "get" : {
+        "tags" : [ "LojApp - Vendas" ],
+        "summary" : "Vendas agregadas por dia (série temporal)",
+        "operationId" : "summarizeSalesDaily",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "description" : "Início (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "description" : "Fim (ISO-8601)",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "productId",
+          "in" : "query",
+          "description" : "Filtrar por produto",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "brandId",
+          "in" : "query",
+          "description" : "Filtrar por marca",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/SalesDailyPointResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/product-models/{id}" : {
+      "get" : {
+        "tags" : [ "LojApp - Modelos" ],
+        "summary" : "Obter modelo por id",
+        "operationId" : "getModel",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id do modelo",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductModelResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/product-collections/{id}" : {
+      "get" : {
+        "tags" : [ "LojApp - Colecoes" ],
+        "summary" : "Obter colecao por id",
+        "operationId" : "getCollection",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Id da colecao",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductCollectionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/pos/sales/pending-payments" : {
+      "get" : {
+        "tags" : [ "LojApp - PDV Vendas" ],
+        "operationId" : "pendingPayments",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/PosSalePaymentView"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/pos/cash-sessions/{id}/close-preview" : {
+      "get" : {
+        "tags" : [ "LojApp - PDV Caixa" ],
+        "operationId" : "closePreview",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "countedAmount",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "number"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CloseCashSessionPreviewResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/pos/cash-sessions/current" : {
+      "get" : {
+        "tags" : [ "LojApp - PDV Caixa" ],
+        "operationId" : "currentCashSession",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CurrentCashSessionResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/inventory/products/{productId}/stock" : {
+      "get" : {
+        "tags" : [ "LojApp - Estoque" ],
+        "summary" : "Consultar quantidade em stock de um produto",
+        "operationId" : "productStock",
+        "parameters" : [ {
+          "name" : "productId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductStockResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Produto inexistente ou de outro utilizador",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductStockResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/inventory/products/{productId}/movements" : {
+      "get" : {
+        "tags" : [ "LojApp - Estoque" ],
+        "summary" : "Histórico de movimentos de estoque (kardex)",
+        "description" : "Página de movimentos do produto da loja autenticada. `page` (base 0), `size` (omissão 20).",
+        "operationId" : "productMovements",
+        "parameters" : [ {
+          "name" : "productId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "description" : "Zero-based page index (0..N)",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 0,
+            "minimum" : 0
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "description" : "The size of the page to be returned",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "default" : 20,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "sort",
+          "in" : "query",
+          "description" : "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InventoryMovementPageResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Produto inexistente ou de outro utilizador",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InventoryMovementPageResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/inventory/low-stock" : {
+      "get" : {
+        "tags" : [ "LojApp - Estoque" ],
+        "summary" : "Listar produtos com stock abaixo do mínimo",
+        "operationId" : "lowStock",
+        "responses" : {
+          "200" : {
+            "description" : "Lista de itens em baixo stock",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/LowStockResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/dashboard/products-abc" : {
+      "get" : {
+        "tags" : [ "LojApp - Dashboard" ],
+        "operationId" : "dashboardProductAbc",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ProductAbcResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/dashboard/inventory-kpis" : {
+      "get" : {
+        "tags" : [ "LojApp - Dashboard" ],
+        "operationId" : "dashboardInventoryKpis",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/InventoryKpiResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/dashboard/brands" : {
+      "get" : {
+        "tags" : [ "LojApp - Dashboard" ],
+        "operationId" : "dashboardByBrand",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "brandLimit",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 50,
+            "maximum" : 200,
+            "minimum" : 1
+          }
+        }, {
+          "name" : "brandOffset",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32",
+            "default" : 0,
+            "minimum" : 0
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/BrandDashboardResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/commission-accruals" : {
+      "get" : {
+        "tags" : [ "LojApp - Relatorio de comissoes" ],
+        "summary" : "Listar lancamentos de comissao no intervalo (padrao: 30 dias)",
+        "operationId" : "list",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CommissionAccrualResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/v1/lojapp/commission-accruals.csv" : {
+      "get" : {
+        "tags" : [ "LojApp - Relatorio de comissoes" ],
+        "summary" : "Exportar lancamentos de comissao em CSV",
+        "operationId" : "exportCsv",
+        "parameters" : [ {
+          "name" : "from",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/csv" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/error" : {
+      "get" : {
+        "tags" : [ "lojapp-error-controller" ],
+        "operationId" : "jsonError",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "lojapp-error-controller" ],
+        "operationId" : "jsonError_2",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "lojapp-error-controller" ],
+        "operationId" : "jsonError_1",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "lojapp-error-controller" ],
+        "operationId" : "jsonError_3",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options" : {
+        "tags" : [ "lojapp-error-controller" ],
+        "operationId" : "jsonError_6",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head" : {
+        "tags" : [ "lojapp-error-controller" ],
+        "operationId" : "jsonError_5",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "lojapp-error-controller" ],
+        "operationId" : "jsonError_4",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ApiErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "ProductRequest" : {
+        "type" : "object",
+        "description" : "Criar ou atualizar produto",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "example" : "Caderno A4",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Id da marca (opcional)",
+            "example" : 1
+          },
+          "ean" : {
+            "type" : "string",
+            "maxLength" : 32,
+            "minLength" : 0
+          },
+          "ncm" : {
+            "type" : "string",
+            "maxLength" : 12,
+            "minLength" : 0
+          },
+          "sku" : {
+            "type" : "string",
+            "maxLength" : 64,
+            "minLength" : 0
+          },
+          "costPrice" : {
+            "type" : "number",
+            "minimum" : 0.0
+          },
+          "salePrice" : {
+            "type" : "number",
+            "minimum" : 0.0
+          },
+          "minimumStock" : {
+            "type" : "number",
+            "minimum" : 0.0
+          },
+          "supplierId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Fornecedor preferido do SKU (opcional)",
+            "example" : 1
+          },
+          "productModelId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Modelo de catálogo (opcional). Quando definido, a marca do produto alinha-se à marca do modelo.",
+            "example" : 1
+          },
+          "variantColor" : {
+            "type" : "string",
+            "description" : "Cor da variante",
+            "example" : "Azul marinho",
+            "maxLength" : 64,
+            "minLength" : 0
+          },
+          "variantSize" : {
+            "type" : "string",
+            "description" : "Tamanho da variante",
+            "example" : "M",
+            "maxLength" : 32,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "costPrice", "minimumStock", "name", "salePrice" ]
+      },
+      "ProductResponse" : {
+        "type" : "object",
+        "description" : "Produto no catálogo (leitura)",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 1
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Caderno A4"
+          },
+          "brandName" : {
+            "type" : "string",
+            "description" : "Nome da marca ou texto fixo se não houver marca",
+            "example" : "Marca X"
+          },
+          "ean" : {
+            "type" : "string",
+            "example" : "7891234567890"
+          },
+          "ncm" : {
+            "type" : "string"
+          },
+          "sku" : {
+            "type" : "string"
+          },
+          "costPrice" : {
+            "type" : "number"
+          },
+          "salePrice" : {
+            "type" : "number"
+          },
+          "minimumStock" : {
+            "type" : "number"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Criação (auditoria)"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "ltima atualização (auditoria)"
+          },
+          "supplierId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Fornecedor preferido (id)",
+            "example" : 1
+          },
+          "productModelId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Modelo de catálogo (id)",
+            "example" : 1
+          },
+          "variantColor" : {
+            "type" : "string"
+          },
+          "variantSize" : {
+            "type" : "string"
+          }
+        }
+      },
+      "BrandRequest" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "name" ]
+      },
+      "BrandResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          }
+        }
+      },
+      "SupplierRequest" : {
+        "type" : "object",
+        "description" : "Criar fornecedor",
+        "properties" : {
+          "legalName" : {
+            "type" : "string",
+            "example" : "Distribuidora ABC Ltda",
+            "maxLength" : 255,
+            "minLength" : 0
+          },
+          "taxId" : {
+            "type" : "string",
+            "description" : "CNPJ ou CPF (com ou sem máscara); opcional",
+            "example" : "12.345.678/0001-99",
+            "maxLength" : 32,
+            "minLength" : 0,
+            "pattern" : "^[0-9.\\-/()\\s]*$"
+          }
+        },
+        "required" : [ "legalName" ]
+      },
+      "SupplierResponse" : {
+        "type" : "object",
+        "description" : "Fornecedor (leitura)",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 1
+          },
+          "legalName" : {
+            "type" : "string",
+            "example" : "Distribuidora ABC Ltda"
+          },
+          "taxId" : {
+            "type" : "string",
+            "description" : "CNPJ ou CPF normalizado (só dígitos), se informado"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "SellerRequest" : {
+        "type" : "object",
+        "properties" : {
+          "displayName" : {
+            "type" : "string",
+            "maxLength" : 120,
+            "minLength" : 0
+          },
+          "active" : {
+            "type" : "boolean"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        },
+        "required" : [ "displayName" ]
+      },
+      "SellerResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "displayName" : {
+            "type" : "string"
+          },
+          "active" : {
+            "type" : "boolean"
+          },
+          "sortOrder" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "SaleRequest" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "quantity" : {
+            "type" : "number",
+            "minimum" : 0.001
+          },
+          "unitPrice" : {
+            "type" : "number",
+            "minimum" : 0.0
+          },
+          "unitCost" : {
+            "type" : "number",
+            "minimum" : 0.01
+          },
+          "sellerId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "productId", "quantity", "unitPrice" ]
+      },
+      "SaleCreatedResponse" : {
+        "type" : "object",
+        "description" : "Resposta de criação de venda.",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "quantity" : {
+            "type" : "number"
+          },
+          "unitPrice" : {
+            "type" : "number"
+          },
+          "unitCost" : {
+            "type" : "number"
+          },
+          "soldAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ProductModelRequest" : {
+        "type" : "object",
+        "description" : "Criar modelo de produto sob uma marca",
+        "properties" : {
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 1
+          },
+          "collectionId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Coleção opcional (deve pertencer à mesma marca)",
+            "example" : 2
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Camisa polo básica",
+            "maxLength" : 255,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "brandId", "name" ]
+      },
+      "ProductModelResponse" : {
+        "type" : "object",
+        "description" : "Modelo de produto (leitura)",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "brandName" : {
+            "type" : "string"
+          },
+          "collectionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "collectionName" : {
+            "type" : "string",
+            "description" : "Nome da coleção, se houver"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ProductCollectionRequest" : {
+        "type" : "object",
+        "description" : "Criar coleção sob uma marca",
+        "properties" : {
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 1
+          },
+          "name" : {
+            "type" : "string",
+            "example" : "Verão 2026",
+            "maxLength" : 200,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "brandId", "name" ]
+      },
+      "ProductCollectionResponse" : {
+        "type" : "object",
+        "description" : "Coleção de produtos (leitura)",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "brandName" : {
+            "type" : "string",
+            "description" : "Nome da marca"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PosSalePaymentView" : {
+        "type" : "object",
+        "properties" : {
+          "paymentId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "saleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "settlementCashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "paymentMethod" : {
+            "type" : "string",
+            "enum" : [ "CASH", "CARD", "PIX", "CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "BANK_SLIP", "OTHER" ]
+          },
+          "amount" : {
+            "type" : "number"
+          },
+          "settlementStatus" : {
+            "type" : "string",
+            "enum" : [ "CONFIRMED", "PENDING" ]
+          }
+        }
+      },
+      "PosSaleFinalizeRequest" : {
+        "type" : "object",
+        "properties" : {
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "quantity" : {
+            "type" : "number",
+            "minimum" : 0.001
+          },
+          "unitPrice" : {
+            "type" : "number",
+            "minimum" : 0.0
+          },
+          "unitCost" : {
+            "type" : "number"
+          },
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PosSaleLineRequest"
+            },
+            "maxItems" : 50,
+            "minItems" : 0
+          },
+          "payments" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PosSalePaymentRequest"
+            },
+            "minItems" : 1
+          },
+          "sellerId" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        },
+        "required" : [ "cashSessionId", "payments" ]
+      },
+      "PosSaleLineRequest" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "quantity" : {
+            "type" : "number",
+            "minimum" : 0.001
+          },
+          "unitPrice" : {
+            "type" : "number",
+            "minimum" : 0.0
+          },
+          "unitCost" : {
+            "type" : "number"
+          }
+        },
+        "required" : [ "productId", "quantity", "unitPrice" ]
+      },
+      "PosSalePaymentRequest" : {
+        "type" : "object",
+        "properties" : {
+          "paymentMethod" : {
+            "type" : "string",
+            "enum" : [ "CASH", "CARD", "PIX", "CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "BANK_SLIP", "OTHER" ]
+          },
+          "amount" : {
+            "type" : "number",
+            "minimum" : 0.01
+          },
+          "cardBrand" : {
+            "type" : "string",
+            "maxLength" : 40,
+            "minLength" : 0
+          },
+          "installments" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 1
+          },
+          "transactionId" : {
+            "type" : "string",
+            "maxLength" : 80,
+            "minLength" : 0
+          },
+          "endToEndId" : {
+            "type" : "string",
+            "maxLength" : 32,
+            "minLength" : 0
+          },
+          "receivedAmount" : {
+            "type" : "number",
+            "minimum" : 0.01
+          },
+          "settlementStatus" : {
+            "type" : "string",
+            "enum" : [ "CONFIRMED", "PENDING" ]
+          }
+        },
+        "required" : [ "amount", "paymentMethod" ]
+      },
+      "PosSaleFinalizeResponse" : {
+        "type" : "object",
+        "properties" : {
+          "saleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalAmount" : {
+            "type" : "number"
+          },
+          "soldAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "sellerId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "changeAmount" : {
+            "type" : "number"
+          }
+        }
+      },
+      "OpenCashSessionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "openingAmount" : {
+            "type" : "number",
+            "minimum" : 0.0
+          }
+        },
+        "required" : [ "openingAmount" ]
+      },
+      "OpenCashSessionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "openingAmount" : {
+            "type" : "number"
+          },
+          "openedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CloseCashSessionRequest" : {
+        "type" : "object",
+        "properties" : {
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "countedAmount" : {
+            "type" : "number",
+            "minimum" : 0.0
+          },
+          "differenceReason" : {
+            "type" : "string"
+          },
+          "managerApproval" : {
+            "type" : "boolean",
+            "description" : "Auto-declaração do próprio ator: confirma que reviu a diferença acima da tolerância. Não é aprovação de um gerente na mesma loja (MVP: uma conta = uma loja)."
+          }
+        },
+        "required" : [ "cashSessionId", "countedAmount" ]
+      },
+      "CloseCashSessionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "expectedAmount" : {
+            "type" : "number"
+          },
+          "countedAmount" : {
+            "type" : "number"
+          },
+          "differenceAmount" : {
+            "type" : "number"
+          },
+          "closedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "status" : {
+            "type" : "string"
+          }
+        }
+      },
+      "NfeImportRequest" : {
+        "type" : "object",
+        "properties" : {
+          "rawXml" : {
+            "type" : "string",
+            "maxLength" : 12000000,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "rawXml" ]
+      },
+      "NfeImportResponse" : {
+        "type" : "object",
+        "properties" : {
+          "nfeEntryId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nfeNumber" : {
+            "type" : "string"
+          },
+          "importedItems" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "supplierId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Fornecedor deduplicado pelo CNPJ/CPF do emitente; null se a nota não trouxe identificação."
+          },
+          "suggestedBrandId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Sugestão de marca (heurística por texto do emitente/itens); aplicar só após confirmação humana."
+          },
+          "suggestedBrandName" : {
+            "type" : "string",
+            "description" : "Nome da marca sugerida (espelho de suggestedBrandId)."
+          },
+          "productsCreatedWithoutSalePrice" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Quantidade de produtos criados automaticamente na importação sem preço de venda definido (preço de venda = custo até revisão manual)."
+          }
+        }
+      },
+      "NfeApplySuggestionsRequest" : {
+        "type" : "object",
+        "description" : "Corpo opcional: omissão ou null em cada campo ativa o comportamento por defeito (true).",
+        "properties" : {
+          "setBrandOnImportedProducts" : {
+            "type" : "boolean",
+            "description" : "Aplicar marca sugerida (re-lida do XML) em produtos desta NFe sem marca",
+            "example" : true
+          },
+          "setSupplierOnImportedProducts" : {
+            "type" : "boolean",
+            "description" : "Aplicar fornecedor da entrada em produtos sem fornecedor",
+            "example" : true
+          }
+        }
+      },
+      "NfeApplySuggestionsResponse" : {
+        "type" : "object",
+        "description" : "Resultado de aplicar sugestões aos produtos ligados a uma NFe importada.",
+        "properties" : {
+          "nfeLineCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Número de linhas de produto analisadas (itens da NFe)"
+          },
+          "brandAssignedCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Produtos em que a marca sugerida foi gravada"
+          },
+          "supplierAssignedCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Produtos em que o fornecedor da entrada foi gravado"
+          },
+          "brandSkippedModelConflictCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Marcas ignoradas por conflito com modelo de catálogo"
+          },
+          "appliedBrandId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "appliedBrandName" : {
+            "type" : "string"
+          },
+          "supplierIdFromEntry" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "StockAdjustmentRequest" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Id do produto da loja",
+            "example" : 12
+          },
+          "quantity" : {
+            "type" : "number",
+            "description" : "Delta de stock (positivo entrada, negativo saída)",
+            "example" : -2
+          },
+          "reason" : {
+            "type" : "string",
+            "description" : "Motivo obrigatório do ajuste (texto livre; espaços à volta são ignorados no servidor)",
+            "example" : "INVENTARIO_FISICO",
+            "maxLength" : 500,
+            "minLength" : 0
+          },
+          "quantityNonZero" : {
+            "type" : "boolean"
+          }
+        },
+        "required" : [ "productId", "quantity", "reason" ]
+      },
+      "CommissionRuleRequest" : {
+        "type" : "object",
+        "properties" : {
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "percent" : {
+            "type" : "number",
+            "maximum" : 100.0,
+            "minimum" : 0.0
+          },
+          "validFrom" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "required" : [ "percent" ]
+      },
+      "CommissionRuleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "percent" : {
+            "type" : "number"
+          },
+          "validFrom" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "RegisterRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "minLength" : 1
+          },
+          "password" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 8
+          },
+          "inviteToken" : {
+            "type" : "string",
+            "description" : "Obrigatório quando lojapp.auth.registration.invite-secret está definido; partilhar o valor só por canal seguro."
+          }
+        },
+        "required" : [ "email", "password" ]
+      },
+      "AccessTokenResponse" : {
+        "type" : "object",
+        "description" : "JWT de acesso. O refresh opaco é enviado em cookie HttpOnly (não aparece aqui).",
+        "properties" : {
+          "accessToken" : {
+            "type" : "string"
+          }
+        }
+      },
+      "RefreshRequest" : {
+        "type" : "object",
+        "properties" : {
+          "refreshToken" : {
+            "type" : "string"
+          }
+        }
+      },
+      "LoginRequest" : {
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "format" : "email",
+            "minLength" : 1
+          },
+          "password" : {
+            "type" : "string",
+            "maxLength" : 128,
+            "minLength" : 0
+          }
+        },
+        "required" : [ "email", "password" ]
+      },
+      "UserMeResponse" : {
+        "type" : "object",
+        "description" : "Perfil do utilizador autenticado",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Email da conta"
+          },
+          "appRole" : {
+            "type" : "string",
+            "description" : "Papel da aplicação: USER, ADMIN ou REPRESENTATIVE (B2B — mesmo isolamento por user_id)"
+          }
+        }
+      },
+      "AdminUserPageResponse" : {
+        "type" : "object",
+        "description" : "Página de utilizadores para visão administrativa.",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/AdminUserSummaryResponse"
+            }
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "AdminUserSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "role" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Pageable" : {
+        "type" : "object",
+        "properties" : {
+          "page" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 0
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32",
+            "minimum" : 1
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "SaleListItemResponse" : {
+        "type" : "object",
+        "description" : "Linha de venda no histórico",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 101
+          },
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 12
+          },
+          "productName" : {
+            "type" : "string",
+            "example" : "Caderno A4"
+          },
+          "brandName" : {
+            "type" : "string",
+            "example" : "Marca X"
+          },
+          "quantity" : {
+            "type" : "number"
+          },
+          "unitPrice" : {
+            "type" : "number"
+          },
+          "unitCost" : {
+            "type" : "number"
+          },
+          "soldAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "cancelled" : {
+            "type" : "boolean",
+            "description" : "True se a venda foi cancelada (fora dos totais do dashboard)."
+          },
+          "itemCount" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Número de linhas em sale_items."
+          },
+          "lineTotal" : {
+            "type" : "number",
+            "description" : "Soma qty × preço das linhas (não o header denormalizado)."
+          }
+        }
+      },
+      "SalePageResponse" : {
+        "type" : "object",
+        "description" : "Página de vendas (lista em `content`).",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SaleListItemResponse"
+            }
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "SalesSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "revenue" : {
+            "type" : "number"
+          },
+          "unitsSold" : {
+            "type" : "number"
+          },
+          "averageTicket" : {
+            "type" : "number"
+          }
+        }
+      },
+      "PaymentMethodBreakdown" : {
+        "type" : "object",
+        "properties" : {
+          "paymentMethod" : {
+            "type" : "string",
+            "enum" : [ "CASH", "CARD", "PIX", "CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "BANK_SLIP", "OTHER" ]
+          },
+          "confirmedAmount" : {
+            "type" : "number"
+          },
+          "pendingAmount" : {
+            "type" : "number"
+          }
+        }
+      },
+      "SalesPaymentsSummaryResponse" : {
+        "type" : "object",
+        "properties" : {
+          "sold" : {
+            "$ref" : "#/components/schemas/Slice"
+          },
+          "settled" : {
+            "$ref" : "#/components/schemas/Slice"
+          },
+          "openPending" : {
+            "$ref" : "#/components/schemas/Slice"
+          }
+        }
+      },
+      "Slice" : {
+        "type" : "object",
+        "properties" : {
+          "confirmedTotal" : {
+            "type" : "number"
+          },
+          "pendingTotal" : {
+            "type" : "number"
+          },
+          "methods" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PaymentMethodBreakdown"
+            }
+          }
+        }
+      },
+      "SalesDailyPointResponse" : {
+        "type" : "object",
+        "properties" : {
+          "date" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "revenue" : {
+            "type" : "number"
+          },
+          "unitsSold" : {
+            "type" : "number"
+          }
+        }
+      },
+      "ProductPageResponse" : {
+        "type" : "object",
+        "description" : "Página de produtos. A lista está em `content`; metadados de paginação nos outros campos.",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "description" : "Itens da página atual",
+            "items" : {
+              "$ref" : "#/components/schemas/ProductResponse"
+            }
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Total de elementos em todas as páginas",
+            "example" : 42
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Número total de páginas",
+            "example" : 3
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Tamanho pedido da página",
+            "example" : 20
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Índice da página (0-based)",
+            "example" : 0
+          },
+          "first" : {
+            "type" : "boolean",
+            "description" : "Se é a primeira página"
+          },
+          "last" : {
+            "type" : "boolean",
+            "description" : "Se é a última página"
+          }
+        }
+      },
+      "CloseCashSessionPreviewResponse" : {
+        "type" : "object",
+        "properties" : {
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "expectedAmount" : {
+            "type" : "number"
+          },
+          "expectedCashAmount" : {
+            "type" : "number"
+          },
+          "expectedCardAmount" : {
+            "type" : "number"
+          },
+          "expectedPixAmount" : {
+            "type" : "number"
+          },
+          "countedAmount" : {
+            "type" : "number"
+          },
+          "differenceAmount" : {
+            "type" : "number"
+          },
+          "toleranceAmount" : {
+            "type" : "number"
+          },
+          "managerApprovalRequired" : {
+            "type" : "boolean",
+            "description" : "True se |diferença| > tolerância: o close exige managerApproval=true (confirmação do próprio ator, não de um terceiro)."
+          }
+        }
+      },
+      "CurrentCashSessionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "open" : {
+            "type" : "boolean"
+          },
+          "cashSessionId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "openingAmount" : {
+            "type" : "number"
+          },
+          "openedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "expectedAmount" : {
+            "type" : "number"
+          },
+          "expectedCashAmount" : {
+            "type" : "number"
+          },
+          "expectedCardAmount" : {
+            "type" : "number"
+          },
+          "expectedPixAmount" : {
+            "type" : "number"
+          }
+        }
+      },
+      "ProductStockResponse" : {
+        "type" : "object",
+        "properties" : {
+          "quantity" : {
+            "type" : "number"
+          }
+        }
+      },
+      "InventoryMovementPageResponse" : {
+        "type" : "object",
+        "description" : "Página de movimentos. A lista está em `content`; metadados de paginação nos outros campos.",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "description" : "Itens da página atual",
+            "items" : {
+              "$ref" : "#/components/schemas/InventoryMovementResponse"
+            }
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64",
+            "description" : "Total de elementos em todas as páginas",
+            "example" : 42
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Número total de páginas",
+            "example" : 3
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Tamanho pedido da página",
+            "example" : 20
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "Índice da página (0-based)",
+            "example" : 0
+          },
+          "first" : {
+            "type" : "boolean",
+            "description" : "Se é a primeira página"
+          },
+          "last" : {
+            "type" : "boolean",
+            "description" : "Se é a última página"
+          }
+        }
+      },
+      "InventoryMovementResponse" : {
+        "type" : "object",
+        "description" : "Linha do kardex (movimento de estoque).",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 12
+          },
+          "movementType" : {
+            "type" : "string",
+            "example" : "ADJUSTMENT"
+          },
+          "quantity" : {
+            "type" : "number",
+            "description" : "Quantidade com sinal: entrada positiva, saída negativa",
+            "example" : -3
+          },
+          "source" : {
+            "type" : "string",
+            "example" : "MANUAL_ADJUST"
+          },
+          "sourceId" : {
+            "type" : "integer",
+            "format" : "int64",
+            "example" : 456
+          },
+          "reason" : {
+            "type" : "string",
+            "description" : "Motivo do ajuste manual; nulo em venda/NFe",
+            "example" : "Inventário físico"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "LowStockResponse" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "productName" : {
+            "type" : "string"
+          },
+          "currentQuantity" : {
+            "type" : "number"
+          },
+          "minimumStock" : {
+            "type" : "number"
+          }
+        }
+      },
+      "ProductAbcResponse" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "to" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "totalRevenue" : {
+            "type" : "number"
+          },
+          "rows" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ProductAbcRowResponse"
+            }
+          }
+        }
+      },
+      "ProductAbcRowResponse" : {
+        "type" : "object",
+        "properties" : {
+          "productId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "productName" : {
+            "type" : "string"
+          },
+          "brandName" : {
+            "type" : "string"
+          },
+          "revenue" : {
+            "type" : "number"
+          },
+          "quantitySold" : {
+            "type" : "number"
+          },
+          "sharePercent" : {
+            "type" : "number"
+          },
+          "cumulativePercent" : {
+            "type" : "number"
+          },
+          "abcClass" : {
+            "type" : "string"
+          }
+        }
+      },
+      "InventoryKpiResponse" : {
+        "type" : "object",
+        "description" : "KPIs de estoque da loja autenticada.",
+        "properties" : {
+          "totalSkus" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalUnits" : {
+            "type" : "number"
+          },
+          "lowStockCount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "skusWithPositiveStock" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalStockValue" : {
+            "type" : "number",
+            "description" : "Soma de custo × quantidade (saldo actual)",
+            "example" : 1500.0
+          }
+        }
+      },
+      "BrandDashboardResponse" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "to" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "metrics" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BrandKpiResponse"
+            }
+          },
+          "totalBrands" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "brandLimit" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "brandOffset" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        }
+      },
+      "BrandKpiResponse" : {
+        "type" : "object",
+        "properties" : {
+          "brand" : {
+            "type" : "string"
+          },
+          "faturamento" : {
+            "type" : "number"
+          },
+          "lucro" : {
+            "type" : "number"
+          },
+          "quantidadeVendida" : {
+            "type" : "number"
+          },
+          "margem" : {
+            "type" : "number"
+          },
+          "giro" : {
+            "type" : "string"
+          },
+          "insight" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CommissionAccrualResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "saleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sellerId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sellerName" : {
+            "type" : "string"
+          },
+          "brandId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "brandName" : {
+            "type" : "string"
+          },
+          "baseAmount" : {
+            "type" : "number"
+          },
+          "percent" : {
+            "type" : "number"
+          },
+          "amount" : {
+            "type" : "number"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "ApiErrorResponse" : {
+        "type" : "object",
+        "description" : "Formato padrão de erro da API",
+        "properties" : {
+          "message" : {
+            "type" : "string",
+            "description" : "Mensagem legível para o utilizador ou cliente"
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Código estável do tipo de erro; ver ApiErrorCode.",
+            "example" : "VALIDATION_ERROR"
+          },
+          "status" : {
+            "type" : "integer",
+            "format" : "int32",
+            "description" : "HTTP status numérico",
+            "example" : 400
+          },
+          "path" : {
+            "type" : "string",
+            "description" : "Path da requisição",
+            "example" : "/api/v1/lojapp/products"
+          },
+          "timestamp" : {
+            "type" : "string",
+            "format" : "date-time",
+            "description" : "Instante ISO-8601 (UTC)"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "bearerAuth" : {
+        "type" : "http",
+        "name" : "bearerAuth",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
+      }
+    }
+  }
+}
