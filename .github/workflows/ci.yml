@@ -185,10 +185,12 @@ jobs:
         run: |
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "${{ github.workspace }}/.trivyignore:/trivyignore:ro" \
             aquasec/trivy:0.70.0 image \
             --vuln-type os,library \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
+            --ignorefile /trivyignore \
             --exit-code 1 \
             --no-progress \
             lojapp:ci

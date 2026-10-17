@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 /**
  * Define o refresh token opaco como cookie HttpOnly (não legível por JavaScript), com path restrito
  * a {@code /api/v1/auth} para não ir em cada pedido à API de negócio.
+ *
+ * <p>{@code SameSite=Lax} não segue em {@code fetch} cross-site (front na Vercel, API na Railway). A
+ * demo faz proxy same-origin em {@code frontend/vercel.json}. Não usar {@code SameSite=None}.
  */
 @Component
 public class AuthRefreshCookieSupport {

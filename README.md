@@ -1,6 +1,6 @@
 # LojApp — Plataforma de Gestão Comercial
 
-[![CI](https://github.com/HelderAbud/Sistema-Loja/actions/workflows/ci.yml/badge.svg?branch=Principal)](https://github.com/HelderAbud/Sistema-Loja/actions/workflows/ci.yml)
+[![CI](https://github.com/HelderAbud/Sistema-Loja/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/HelderAbud/Sistema-Loja/actions/workflows/ci.yml)
 [![Java 21](https://img.shields.io/badge/Java-21-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/)
 [![Spring Boot 3.5](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
 [![React 19](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
@@ -30,10 +30,11 @@ SPA React + API Spring Boot para **gestão de loja física**: produtos, stock, v
 | API (Railway) | [sistema-loja-production-7608.up.railway.app](https://sistema-loja-production-7608.up.railway.app) |
 | Health | [GET /actuator/health](https://sistema-loja-production-7608.up.railway.app/actuator/health) (`status: UP`, Postgres UP) |
 | Piloto (resultado) | [`docs/lojapp/piloto-demo-resultado.md`](docs/lojapp/piloto-demo-resultado.md) |
+| Notas desta demo | [`CHANGELOG.md`](CHANGELOG.md) (`0.2.0`) |
 
-Swagger / OpenAPI **não** públicos em `prod` (401). **Não há email/senha no Git** — a conta da demo pública é a registada no ambiente (HITL). Rate limit em memória (`LOJAPP_RATE_LIMIT_MODE=memory`); Redis **não** é obrigatório neste deploy.
+Swagger / OpenAPI **não** públicos em `prod` (401). O contrato versionado está em [`docs/openapi/openapi.json`](docs/openapi/openapi.json). **Não há email/senha no Git** — a conta da demo pública é a registada no ambiente (HITL). Rate limit em memória (`LOJAPP_RATE_LIMIT_MODE=memory`); Redis **não** é obrigatório neste deploy.
 
-**Navegação na Vercel:** clicar nos links da app funciona (React Router). `frontend/vercel.json` reescreve `/(.*)` → `index.html` para F5 / URL directa (`/login`, `/piloto/products`, …). A home `/` já respondia 200.
+**Navegação na Vercel:** clicar nos links da app funciona (React Router). `frontend/vercel.json` reescreve `/(.*)` → `index.html` para F5 / URL directa (`/login`, `/piloto/products`, …). O mesmo ficheiro faz proxy de `/api/*` para a Railway, para o cookie de refresh (`SameSite=Lax`) ficar no mesmo site que o front. No host da demo, o browser ignora `VITE_API_BASE` apontando para a Railway e chama `/api` local.
 
 ### Rotas do SPA (front)
 
@@ -357,7 +358,8 @@ npm run e2e
 | `backend-integration` | `*IntegrationTest` com Testcontainers/Postgres | Requer Docker no runner |
 | `frontend` → Vitest | Componentes/hooks unitários | Sem API real |
 | `frontend` → Playwright (`npm run e2e`) | `session.spec.ts` e afins com **API auth mockada** (`page.route`) | **Não** é fluxo E2E contra API/DB reais |
-| Fluxo real | `e2e/real-flow.spec.ts` | **Ignorado** no Playwright default (`testIgnore`); opt-in local |
+| `frontend-e2e-real` | `e2e/real-flow.spec.ts` contra API + Postgres no runner (`npm run e2e:real`) | Credenciais só do job; não usa a demo Railway |
+| Fluxo real local | o mesmo spec | Ignorado no Playwright default (`testIgnore`); opt-in com `E2E_REAL_FLOW=1` |
 
 Workflow canónico: [`.github/workflows/ci.yml`](.github/workflows/ci.yml). O ficheiro legado `backend-ci.yml` está desativado.
 ---
@@ -461,7 +463,7 @@ powershell -ExecutionPolicy Bypass -File scripts/git-untrack-frontend-artifacts.
 
 | Peça | Onde | Notas |
 |------|------|--------|
-| Front | Vercel, Root Directory `frontend` | `VITE_API_BASE` + `VITE_CSP_CONNECT_SRC` = URL da API (tipo **Configuração**, não Secret) |
+| Front | Vercel, Root Directory `frontend` | Deixar `VITE_API_BASE` vazio no próximo deploy. O proxy `/api` em `vercel.json` fala com a Railway. Se o build antigo ainda tiver a URL da Railway, a demo em `sistema-loja-psi.vercel.app` passa a usar o próprio site na mesma |
 | API | Railway (serviço Java + Postgres interno) | `SPRING_DATASOURCE_*`, `LOJAPP_JWT_SECRET`, `LOJAPP_CORS_ORIGINS=https://sistema-loja-psi.vercel.app`, `LOJAPP_RATE_LIMIT_MODE=memory`, `MANAGEMENT_HEALTH_REDIS_ENABLED=false` |
 | SPA F5 | `frontend/vercel.json` | Rewrite para `index.html` (entra no ar no deploy Vercel deste PR) |
 

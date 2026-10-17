@@ -37,7 +37,7 @@ export function mapUserFacingApiError(
 
 export function mapFetchFailureToUserMessage(err: unknown): string {
   if (err instanceof TypeError && /fetch|network|Failed to fetch/i.test(err.message)) {
-    return "Sem ligação ao servidor. Verifique a internet e se a API está a correr.";
+    return "Sem ligação ao servidor. Se estiver na demo, a API pode estar a acordar — aguarde alguns segundos e tente outra vez.";
   }
   if (err instanceof Error) {
     return err.message;
