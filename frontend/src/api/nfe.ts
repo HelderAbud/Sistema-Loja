@@ -11,6 +11,8 @@ export type NfeImportResponse = {
   suggestedBrandName?: string | null;
   /** Produtos criados na importação com preço de venda = custo (rever no catálogo). */
   productsCreatedWithoutSalePrice: number;
+  /** Produtos já existentes cujo custo foi actualizado para o último vUnCom desta nota. */
+  productsWithCostUpdated: number;
 };
 
 export async function importNfe(rawXml: string): Promise<NfeImportResponse> {

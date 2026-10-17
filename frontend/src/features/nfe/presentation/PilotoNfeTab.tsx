@@ -29,6 +29,11 @@ export function PilotoNfeTab() {
           `${res.productsCreatedWithoutSalePrice} produto(s) criado(s) com preço de venda igual ao custo — defina o preço de venda no catálogo.`,
         );
       }
+      if (res.productsWithCostUpdated > 0) {
+        toast.info(
+          `${res.productsWithCostUpdated} produto(s) existente(s) com custo actualizado para o último valor da nota.`,
+        );
+      }
     },
     onError: (err: unknown) => {
       setError(String(err));
@@ -111,6 +116,12 @@ export function PilotoNfeTab() {
             <strong>Atenção:</strong> {result.productsCreatedWithoutSalePrice} produto(s) novo(s)
             com preço de venda igual ao custo de compra — atualize o preço de venda no separador
             Produtos para refletir margens corretas no dashboard.
+          </p>
+        ) : null}
+        {result && result.productsWithCostUpdated > 0 ? (
+          <p className="success small" role="status">
+            <strong>Custo actualizado:</strong> {result.productsWithCostUpdated} produto(s)
+            existente(s) passaram a usar o último custo desta nota (preço de venda não muda).
           </p>
         ) : null}
         {result && (result.suggestedBrandId != null || result.supplierId != null) ? (

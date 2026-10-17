@@ -26,7 +26,8 @@ public class NfeProductResolver {
     public record SuggestionApplyResult(int brandAssigned, int supplierAssigned, int brandSkippedModel) {}
 
     /** Resultado da resolução de produto para uma linha de NFe em importação. */
-    public record ProductImportResolution(Product product, boolean createdFallbackWithoutSalePrice) {}
+    public record ProductImportResolution(
+            Product product, boolean createdFallbackWithoutSalePrice, boolean costUpdatedOnMatch) {}
 
     private final ProductRepository products;
     private final BrandRepository brands;
@@ -62,27 +63,27 @@ public class NfeProductResolver {
             Optional<Product> byEan =
                     products.findFirstByUser_IdAndEanAndDeletedAtIsNull(userId, eanOpt.get());
             if (byEan.isPresent()) {
-                return new ProductImportResolution(applyLastCostOnMatch(byEan.get(), item), false);
+                return resolutionForExisting(byEan.get(), item);
             }
         }
         return products
                 .findByUser_IdAndNameIgnoreCaseAndDeletedAtIsNull(userId, item.description())
-                .map(p -> new ProductImportResolution(applyLastCostOnMatch(p, item), false))
+                .map(p -> resolutionForExisting(p, item))
                 .orElseGet(
                         () ->
                                 new ProductImportResolution(
-                                        createFallbackProduct(user, item, supplier), true));
+                                        createFallbackProduct(user, item, supplier), true, false));
     }
 
-    private Product applyLastCostOnMatch(Product product, ParsedNfeItem item) {
+    private ProductImportResolution resolutionForExisting(Product product, ParsedNfeItem item) {
         return NfeLastPurchaseCost.replacementCost(product.getCostPrice(), item.unitCost())
                 .map(
                         lastCost -> {
                             product.setCostPrice(lastCost);
                             product.setUpdatedAt(Instant.now());
-                            return products.save(product);
+                            return new ProductImportResolution(products.save(product), false, true);
                         })
-                .orElse(product);
+                .orElseGet(() -> new ProductImportResolution(product, false, false));
     }
 
     public SuggestionApplyResult applySuggestions(

@@ -858,7 +858,7 @@ catalog.createProduct(
 
     @Test
     void importNfe_matchesExistingProductByEan_whenDescriptionDiffers() {
-catalog.createProduct(
+        catalog.createProduct(
                 userId,
                 new ProductRequest(
                         "Nome CatÃ¡logo Original",
@@ -885,7 +885,8 @@ catalog.createProduct(
                 </nfe>
                 """;
 
-importNfeUseCase.execute(userId, xml);
+        NfeImportResponse importMatch = importNfeUseCase.execute(userId, xml);
+        assertThat(importMatch.productsWithCostUpdated()).isEqualTo(1);
 
         List<ProductResponse> products = catalog.listProducts(userId);
         assertThat(products.stream().filter(p -> p.name().equals("Nome CatÃ¡logo Original")))

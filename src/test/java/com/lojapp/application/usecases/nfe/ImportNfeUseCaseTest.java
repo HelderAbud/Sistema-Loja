@@ -5,12 +5,14 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.lojapp.dto.ApiErrorCode;
+import com.lojapp.dto.nfe.NfeImportResponse;
 import com.lojapp.entity.NfeEntry;
 import com.lojapp.entity.Product;
 import com.lojapp.entity.User;
@@ -149,7 +151,8 @@ class ImportNfeUseCaseTest {
         stubSuccessfulImport();
         String xml = xmlWithoutKey("7701", "Item Sem Chave A");
 
-        importNfeUseCase.execute(1L, xml);
+        NfeImportResponse response = importNfeUseCase.execute(1L, xml);
+        assertThat(response.productsWithCostUpdated()).isZero();
 
         ArgumentCaptor<NfeEntry> captor = ArgumentCaptor.forClass(NfeEntry.class);
         verify(nfeEntries).save(captor.capture());
@@ -172,6 +175,20 @@ class ImportNfeUseCaseTest {
         verify(nfeEntries, never()).save(any());
     }
 
+    @Test
+    void execute_existingProductCostUpdated_isCountedOnce() {
+        stubSuccessfulImport();
+        Product product = new Product();
+        product.setId(10L);
+        when(productResolver.resolveProductForImport(eq(1L), any(), any(), any()))
+                .thenReturn(new ProductImportResolution(product, false, true));
+
+        NfeImportResponse response = importNfeUseCase.execute(1L, xmlWithoutKey("7703", "Item Custo"));
+
+        assertThat(response.productsWithCostUpdated()).isEqualTo(1);
+        assertThat(response.productsCreatedWithoutSalePrice()).isZero();
+    }
+
     private void stubSuccessfulImport() {
         User user = new User();
         user.setId(1L);
@@ -181,8 +198,9 @@ class ImportNfeUseCaseTest {
         when(productResolver.suggestBrand(eq(1L), any())).thenReturn(Optional.empty());
         Product product = new Product();
         product.setId(10L);
-        when(productResolver.resolveProductForImport(eq(1L), eq(user), any(), any()))
-                .thenReturn(new ProductImportResolution(product, false));
+        lenient()
+                .when(productResolver.resolveProductForImport(eq(1L), eq(user), any(), any()))
+                .thenReturn(new ProductImportResolution(product, false, false));
         when(rawXmlStorage.persist(eq(1L), any()))
                 .thenAnswer(inv -> new NfeRawXmlStorage.StoredRawXml(inv.getArgument(1), null));
         when(nfeEntries.save(any(NfeEntry.class)))
