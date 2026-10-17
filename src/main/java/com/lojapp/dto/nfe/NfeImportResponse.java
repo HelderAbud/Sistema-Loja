@@ -17,4 +17,9 @@ public record NfeImportResponse(
                         description =
                                 "Quantidade de produtos criados automaticamente na importação sem preço de venda "
                                         + "definido (preço de venda = custo até revisão manual).")
-                int productsCreatedWithoutSalePrice) {}
+                int productsCreatedWithoutSalePrice,
+        @Schema(
+                        description =
+                                "Quantidade de produtos já existentes cujo cost_price foi actualizado para o "
+                                        + "último vUnCom desta nota (match por EAN ou nome).")
+                int productsWithCostUpdated) {}

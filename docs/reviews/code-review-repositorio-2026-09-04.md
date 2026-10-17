@@ -142,7 +142,8 @@ Há **1 CRITICAL** e vários **HIGH** de negócio. Isolamento por `user_id`, XXE
 ### H13. Custo do produto não actualiza no match NFe → lucro enviesado
 
 - **Estado (2026-09-11):** corrigido. Política **último custo**: no match por EAN ou nome, `cost_price` recebe o `vUnCom`. Preço de venda não muda. Testes: `NfeLastPurchaseCostTest`, `NfeProductResolverTest`; `LojappCoreServiceTest#importNfe_matchesExistingProductByEan_whenDescriptionDiffers` espera o custo da nota.
-- **Onde:** `NfeLastPurchaseCost`, `NfeProductResolver.applyLastCostOnMatch`
+- **Estado (2026-09-17):** a importação passa a devolver `productsWithCostUpdated` (produtos únicos, não linhas) e o piloto avisa quando o custo de um produto existente muda.
+- **Onde:** `NfeLastPurchaseCost`, `NfeProductResolver.resolutionForExisting`, `NfeImportResponse`, `PilotoNfeTab`
 - **Residual:** média ponderada continua fora do MVP.
 
 ### H14. `POST /sales` com caixa aberto não associa `cash_session_id`

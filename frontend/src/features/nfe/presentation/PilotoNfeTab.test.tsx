@@ -27,6 +27,8 @@ describe("PilotoNfeTab", () => {
       supplierId: null,
       suggestedBrandId: null,
       suggestedBrandName: null,
+      productsCreatedWithoutSalePrice: 0,
+      productsWithCostUpdated: 0,
     });
     applyNfeImportSuggestionsMock.mockResolvedValue({
       nfeLineCount: 2,
@@ -66,6 +68,8 @@ describe("PilotoNfeTab", () => {
       supplierId: 7,
       suggestedBrandId: 9,
       suggestedBrandName: "Marca",
+      productsCreatedWithoutSalePrice: 0,
+      productsWithCostUpdated: 0,
     });
 
     render(
@@ -107,6 +111,35 @@ describe("PilotoNfeTab", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/409: chave duplicada/)).toBeInTheDocument();
+    });
+  });
+
+  it("avisa quando a importação actualiza o custo de produtos existentes", async () => {
+    importNfeMock.mockResolvedValue({
+      nfeEntryId: 3,
+      nfeNumber: "NF-3",
+      importedItems: 1,
+      supplierId: null,
+      suggestedBrandId: null,
+      suggestedBrandName: null,
+      productsCreatedWithoutSalePrice: 0,
+      productsWithCostUpdated: 2,
+    });
+
+    render(
+      <TestQueryProvider>
+        <PilotoNfeTab />
+      </TestQueryProvider>,
+    );
+
+    fireEvent.change(screen.getByLabelText(/xml/i), {
+      target: { value: "<nfe/>" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /^importar$/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Custo actualizado/)).toBeInTheDocument();
+      expect(screen.getByText(/2 produto/)).toBeInTheDocument();
     });
   });
 });

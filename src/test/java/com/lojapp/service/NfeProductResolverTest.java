@@ -58,6 +58,7 @@ class NfeProductResolverTest {
         assertThat(resolution.product().getCostPrice()).isEqualByComparingTo("20.00");
         assertThat(resolution.product().getSalePrice()).isEqualByComparingTo("30.00");
         assertThat(resolution.createdFallbackWithoutSalePrice()).isFalse();
+        assertThat(resolution.costUpdatedOnMatch()).isTrue();
         verify(products).save(existing);
     }
 
@@ -80,8 +81,9 @@ class NfeProductResolverTest {
                         BigDecimal.ONE,
                         new BigDecimal("20.00"));
 
-        resolver.resolveProductForImport(1L, user, item, null);
+        var resolution = resolver.resolveProductForImport(1L, user, item, null);
 
+        assertThat(resolution.costUpdatedOnMatch()).isFalse();
         verify(products, never()).save(any());
     }
 }

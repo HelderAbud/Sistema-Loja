@@ -26,8 +26,10 @@ import com.lojapp.observability.LojappBusinessMetrics;
 import com.lojapp.util.NfeBrandSuggester.BrandCandidate;
 import com.lojapp.util.NfeXmlFingerprint;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -120,12 +122,16 @@ public class ImportNfeUseCase implements ImportNfeUseCaseContract {
 
         List<NfeItem> lines = new ArrayList<>(parsed.items().size());
         int productsCreatedWithoutSalePrice = 0;
+        Set<Long> productsWithCostUpdatedIds = new HashSet<>();
         for (ParsedNfeItem item : parsed.items()) {
             var resolution = productResolver.resolveProductForImport(userId, user, item, supplier);
             if (resolution.createdFallbackWithoutSalePrice()) {
                 productsCreatedWithoutSalePrice++;
             }
             Product product = resolution.product();
+            if (resolution.costUpdatedOnMatch() && product.getId() != null) {
+                productsWithCostUpdatedIds.add(product.getId());
+            }
 
             NfeStockReceiptLine stockLine = NfeStockReceiptLine.of(item.quantity());
 
@@ -166,7 +172,8 @@ public class ImportNfeUseCase implements ImportNfeUseCaseContract {
                 supplierId,
                 suggestedBrandId,
                 suggestedBrandName,
-                productsCreatedWithoutSalePrice);
+                productsCreatedWithoutSalePrice,
+                productsWithCostUpdatedIds.size());
     }
 
     private Optional<BrandCandidate> suggestBrand(long userId, ParsedNfe parsed) {
