@@ -56,7 +56,7 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 
 ### Nao feito de proposito (exige decisao ou validacao tua)
 
-- **Passo 6 (JaCoCo):** percentuais minimos de cobertura e politica de falha no CI.
+- **Passo 6 (JaCoCo):** feito em 2026-10-26. O `verify` do perfil `ci-unit-tests` falha abaixo de 70% de linhas em `com.lojapp.application` e `com.lojapp.domain`.
 - **Passo 7 (CI):** existem **dois** workflows (`ci.yml` e `backend-ci.yml`); unificar ou manter e escolha de equipa — nao alterado aqui.
 - **Remocao ampla de codigo morto / refactors:** so com criterio ou revisao manual.
 - **Passo 4 (screenshots/GIF):** entregue na trilha (Dias 1–2); ver `docs/screenshots/` e README.
@@ -73,7 +73,7 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 ### Referencia rapida dos gates em `ci.yml`
 
 - `repo-hygiene` — bloqueia artefactos e `.env` no indice Git.
-- `backend-unit` — `./mvnw -Pci-unit-tests test`.
+- `backend-unit` — `./mvnw -Pci-unit-tests verify` (testes + gate JaCoCo de 70% em `application` e `domain`).
 - `backend-integration` — `./mvnw -Pci-integration-tests test` (Docker/Testcontainers no runner).
 - `frontend` — `lint`, `test`, `e2e`, `build`.
 - `docker-image` — build da imagem + Trivy (conforme workflow).
@@ -139,9 +139,10 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
 
 ### Fase 2 - Fortalecimento tecnico (P1)
 
-- [ ] **Passo 6 - Adicionar gate de cobertura no CI (JaCoCo)**
+- [x] **Passo 6 - Adicionar gate de cobertura no CI (JaCoCo)**
   - **Por que:** transforma qualidade em criterio objetivo.
   - **Como validar:** build falha abaixo do threshold definido.
+  - **Feito (2026-10-26):** 70% de linhas em `com.lojapp.application` e `com.lojapp.domain`, no perfil `ci-unit-tests` (`verify`). Vale até o fim do projeto.
 - [ ] **Passo 7 - Consolidar workflows de CI**
   - **Por que:** reduz duplicidade e melhora manutencao.
   - **Como validar:** pipeline unico/claramente segmentado com jobs backend.
@@ -302,8 +303,8 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
   - Paginacao de dashboard, idempotencia de ajuste de estoque, contratos de controller.
 - [ ] **P1** Confirmar que testes nao dependem de ordem
   - Execucao isolada e reprodutivel.
-- [ ] **P2** Definir meta minima de cobertura no CI (JaCoCo)
-  - Threshold inicial realista e progressivo.
+- [x] **P2** Definir meta minima de cobertura no CI (JaCoCo)
+  - Threshold inicial: 70% de linhas em `application` e `domain`, até o fim do projeto.
 
 ---
 

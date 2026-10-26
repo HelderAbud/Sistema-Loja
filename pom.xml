@@ -32,6 +32,9 @@
         <tomcat.version>10.1.59</tomcat.version>
         <!-- CVE-2026-54399, CVE-2026-54428 (Trivy HIGH em app.jar) -->
         <httpcore5.version>5.4.3</httpcore5.version>
+        <!-- Gate até o fim do projeto: linhas em application + domain. -->
+        <jacoco.version>0.8.13</jacoco.version>
+        <jacoco.line.minimum>0.70</jacoco.line.minimum>
     </properties>
 
     <dependencies>
@@ -189,6 +192,51 @@
                                 <exclude>**/LojappCoreServiceTest.java</exclude>
                             </excludes>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco.version}</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>check</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <rule>
+                                            <element>BUNDLE</element>
+                                            <includes>
+                                                <include>com.lojapp.application.*</include>
+                                                <include>com.lojapp.domain.*</include>
+                                            </includes>
+                                            <limits>
+                                                <limit>
+                                                    <counter>LINE</counter>
+                                                    <value>COVEREDRATIO</value>
+                                                    <minimum>${jacoco.line.minimum}</minimum>
+                                                </limit>
+                                            </limits>
+                                        </rule>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

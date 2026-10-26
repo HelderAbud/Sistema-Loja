@@ -340,8 +340,9 @@ Se aparecer `permission denied` ao conectar ao Docker daemon, siga [docs/docker-
 # Backend (Linux/Mac) — suíte completa, integração precisa de Docker
 ./mvnw test
 
-# Backend (Windows deste PC) — unitários, sem Docker
-./mvnw.cmd -Pci-unit-tests test
+# Backend (Windows deste PC) — unitários, sem Docker.
+# verify aplica o gate JaCoCo: 70% de linhas em application e domain.
+./mvnw.cmd -Pci-unit-tests verify
 
 # Frontend
 cd frontend
@@ -354,7 +355,7 @@ npm run e2e
 
 | Job | O que cobre | Limite |
 |-----|-------------|--------|
-| `backend-unit` (`-Pci-unit-tests`) | JUnit/Mockito + ArchUnit; **exclui** `*IntegrationTest` | Não sobe Postgres |
+| `backend-unit` (`-Pci-unit-tests verify`) | JUnit/Mockito + ArchUnit; **exclui** `*IntegrationTest`. JaCoCo falha se `application` + `domain` ficarem abaixo de 70% de linhas | Não sobe Postgres |
 | `backend-integration` | `*IntegrationTest` com Testcontainers/Postgres | Requer Docker no runner |
 | `frontend` → Vitest | Componentes/hooks unitários | Sem API real |
 | `frontend` → Playwright (`npm run e2e`) | `session.spec.ts` e afins com **API auth mockada** (`page.route`) | **Não** é fluxo E2E contra API/DB reais |
