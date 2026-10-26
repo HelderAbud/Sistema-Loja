@@ -41,7 +41,7 @@ jobs:
           path: ~/.m2/wrapper
           key: ${{ runner.os }}-mvnw-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
       - name: Run backend unit tests
-        run: chmod +x mvnw && ./mvnw -B -Pci-unit-tests test
+        run: chmod +x mvnw && ./mvnw -B -Pci-unit-tests verify
 
   backend-integration:
     needs: [repo-hygiene]
