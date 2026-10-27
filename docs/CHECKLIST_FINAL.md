@@ -57,7 +57,7 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 ### Nao feito de proposito (exige decisao ou validacao tua)
 
 - **Passo 6 (JaCoCo):** feito em 2026-10-26. O `verify` do perfil `ci-unit-tests` falha abaixo de 70% de linhas em `com.lojapp.application` e `com.lojapp.domain`.
-- **Passo 7 (CI):** existem **dois** workflows (`ci.yml` e `backend-ci.yml`); unificar ou manter e escolha de equipa — nao alterado aqui.
+- **Passo 7 (CI):** feito em 2026-10-27. O único workflow é `.github/workflows/ci.yml`. O `backend-ci.yml` legado foi removido.
 - **Remocao ampla de codigo morto / refactors:** so com criterio ou revisao manual.
 - **Passo 4 (screenshots/GIF):** entregue na trilha (Dias 1–2); ver `docs/screenshots/` e README.
 
@@ -67,7 +67,7 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 2. **Passo 5** — Confirmar que `.env` / `backup.sql` / `target/` nunca vao em commit nem ZIP; rotacionar segredos se houve exposicao; usar so `.env.example` no Git.
 3. **Secao 4.2 + 6.1 (P1)** — Smoke manual (login, CRUD, venda, stock, dashboard) ou repetir no Ubuntu com Docker para integracao.
 4. **Secoes 7.1, 8, 9** — Historico Git, deploy alvo, pitch e casos para entrevista (trabalho teu).
-5. **Fase 2** — JaCoCo e consolidacao de CI **depois** de decidires thresholds e estrategia de pipeline.
+5. **Fase 2** — JaCoCo (70%) e um único workflow (`ci.yml`) já fechados.
 6. **Gate final** — So publicar quando todos os P0 estiverem objetivamente fechados.
 
 ### Referencia rapida dos gates em `ci.yml`
@@ -78,7 +78,7 @@ Checklist de auditoria final para publicar o projeto no GitHub e apresentar como
 - `frontend` — `lint`, `test`, `e2e`, `build`.
 - `docker-image` — build da imagem + Trivy (conforme workflow).
 
-Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres). Consolidar com `ci.yml` e opcional (Passo 7).
+O único workflow é **`ci.yml`**. A integração com Postgres corre no job `backend-integration` (Testcontainers).
 
 ---
 
@@ -143,9 +143,10 @@ Workflow adicional: **`backend-ci.yml`** (unit + integracao com servico Postgres
   - **Por que:** transforma qualidade em criterio objetivo.
   - **Como validar:** build falha abaixo do threshold definido.
   - **Feito (2026-10-26):** 70% de linhas em `com.lojapp.application` e `com.lojapp.domain`, no perfil `ci-unit-tests` (`verify`). Vale até o fim do projeto.
-- [ ] **Passo 7 - Consolidar workflows de CI**
+- [x] **Passo 7 - Consolidar workflows de CI**
   - **Por que:** reduz duplicidade e melhora manutencao.
   - **Como validar:** pipeline unico/claramente segmentado com jobs backend.
+  - **Feito (2026-10-27):** removido `.github/workflows/backend-ci.yml`. Unitários, integração, frontend e Trivy ficam em `ci.yml`.
 - [x] **Passo 8 - Refinar narrativa para entrevista**
   - **Por que:** saber explicar trade-off vale tanto quanto codar.
   - **Como validar:** pitch de 60-90s + 3 casos de bug/risco mitigado com evidencia.
