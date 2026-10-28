@@ -362,7 +362,7 @@ npm run e2e
 | `frontend-e2e-real` | `e2e/real-flow.spec.ts` contra API + Postgres no runner (`npm run e2e:real`) | Credenciais só do job; não usa a demo Railway |
 | Fluxo real local | o mesmo spec | Ignorado no Playwright default (`testIgnore`); opt-in com `E2E_REAL_FLOW=1` |
 
-Workflow canónico: [`.github/workflows/ci.yml`](.github/workflows/ci.yml). O ficheiro legado `backend-ci.yml` está desativado.
+Workflow canónico: [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 ---
 
 ## Troubleshooting

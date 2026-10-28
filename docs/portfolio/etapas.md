@@ -54,7 +54,7 @@ Pipelines em `.github/workflows/` com testes unitários, integração com **Post
 
 **Tags:** `GitHub Actions` · `Testcontainers` · `ArchUnit` · `Playwright`
 
-**Evidência:** [`ci.yml`](../../.github/workflows/ci.yml) · [`backend-ci.yml`](../../.github/workflows/backend-ci.yml) *(badge formal no README = Dia 4)*
+**Evidência:** [`ci.yml`](../../.github/workflows/ci.yml) *(badge formal no README = Dia 4)*
 
 ---
 

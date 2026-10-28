@@ -62,11 +62,11 @@ Use o formato **STAR** mentalmente: situação → risco → ação → resultad
 | | |
 |---|---|
 | **Risco** | Migration quebrada ou entidade JPA desalinhada do banco só aparece em produção. |
-| **O que fizemos** | **Flyway** versionado em `src/main/resources/db/migration/`; perfil Maven `ci-integration-tests` com `spring.jpa.hibernate.ddl-auto=validate` e testes `*IntegrationTest` contra **PostgreSQL 16** (Testcontainers no CI / serviço Postgres em `backend-ci.yml`). |
+| **O que fizemos** | **Flyway** versionado em `src/main/resources/db/migration/`; perfil Maven `ci-integration-tests` com `spring.jpa.hibernate.ddl-auto=validate` e testes `*IntegrationTest` contra **PostgreSQL 16** (Testcontainers no job `backend-integration` de `ci.yml`). |
 | **Evidência adicional** | `LojappLayerArchitectureTest` (ArchUnit) — controllers não acedem a repositories; `ApiVersioningConventionTest` — prefixo `/api/v1` em REST controllers; `RequestCorrelationIntegrationTest` — `X-Request-Id` no `/actuator/health`. |
 | **Frase para entrevista** | “O CI não confia só em H2 em memória para o gate de schema: integração sobe Postgres, aplica migrations e valida o modelo Hibernate.” |
 
-**Workflows:** `.github/workflows/ci.yml`, `.github/workflows/backend-ci.yml`.
+**Workflow:** `.github/workflows/ci.yml`.
 
 ---
 

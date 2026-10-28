@@ -29,7 +29,7 @@ CI (`repo-hygiene`) falha se `.env` estiver no índice.
 
 - PRs de versão: **limit 1** por ecossistema (Maven + npm), agenda mensal — ver [`.github/dependabot.yml`](.github/dependabot.yml).
 - Revisar e mergear manualmente (autor Helder); não merge automático.
-- Pipeline canónica: [`.github/workflows/ci.yml`](.github/workflows/ci.yml) (`backend-ci.yml` legado desativado).
+- Pipeline canónica: [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ## Gates HITL
 
