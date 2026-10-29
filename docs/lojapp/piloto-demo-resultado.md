@@ -10,12 +10,12 @@
 | Conta + catálogo demo | Seed local de marcas/produtos + NFe sintética | [Dia 11](grill-logs/validation-2026-07-23-trilha-dia-11.md) |
 | E2E stock baixa após venda | Produto #13: qty **2 → 1** após `POST /sales` | [Dia 12](grill-logs/validation-2026-07-24-trilha-dia-12.md) |
 | UI autenticada | Screenshots da conta `piloto-dia12@lojapp.demo` | [`docs/screenshots/piloto/`](../screenshots/piloto/) |
-| Regressão | Backend 268 testes / 0 falhas; front 37 Vitest OK | [Dia 13](grill-logs/validation-2026-07-25-trilha-dia-13.md) |
+| Regressão | Backend 268 testes / 0 falhas em 2026-07-25; front 37 Vitest OK | [Dia 13](grill-logs/validation-2026-07-25-trilha-dia-13.md) |
 
 ## Ambiente usado no piloto
 
 - **Local (WSL/Ubuntu + Windows):** API `:8081`, Postgres Docker `loja-postgres`, Vite `:5173`.  
-- **Produção (demo pública):** API [lojapp-api.onrender.com](https://lojapp-api.onrender.com) + front [sistema-loja-psi.vercel.app](https://sistema-loja-psi.vercel.app) — **sem seed do piloto** (HITL deliberado; ver Dia 11).
+- **Produção (demo pública):** API [sistema-loja-production-7608.up.railway.app](https://sistema-loja-production-7608.up.railway.app) + front [sistema-loja-psi.vercel.app](https://sistema-loja-psi.vercel.app) — **sem seed do piloto** (HITL deliberado; ver Dia 11). O endereço Render de julho não é a demo atual.
 
 Scripts úteis (só ambiente local / HITL):
 
@@ -29,7 +29,7 @@ Scripts úteis (só ambiente local / HITL):
 - Telefones, CNPJ, emails pessoais ou passwords (não versionar; passwords só em `.scratch/` / `/tmp`).  
 - XML de NFe real de cliente.  
 - Isolamento multi-loja (3 contas) — fica para fatia futura do guia junior.  
-- Seed automático na Render.
+- Seed automático na demo pública.
 
 ## Como um recrutador reproduz (resumo)
 

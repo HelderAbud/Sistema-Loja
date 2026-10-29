@@ -157,7 +157,7 @@ Visão em camadas (API):
               AuthService                  Services                      │
                    │                           │                      │
              refresh_tokens              Repositories
-             audit_logs                  PostgreSQL (Flyway V1…V22)
+             audit_logs                  PostgreSQL (Flyway V1…V30)
 ```
 
 **Camadas:** controllers finos → `application` (use cases) + `service` → `repository`. DTOs para contratos HTTP; entidades em `entity`. ArchUnit valida dependências entre camadas.
@@ -488,7 +488,7 @@ $env:LOJAPP_VERIFY_PASSWORD = '...'
 - Fluxo ponta a ponta: login, catálogo, stock, venda (vendedora opcional), NFe, dashboard, PDV e relatório de comissões.
 - Segurança: JWT com refresh, `@PreAuthorize`, auditoria e isolamento por `user_id`.
 - Qualidade: testes unitários, ArchUnit, Testcontainers, CI (GitHub Actions).
-- Schema versionado com Flyway (V1…V23).
+- Schema versionado com Flyway (V1…V30).
 
 ## Próximos passos
 

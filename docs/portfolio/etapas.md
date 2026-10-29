@@ -58,17 +58,17 @@ Pipelines em `.github/workflows/` com testes unitários, integração com **Post
 
 ---
 
-## 6. Deploy Render / Vercel ✅
+## 6. Deploy Railway / Vercel ✅
 
-API e Postgres managed no **Render**; SPA no **Vercel** com `VITE_API_BASE` e CORS (`LOJAPP_CORS_ORIGINS`). Smoke: health UP, login → dashboard, `verify-api-env.ps1`.
+API e Postgres na **Railway**; SPA no **Vercel**. O browser da demo chama `/api` no próprio site, e o `vercel.json` faz proxy para a Railway. Smoke: health UP.
 
 | Serviço | URL |
 |---------|-----|
 | Frontend | https://sistema-loja-psi.vercel.app |
-| API | https://lojapp-api.onrender.com |
-| Health | https://lojapp-api.onrender.com/actuator/health |
+| API | https://sistema-loja-production-7608.up.railway.app |
+| Health | https://sistema-loja-production-7608.up.railway.app/actuator/health |
 
-**Tags:** `Render` · `Vercel` · `CORS` · `secrets`
+**Tags:** `Railway` · `Vercel` · `CORS` · `secrets`
 
 **Evidência:** [README Demo](../../README.md#demo) · grill-logs Dias [7](../lojapp/grill-logs/validation-2026-07-17-trilha-dia-7.md)–[9](../lojapp/grill-logs/validation-2026-07-21-trilha-dia-9.md) · [validation deploy](../lojapp/grill-logs/validation-2026-07-22-deploy.md)
 
