@@ -4,11 +4,11 @@ Guia curto para contribuições humanas e agentes. Detalhe operacional: [`AGENTS
 
 ## Fluxo Git
 
-1. Atualizar a base: `git checkout Principal && git pull`
-2. Criar branch a partir de `Principal`: `feat/…`, `fix/…`, `docs/…`, `ci/…`
+1. Atualizar a base: `git checkout main && git pull`
+2. Criar branch a partir de `main`: `feat/…`, `fix/…`, `docs/…`, `ci/…`
 3. Commits em [Conventional Commits](https://www.conventionalcommits.org/) (ex.: `docs(readme): …`)
-4. Abrir PR para **`Principal`** — merge só após conferência humana
-5. Após merge: `git checkout Principal && git pull` e apagar o ramo local/remoto
+4. Abrir PR para **`main`** — merge só após conferência humana
+5. Após merge: `git checkout main && git pull` e apagar o ramo local/remoto
 
 Gatilho Cursor: `PR LojApp` (branch → push → PR, **sem** merge automático).
 

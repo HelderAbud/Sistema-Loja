@@ -96,7 +96,7 @@ Basta escrever no chat:
 PR LojApp
 ```
 
-O agente deve: `Principal` atualizada → branch → commit (só Helder, sem Cursor co-author) → push → PR para `Principal` → **sem merge** → devolver URL + o que conferir.
+O agente deve: `main` atualizada → branch → commit (só Helder, sem Cursor co-author) → push → PR para `main` → **sem merge** → devolver URL + o que conferir.
 
 Aliases: `Abrir PR` · `Abrir PR desta fatia`.
 
@@ -112,7 +112,7 @@ Nunca stage `.env` / secrets.
 - Commits e PRs: **só Helder Abud** — sem `Co-authored-by: Cursor` / `cursoragent` / `Made-with: Cursor`.
 - No Cursor: **Settings → Agents → Attribution** (ou **Git & PRs → Attribution**) → desligar Commit e PR Attribution → **reiniciar o Cursor**.
 - Dependabot automático: **pausado** em `.github/dependabot.yml` (updates manuais). Histórico antigo no GitHub não some sem rewrite.
-- Fluxo: branch a partir de `Principal` → PR → merge só após conferência.
+- Fluxo: branch a partir de `main` → PR → merge só após conferência.
 - Gatilho curto: `PR LojApp` (ver secção acima).
 
 ## Caminhos importantes

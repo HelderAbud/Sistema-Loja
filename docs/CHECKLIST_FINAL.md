@@ -318,7 +318,7 @@ O único workflow é **`ci.yml`**. A integração com Postgres corre no job `bac
   - **Feito (A4):** entregas portfólio em PRs temáticas (A1/A2/sync/A3); sem commits gigantes na fase atual.
 - [x] **P1** Padronizar mensagens em Conventional Commits
   - Ex.: `feat:`, `fix:`, `test:`, `refactor:`, `docs:`.
-  - **Feito (A4):** historico recente em `Principal` segue prefixos conventional.
+  - **Feito (A4):** historico recente em `main` segue prefixos conventional.
 - [ ] **P1** Limpar branches obsoletas locais/remotas
   - Manter repositorio navegavel para recrutador.
 
@@ -334,7 +334,7 @@ O único workflow é **`ci.yml`**. A integração com Postgres corre no job `bac
   - Quais gates existem e o que eles garantem.
   - Resumo incluido neste ficheiro (secao **Referencia rapida dos gates em `ci.yml`**); detalhe completo nos YAML em `.github/workflows/`.
 - [x] **P1** CONTRIBUTING na raiz
-  - Fluxo branch → PR → `Principal`, autor unico, gates HITL.
+  - Fluxo branch → PR → `main`, autor unico, gates HITL.
   - **Feito (Dia 16):** `CONTRIBUTING.md`.
 
 ---
@@ -348,10 +348,10 @@ O único workflow é **`ci.yml`**. A integração com Postgres corre no job `bac
   - **Feito (Fase B):** Render/Vercel com env documentados; ver grill-logs Dias 7–9.
 - [x] **P1** Validar backend e frontend em ambiente semelhante ao alvo
   - Build, startup e healthcheck funcionando.
-  - **Feito:** API `lojapp-api.onrender.com` + front Vercel (Dia 8–9). Nota: cold start free tier.
+  - **Feito (julho):** API no Render + front Vercel (Dia 8–9). **Demo atual:** Railway + Vercel, ver README.
 - [x] **P1** Confirmar banco online com migracoes aplicadas
   - Sem passos manuais ocultos.
-  - **Feito:** Flyway no arranque `prod` (Dia 7). Residual: Postgres free Render suspende ~2026-08-16.
+  - **Feito:** Flyway no arranque `prod` (Dia 7). O Postgres gratuito do Render suspendeu por volta de 2026-08-16. A demo pública corre na Railway.
 
 ### 8.2 Operacao minima
 
